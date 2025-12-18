@@ -8,6 +8,7 @@ import CommentsToggleButton from './CommentsToggleButton';
 import CommentsPanel from './CommentsPanel';
 import NameModal from './NameModal';
 import CommentFormPopup from './CommentFormPopup';
+import CommentMarkers from './CommentMarkers';
 import { useComments } from './useComments';
 
 /**
@@ -41,12 +42,9 @@ const CommentsSystem: React.FC = () => {
   // Handle double-click to open comment form directly
   useEffect(() => {
     const handleDoubleClick = (event: MouseEvent) => {
-      console.log('[Comments] Double click detected', { x: event.clientX, y: event.clientY });
-      
       const target = event.target as HTMLElement;
       
       if (isInteractiveElement(target)) {
-        console.log('[Comments] Ignoring - interactive element');
         return; // Don't interfere with interactive elements
       }
 
@@ -56,7 +54,6 @@ const CommentsSystem: React.FC = () => {
 
       // Check if user has a name set
       if (!userName) {
-        console.log('[Comments] No username, opening modal');
         openNameModal();
         return;
       }
@@ -73,7 +70,6 @@ const CommentsSystem: React.FC = () => {
         y: event.clientY,
       };
 
-      console.log('[Comments] Opening comment form at', screenPosition, commentPosition);
       openCommentFormAtPosition(screenPosition, commentPosition);
     };
 
@@ -98,6 +94,7 @@ const CommentsSystem: React.FC = () => {
 
   return (
     <>
+      <CommentMarkers />
       <CommentsToggleButton />
       <CommentsPanel />
       <NameModal />

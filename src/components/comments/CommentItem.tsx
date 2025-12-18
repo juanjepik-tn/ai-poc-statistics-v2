@@ -73,6 +73,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
 
   return (
     <Box
+      data-comment-id={comment.id}
       backgroundColor="neutral-surface"
       borderRadius="2"
       padding="4"

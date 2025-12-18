@@ -1,6 +1,6 @@
 /**
  * Comments Provider
- * Context + lógica de localStorage para el sistema de comentarios
+ * Context + integración con Supabase para el sistema de comentarios
  */
 
 import React, {
@@ -21,10 +21,16 @@ import {
   ContextMenuPosition,
   CommentPosition,
 } from './comments.types';
+import {
+  fetchComments,
+  createComment,
+  updateComment,
+  deleteCommentById,
+  subscribeToComments,
+} from './commentsService';
 
-// Storage keys
+// Storage keys (for user preferences only)
 const STORAGE_KEYS = {
-  COMMENTS: 'poc_comments',
   USER_NAME: 'poc_commenter_name',
   USER_COLOR: 'poc_commenter_color',
 };
@@ -74,34 +80,112 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const [filter, setFilter] = useState<CommentFilter>('page');
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Comment form popup state (triggered by double-click)
   const [isCommentFormOpen, setIsCommentFormOpen] = useState(false);
   const [commentFormPosition, setCommentFormPosition] = useState<ContextMenuPosition | null>(null);
   const [pendingCommentPosition, setPendingCommentPosition] = useState<CommentPosition | null>(null);
 
-  // Current page ID from URL hash or pathname
-  const currentPageId = useMemo(() => {
-    const hash = location.hash.replace('#/', '') || 'home';
-    const path = location.pathname.replace(/^\//, '') || 'home';
-    return hash !== '' ? hash : path;
-  }, [location.hash, location.pathname]);
+  // Track hash changes (including manual updates via replaceState + dispatchEvent)
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
+  
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash);
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
-  // Load data from localStorage on mount
+  // Current page ID from URL - combines pathname, hash, and hash query params for uniqueness
+  const currentPageId = useMemo(() => {
+    const parts: string[] = [];
+    
+    // Add pathname (without leading slash)
+    const path = location.pathname.replace(/^\//, '');
+    if (path) {
+      parts.push(path);
+    }
+    
+    // Parse hash - may contain query params (e.g., #/statistics?tab=sales)
+    // Use currentHash state instead of location.hash for reactivity
+    const fullHash = currentHash;
+    const hashParts = fullHash.split('?');
+    const hashPath = hashParts[0].replace('#/', '').replace('#', '');
+    const hashParams = hashParts[1] || '';
+    
+    if (hashPath) {
+      parts.push(hashPath);
+    }
+    
+    // Add hash query params for tab differentiation (e.g., tab=sales)
+    if (hashParams) {
+      parts.push(hashParams);
+    }
+    
+    // Also check regular search params
+    if (location.search) {
+      parts.push(location.search.replace('?', ''));
+    }
+    
+    return parts.join('/') || 'home';
+  }, [location.pathname, currentHash, location.search]);
+
+  // Load comments from Supabase on mount
+  useEffect(() => {
+    const loadComments = async () => {
+      console.log('[Comments] Loading from Supabase...');
+      setIsLoading(true);
+      const data = await fetchComments();
+      setComments(data);
+      setIsLoading(false);
+      console.log('[Comments] Loaded', data.length, 'comments');
+    };
+
+    loadComments();
+  }, []);
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    console.log('[Comments] Setting up real-time subscription...');
+    
+    const unsubscribe = subscribeToComments(
+      // On insert
+      (newComment) => {
+        setComments((prev) => {
+          // Avoid duplicates
+          if (prev.some((c) => c.id === newComment.id)) return prev;
+          return [newComment, ...prev];
+        });
+      },
+      // On update
+      (updatedComment) => {
+        setComments((prev) =>
+          prev.map((c) => (c.id === updatedComment.id ? updatedComment : c))
+        );
+      },
+      // On delete
+      (deletedId) => {
+        setComments((prev) => prev.filter((c) => c.id !== deletedId));
+      }
+    );
+
+    return () => {
+      console.log('[Comments] Cleaning up subscription...');
+      unsubscribe();
+    };
+  }, []);
+
+  // Load user preferences from localStorage
   useEffect(() => {
     try {
-      // Load comments
-      const storedComments = localStorage.getItem(STORAGE_KEYS.COMMENTS);
-      if (storedComments) {
-        setComments(JSON.parse(storedComments));
-      }
-
       // Load user name
       const storedName = localStorage.getItem(STORAGE_KEYS.USER_NAME);
       if (storedName) {
         setUserNameState(storedName);
       } else {
-        // Show modal to ask for name if not set
         setIsNameModalOpen(true);
       }
 
@@ -115,18 +199,9 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
         localStorage.setItem(STORAGE_KEYS.USER_COLOR, newColor);
       }
     } catch (error) {
-      console.error('[Comments] Error loading from localStorage:', error);
+      console.error('[Comments] Error loading user preferences:', error);
     }
   }, []);
-
-  // Save comments to localStorage whenever they change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(comments));
-    } catch (error) {
-      console.error('[Comments] Error saving to localStorage:', error);
-    }
-  }, [comments]);
 
   // Set user name
   const setUserName = useCallback((name: string) => {
@@ -137,7 +212,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
 
   // Add a new comment
   const addComment = useCallback(
-    (text: string) => {
+    async (text: string) => {
       if (!userName || !text.trim()) return;
 
       const newComment: Comment = {
@@ -152,15 +227,23 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
         position: pendingCommentPosition || undefined,
       };
 
+      // Optimistic update
       setComments((prev) => [newComment, ...prev]);
       setPendingCommentPosition(null);
+
+      // Save to Supabase
+      const saved = await createComment(newComment);
+      if (!saved) {
+        console.error('[Comments] Failed to save comment, reverting...');
+        setComments((prev) => prev.filter((c) => c.id !== newComment.id));
+      }
     },
     [userName, currentPageId, userColor, pendingCommentPosition]
   );
 
   // Add a reply to a comment
   const addReply = useCallback(
-    (commentId: string, text: string) => {
+    async (commentId: string, text: string) => {
       if (!userName || !text.trim()) return;
 
       const newReply: Reply = {
@@ -171,32 +254,78 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
         color: userColor,
       };
 
+      // Find the comment to update
+      const commentToUpdate = comments.find((c) => c.id === commentId);
+      if (!commentToUpdate) return;
+
+      const updatedComment = {
+        ...commentToUpdate,
+        replies: [...commentToUpdate.replies, newReply],
+      };
+
+      // Optimistic update
       setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === commentId
-            ? { ...comment, replies: [...comment.replies, newReply] }
-            : comment
-        )
+        prev.map((c) => (c.id === commentId ? updatedComment : c))
       );
+
+      // Save to Supabase
+      const saved = await updateComment(updatedComment);
+      if (!saved) {
+        console.error('[Comments] Failed to save reply, reverting...');
+        setComments((prev) =>
+          prev.map((c) => (c.id === commentId ? commentToUpdate : c))
+        );
+      }
     },
-    [userName, userColor]
+    [userName, userColor, comments]
   );
 
   // Toggle resolved status
-  const resolveComment = useCallback((commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, resolved: !comment.resolved }
-          : comment
-      )
-    );
-  }, []);
+  const resolveComment = useCallback(
+    async (commentId: string) => {
+      const commentToUpdate = comments.find((c) => c.id === commentId);
+      if (!commentToUpdate) return;
+
+      const updatedComment = {
+        ...commentToUpdate,
+        resolved: !commentToUpdate.resolved,
+      };
+
+      // Optimistic update
+      setComments((prev) =>
+        prev.map((c) => (c.id === commentId ? updatedComment : c))
+      );
+
+      // Save to Supabase
+      const saved = await updateComment(updatedComment);
+      if (!saved) {
+        console.error('[Comments] Failed to update comment, reverting...');
+        setComments((prev) =>
+          prev.map((c) => (c.id === commentId ? commentToUpdate : c))
+        );
+      }
+    },
+    [comments]
+  );
 
   // Delete a comment
-  const deleteComment = useCallback((commentId: string) => {
-    setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-  }, []);
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      const commentToDelete = comments.find((c) => c.id === commentId);
+      if (!commentToDelete) return;
+
+      // Optimistic update
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+
+      // Delete from Supabase
+      const deleted = await deleteCommentById(commentId);
+      if (!deleted) {
+        console.error('[Comments] Failed to delete comment, reverting...');
+        setComments((prev) => [commentToDelete, ...prev]);
+      }
+    },
+    [comments]
+  );
 
   // Panel controls
   const togglePanel = useCallback(() => setIsPanelOpen((prev) => !prev), []);
@@ -305,4 +434,3 @@ export const useCommentsContext = (): CommentsContextValue => {
 };
 
 export default CommentsProvider;
-

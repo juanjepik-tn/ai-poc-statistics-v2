@@ -5,7 +5,7 @@
 
 import { Box, Skeleton, Tabs } from '@nimbus-ds/components';
 import { Layout, Page } from '@nimbus-ds/patterns';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   StatisticCard,
@@ -34,6 +34,31 @@ const Statistics: React.FC = () => {
   const isMobile = windowWidth !== null && windowWidth <= 768;
   const [formattedFilters, setFormattedFilters] = useState<any>(null);
   const billingData: BillingDTO = useSelector((state: any) => state?.billing?.billingData);
+  
+  // URL hash params for tab tracking (helps with comments system)
+  const tabIndexMap: Record<string, number> = { conversations: 0, sales: 1, efficiency: 2 };
+  const tabNameMap: StatisticsTab[] = ['conversations', 'sales', 'efficiency'];
+  
+  // Parse tab from hash (e.g., #/statistics?tab=sales)
+  const getTabFromHash = useCallback(() => {
+    const hash = window.location.hash;
+    const tabMatch = hash.match(/[?&]tab=(\w+)/);
+    return tabMatch ? tabMatch[1] : 'conversations';
+  }, []);
+  
+  // Track selected tab in state
+  const [selectedTab, setSelectedTab] = useState(() => {
+    return tabIndexMap[getTabFromHash()] ?? 0;
+  });
+  
+  // Set default tab in URL on mount if not present
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith('#/statistics') && !hash.includes('tab=')) {
+      const newHash = `${hash}?tab=conversations`;
+      window.history.replaceState(null, '', newHash);
+    }
+  }, []);
 
   // Destructure context
   const {
@@ -436,8 +461,14 @@ const Statistics: React.FC = () => {
   );
 
   const handleTabChange = (index: number) => {
-    const tabs: StatisticsTab[] = ['conversations', 'sales', 'efficiency'];
-    setActiveTab?.(tabs[index]);
+    const tabName = tabNameMap[index];
+    setSelectedTab(index);
+    setActiveTab?.(tabName);
+    // Update URL hash and dispatch event for CommentsProvider to detect
+    const newHash = `#/statistics?tab=${tabName}`;
+    window.history.replaceState(null, '', newHash);
+    // Dispatch hashchange event so listeners can react
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
   };
 
   return (
@@ -456,7 +487,7 @@ const Statistics: React.FC = () => {
                 <StatisticsFilter onFiltersChange={onHandleFilters} />
               </Box>
 
-              <Tabs fullWidth preSelectedTab={0}>
+              <Tabs fullWidth selected={selectedTab} onTabSelect={handleTabChange}>
                 <Tabs.Item label={t('statistics.tab-conversations')}>
                   <Box paddingTop="4">
                     <ConversationsTab />

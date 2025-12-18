@@ -53,18 +53,22 @@ const CommentsPanel: React.FC = () => {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - overlay sutil */}
       {isPanelOpen && (
-        <Box
-          position="fixed"
-          top="0"
-          left="0"
-          right="0"
-          bottom="0"
-          backgroundColor="neutral-textHigh"
-          zIndex="900"
+        <div
           onClick={closePanel}
-          style={{ opacity: 0.3 }}
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)',
+            zIndex: 900,
+            cursor: 'pointer',
+          }}
         />
       )}
 
@@ -78,13 +82,13 @@ const CommentsPanel: React.FC = () => {
         width="380px"
         height="100vh"
         backgroundColor="neutral-background"
-        boxShadow="2"
         zIndex="1000"
         display="flex"
         flexDirection="column"
         style={{
           transition: 'right 0.3s ease',
           maxWidth: '100vw',
+          boxShadow: isPanelOpen ? '-4px 0 20px rgba(0, 0, 0, 0.15)' : 'none',
         }}
       >
         {/* Header */}

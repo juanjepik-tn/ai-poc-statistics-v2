@@ -97,49 +97,47 @@ const CommentFormPopup: React.FC = () => {
     }
   };
 
-  console.log('[CommentFormPopup] Render state:', { isCommentFormOpen, commentFormPosition });
-  
   if (!isCommentFormOpen || !commentFormPosition) {
-    console.log('[CommentFormPopup] Not showing - conditions not met');
     return null;
   }
 
-  console.log('[CommentFormPopup] Showing popup!');
-  
   // Calculate position to keep popup in viewport
   const popupWidth = 320;
-  const popupHeight = 200;
-  const x = Math.min(commentFormPosition.x, window.innerWidth - popupWidth - 20);
-  const y = Math.min(commentFormPosition.y, window.innerHeight - popupHeight - 20);
+  const popupHeight = 280;
+  const x = Math.max(20, Math.min(commentFormPosition.x, window.innerWidth - popupWidth - 20));
+  const y = Math.max(20, Math.min(commentFormPosition.y, window.innerHeight - popupHeight - 20));
 
   return (
     <>
       {/* Backdrop */}
-      <Box
-        position="fixed"
-        top="0"
-        left="0"
-        right="0"
-        bottom="0"
-        zIndex="1100"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          zIndex: 99998,
+        }}
+        onClick={handleClose}
       />
       
       {/* Popup */}
-      <Box
-        ref={popupRef}
+      <div
+        ref={popupRef as React.RefObject<HTMLDivElement>}
         data-comments-ui="true"
-        position="fixed"
-        backgroundColor="neutral-background"
-        borderRadius="2"
-        boxShadow="2"
-        padding="4"
-        zIndex="1200"
         style={{
+          position: 'fixed',
           left: `${x}px`,
           top: `${y}px`,
-          width: '300px',
-          border: '1px solid var(--nimbus-colors-neutral-surface-highlight)',
+          width: '320px',
+          backgroundColor: '#ffffff',
+          borderRadius: '12px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          padding: '20px',
+          zIndex: 99999,
+          border: '2px solid #3b82f6',
         }}
       >
         {/* Header */}
@@ -190,7 +188,7 @@ const CommentFormPopup: React.FC = () => {
             Cmd/Ctrl + Enter para enviar
           </Text>
         </Box>
-      </Box>
+      </div>
     </>
   );
 };
