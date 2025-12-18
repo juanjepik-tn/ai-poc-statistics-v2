@@ -9,6 +9,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Detectar la URL base de la aplicación automáticamente
+const getAppUrl = () => {
+  // En producción, usar la URL de Vercel o variable de entorno
+  if (import.meta.env.VITE_APP_URL) {
+    return import.meta.env.VITE_APP_URL;
+  }
+  
+  // Si estamos en Vercel, usar la URL de Vercel
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname.includes('vercel.app')) {
+      return window.location.origin;
+    }
+  }
+  
+  // Fallback a localhost para desarrollo
+  return 'http://localhost:5173';
+};
+
 export const supabase = createClient(
   supabaseUrl || '',
   supabaseAnonKey || '',
@@ -18,6 +37,7 @@ export const supabase = createClient(
       persistSession: true,
       detectSessionInUrl: true,
       flowType: 'pkce',
+      redirectTo: getAppUrl(),
     },
   }
 );
