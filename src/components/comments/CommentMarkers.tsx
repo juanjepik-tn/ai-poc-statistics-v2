@@ -26,47 +26,55 @@ const CommentMarkers: React.FC = () => {
 
   if (markersForCurrentPage.length === 0) return null;
 
+  // Check if position is in pixels (new format) or percentage (old format)
+  const isPixelPosition = (pos: { x: number; y: number }) => pos.x > 100 || pos.y > 100;
+
   return (
     <>
-      {markersForCurrentPage.map((comment) => (
-        <div
-          key={comment.id}
-          data-comments-ui="true"
-          onClick={() => handleMarkerClick(comment.id)}
-          style={{
-            position: 'fixed',
-            left: `${comment.position!.x}%`,
-            top: `${comment.position!.y}%`,
-            transform: 'translate(-50%, -50%)',
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            backgroundColor: comment.color || '#3b82f6',
-            border: '3px solid white',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-            cursor: 'pointer',
-            zIndex: 900,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '12px',
-            color: 'white',
-            fontWeight: 'bold',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'translate(-50%, -50%) scale(1.2)';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'translate(-50%, -50%) scale(1)';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
-          }}
-          title={`${comment.author}: ${comment.text.substring(0, 50)}${comment.text.length > 50 ? '...' : ''}`}
-        >
-          {comment.author[0]?.toUpperCase() || '?'}
-        </div>
-      ))}
+      {markersForCurrentPage.map((comment) => {
+        const pos = comment.position!;
+        const isPixel = isPixelPosition(pos);
+        
+        return (
+          <div
+            key={comment.id}
+            data-comments-ui="true"
+            onClick={() => handleMarkerClick(comment.id)}
+            style={{
+              position: isPixel ? 'absolute' : 'fixed',
+              left: isPixel ? `${pos.x}px` : `${pos.x}%`,
+              top: isPixel ? `${pos.y}px` : `${pos.y}%`,
+              transform: 'translate(-50%, -50%)',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              backgroundColor: comment.color || '#3b82f6',
+              border: '3px solid white',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              cursor: 'pointer',
+              zIndex: 900,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              color: 'white',
+              fontWeight: 'bold',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.transform = 'translate(-50%, -50%) scale(1.2)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.transform = 'translate(-50%, -50%) scale(1)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+            }}
+            title={`${comment.author}: ${comment.text.substring(0, 50)}${comment.text.length > 50 ? '...' : ''}`}
+          >
+            {comment.author[0]?.toUpperCase() || '?'}
+          </div>
+        );
+      })}
     </>
   );
 };

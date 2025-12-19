@@ -60,10 +60,11 @@ const CommentsSystem: React.FC = () => {
         return;
       }
 
-      // Calculate position as percentage of viewport
+      // Calculate position as absolute pixels (including scroll)
+      // This ensures the marker stays with the content when scrolling
       const commentPosition = {
-        x: Math.round((event.clientX / window.innerWidth) * 100),
-        y: Math.round((event.clientY / window.innerHeight) * 100),
+        x: event.pageX,
+        y: event.pageY,
       };
 
       // Screen position for the popup
