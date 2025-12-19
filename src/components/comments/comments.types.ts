@@ -7,6 +7,8 @@ export interface Reply {
   id: string;
   text: string;
   author: string;
+  authorEmail?: string;
+  avatarUrl?: string;
   timestamp: string;
   color: string;
 }
@@ -20,6 +22,8 @@ export interface Comment {
   id: string;
   text: string;
   author: string;
+  authorEmail?: string;
+  avatarUrl?: string;
   pageId: string; // Identifica la pantalla (conversations, statistics, etc.)
   timestamp: string;
   resolved: boolean;
@@ -37,17 +41,21 @@ export interface ContextMenuPosition {
 
 export interface CommentsContextValue {
   comments: Comment[];
+  // User info from Auth
   userName: string | null;
+  userEmail: string | null;
+  userAvatarUrl: string | null;
+  isAuthenticated: boolean;
+  // State
   currentPageId: string;
   filter: CommentFilter;
   isPanelOpen: boolean;
-  isNameModalOpen: boolean;
+  isLoading: boolean;
   // Comment form popup state
   isCommentFormOpen: boolean;
   commentFormPosition: ContextMenuPosition | null;
   pendingCommentPosition: CommentPosition | null; // Posición donde se guardará el comentario
   // Actions
-  setUserName: (name: string) => void;
   addComment: (text: string) => void;
   addReply: (commentId: string, text: string) => void;
   resolveComment: (commentId: string) => void;
@@ -56,8 +64,6 @@ export interface CommentsContextValue {
   togglePanel: () => void;
   openPanel: () => void;
   closePanel: () => void;
-  openNameModal: () => void;
-  closeNameModal: () => void;
   getFilteredComments: () => Comment[];
   getOpenCommentsCount: () => number;
   // Comment form actions (triggered by double-click)

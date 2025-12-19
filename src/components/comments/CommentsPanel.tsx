@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Box, Text, Button, Icon, IconButton } from '@nimbus-ds/components';
+import { Box, Text, Button, IconButton } from '@nimbus-ds/components';
 import { CloseIcon } from '@nimbus-ds/icons';
 import { CommentFilter } from './comments.types';
 import { useComments } from './useComments';
@@ -37,17 +37,15 @@ const CommentsPanel: React.FC = () => {
     getFilteredComments,
     addComment,
     userName,
-    openNameModal,
+    userAvatarUrl,
+    isAuthenticated,
   } = useComments();
 
   const filteredComments = getFilteredComments();
 
   // Handle new comment
   const handleAddComment = (text: string) => {
-    if (!userName) {
-      openNameModal();
-      return;
-    }
+    if (!isAuthenticated) return;
     addComment(text);
   };
 
@@ -199,18 +197,27 @@ const CommentsPanel: React.FC = () => {
           borderColor="neutral-surfaceHighlight"
           backgroundColor="neutral-background"
         >
-          {userName ? (
+          {isAuthenticated && userName ? (
             <>
-              <Box marginBottom="2">
+              <Box marginBottom="2" display="flex" alignItems="center" gap="2">
+                {userAvatarUrl ? (
+                  <Box
+                    width="24px"
+                    height="24px"
+                    borderRadius="full"
+                    style={{ overflow: 'hidden', flexShrink: 0 }}
+                  >
+                    <img 
+                      src={userAvatarUrl} 
+                      alt={userName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      referrerPolicy="no-referrer"
+                    />
+                  </Box>
+                ) : null}
                 <Text fontSize="caption" color="neutral-textLow">
                   Comentando como{' '}
-                  <Text
-                    as="span"
-                    fontWeight="medium"
-                    color="primary-interactive"
-                    cursor="pointer"
-                    onClick={openNameModal}
-                  >
+                  <Text as="span" fontWeight="medium" color="primary-interactive">
                     {userName}
                   </Text>
                 </Text>
@@ -218,9 +225,16 @@ const CommentsPanel: React.FC = () => {
               <CommentForm onSubmit={handleAddComment} autoFocus={false} />
             </>
           ) : (
-            <Button appearance="primary" onClick={openNameModal}>
-              <Text color="neutral-background">Identificarte para comentar</Text>
-            </Button>
+            <Box
+              padding="3"
+              backgroundColor="neutral-surfaceHighlight"
+              borderRadius="2"
+              textAlign="center"
+            >
+              <Text fontSize="caption" color="neutral-textLow">
+                🔒 Inicia sesión con Google para dejar comentarios
+              </Text>
+            </Box>
           )}
         </Box>
       </Box>

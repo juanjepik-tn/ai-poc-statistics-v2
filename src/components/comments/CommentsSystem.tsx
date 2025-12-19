@@ -1,25 +1,27 @@
 /**
  * Comments System
  * Componente principal que incluye todos los elementos del sistema de comentarios
+ * Requiere que el usuario esté autenticado con Google
  */
 
 import React, { useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import CommentsToggleButton from './CommentsToggleButton';
 import CommentsPanel from './CommentsPanel';
-import NameModal from './NameModal';
 import CommentFormPopup from './CommentFormPopup';
 import CommentMarkers from './CommentMarkers';
 import { useComments } from './useComments';
 
 /**
- * Renderiza el botón flotante, el panel lateral, modal de nombre y popup de comentario
+ * Renderiza el botón flotante, el panel lateral y popup de comentario
  * Debe usarse dentro de CommentsProvider
+ * Requiere autenticación con Google para comentar
  * 
  * - Doble click: Abre formulario de comentario en esa posición
  * - Click derecho: Comportamiento normal del navegador
  */
 const CommentsSystem: React.FC = () => {
-  const { openCommentFormAtPosition, closeCommentForm, userName, openNameModal } = useComments();
+  const { openCommentFormAtPosition, closeCommentForm, isAuthenticated } = useComments();
 
   // Check if target is an interactive element (only direct targets, not ancestors)
   const isInteractiveElement = useCallback((target: HTMLElement): boolean => {
@@ -52,9 +54,9 @@ const CommentsSystem: React.FC = () => {
       event.preventDefault();
       window.getSelection()?.removeAllRanges();
 
-      // Check if user has a name set
-      if (!userName) {
-        openNameModal();
+      // Check if user is authenticated
+      if (!isAuthenticated) {
+        toast.info('Inicia sesión con Google para dejar comentarios');
         return;
       }
 
@@ -78,7 +80,7 @@ const CommentsSystem: React.FC = () => {
     return () => {
       document.removeEventListener('dblclick', handleDoubleClick);
     };
-  }, [openCommentFormAtPosition, userName, openNameModal, isInteractiveElement]);
+  }, [openCommentFormAtPosition, isAuthenticated, isInteractiveElement]);
 
   // Close comment form on scroll
   useEffect(() => {
@@ -97,7 +99,6 @@ const CommentsSystem: React.FC = () => {
       <CommentMarkers />
       <CommentsToggleButton />
       <CommentsPanel />
-      <NameModal />
       <CommentFormPopup />
     </>
   );

@@ -27,14 +27,47 @@ const formatTime = (timestamp: string): string => {
   return date.toLocaleDateString('es', { day: 'numeric', month: 'short' });
 };
 
-// Avatar component
-const Avatar: React.FC<{ name: string; color: string; size?: string }> = ({
+// Avatar component - shows profile photo or initial
+const Avatar: React.FC<{ 
+  name: string; 
+  color: string; 
+  avatarUrl?: string;
+  size?: string 
+}> = ({
   name,
   color,
+  avatarUrl,
   size = '32px',
 }) => {
   const initial = name[0]?.toUpperCase() || '?';
 
+  // If we have an avatar URL, show the image
+  if (avatarUrl) {
+    return (
+      <Box
+        width={size}
+        height={size}
+        borderRadius="full"
+        style={{ 
+          flexShrink: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <img 
+          src={avatarUrl} 
+          alt={name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+          referrerPolicy="no-referrer"
+        />
+      </Box>
+    );
+  }
+
+  // Fallback to initial
   return (
     <Box
       width={size}
@@ -91,7 +124,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" marginBottom="2">
         <Box display="flex" alignItems="center" gap="2">
-          <Avatar name={comment.author} color={comment.color} />
+          <Avatar 
+            name={comment.author} 
+            color={comment.color} 
+            avatarUrl={comment.avatarUrl}
+          />
           <Box display="flex" flexDirection="column">
             <Text fontSize="base" fontWeight="medium" color="neutral-textHigh">
               {comment.author}
@@ -188,7 +225,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
               marginBottom="2"
             >
               <Box display="flex" alignItems="center" gap="2" marginBottom="2">
-                <Avatar name={reply.author} color={reply.color} size="24px" />
+                <Avatar 
+                  name={reply.author} 
+                  color={reply.color} 
+                  avatarUrl={reply.avatarUrl}
+                  size="24px" 
+                />
                 <Box display="flex" flexDirection="column">
                   <Text fontSize="caption" fontWeight="medium" color="neutral-textHigh">
                     {reply.author}

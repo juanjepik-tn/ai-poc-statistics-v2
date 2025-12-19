@@ -14,6 +14,8 @@ interface CommentRecord {
   id: string;
   text: string;
   author: string;
+  author_email: string | null;
+  avatar_url: string | null;
   page_id: string;
   timestamp: string;
   resolved: boolean;
@@ -28,6 +30,8 @@ const toSupabaseRecord = (comment: Comment): CommentRecord => ({
   id: comment.id,
   text: comment.text,
   author: comment.author,
+  author_email: comment.authorEmail ?? null,
+  avatar_url: comment.avatarUrl ?? null,
   page_id: comment.pageId,
   timestamp: comment.timestamp,
   resolved: comment.resolved,
@@ -42,6 +46,8 @@ const fromSupabaseRecord = (record: CommentRecord): Comment => ({
   id: record.id,
   text: record.text,
   author: record.author,
+  authorEmail: record.author_email ?? undefined,
+  avatarUrl: record.avatar_url ?? undefined,
   pageId: record.page_id,
   timestamp: record.timestamp,
   resolved: record.resolved,

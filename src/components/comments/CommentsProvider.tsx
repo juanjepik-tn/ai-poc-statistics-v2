@@ -1,6 +1,7 @@
 /**
  * Comments Provider
  * Context + integración con Supabase para el sistema de comentarios
+ * Usa datos del usuario autenticado con Google
  */
 
 import React, {
@@ -13,6 +14,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Comment,
   Reply,
@@ -29,11 +31,8 @@ import {
   subscribeToComments,
 } from './commentsService';
 
-// Storage keys (for user preferences only)
-const STORAGE_KEYS = {
-  USER_NAME: 'poc_commenter_name',
-  USER_COLOR: 'poc_commenter_color',
-};
+// Storage key for user color preference
+const USER_COLOR_KEY = 'poc_commenter_color';
 
 // Available colors for user avatars
 const AVATAR_COLORS = [
@@ -72,14 +71,18 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   children,
 }) => {
   const location = useLocation();
+  const { user, isAuthenticated } = useAuth();
+
+  // Get user info from Auth
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || null;
+  const userEmail = user?.email || null;
+  const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
   // State
   const [comments, setComments] = useState<Comment[]>([]);
-  const [userName, setUserNameState] = useState<string | null>(null);
   const [userColor, setUserColor] = useState<string>('');
   const [filter, setFilter] = useState<CommentFilter>('page');
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // Comment form popup state (triggered by double-click)
@@ -178,47 +181,33 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     };
   }, []);
 
-  // Load user preferences from localStorage
+  // Load user color preference from localStorage
   useEffect(() => {
     try {
-      // Load user name
-      const storedName = localStorage.getItem(STORAGE_KEYS.USER_NAME);
-      if (storedName) {
-        setUserNameState(storedName);
-      } else {
-        setIsNameModalOpen(true);
-      }
-
-      // Load or generate user color
-      const storedColor = localStorage.getItem(STORAGE_KEYS.USER_COLOR);
+      const storedColor = localStorage.getItem(USER_COLOR_KEY);
       if (storedColor) {
         setUserColor(storedColor);
       } else {
         const newColor = getRandomColor();
         setUserColor(newColor);
-        localStorage.setItem(STORAGE_KEYS.USER_COLOR, newColor);
+        localStorage.setItem(USER_COLOR_KEY, newColor);
       }
     } catch (error) {
-      console.error('[Comments] Error loading user preferences:', error);
+      console.error('[Comments] Error loading user color:', error);
     }
-  }, []);
-
-  // Set user name
-  const setUserName = useCallback((name: string) => {
-    setUserNameState(name);
-    localStorage.setItem(STORAGE_KEYS.USER_NAME, name);
-    setIsNameModalOpen(false);
   }, []);
 
   // Add a new comment
   const addComment = useCallback(
     async (text: string) => {
-      if (!userName || !text.trim()) return;
+      if (!userName || !text.trim() || !isAuthenticated) return;
 
       const newComment: Comment = {
         id: generateId(),
         text: text.trim(),
         author: userName,
+        authorEmail: userEmail || undefined,
+        avatarUrl: userAvatarUrl || undefined,
         pageId: currentPageId,
         timestamp: new Date().toISOString(),
         resolved: false,
@@ -238,18 +227,20 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
         setComments((prev) => prev.filter((c) => c.id !== newComment.id));
       }
     },
-    [userName, currentPageId, userColor, pendingCommentPosition]
+    [userName, userEmail, userAvatarUrl, isAuthenticated, currentPageId, userColor, pendingCommentPosition]
   );
 
   // Add a reply to a comment
   const addReply = useCallback(
     async (commentId: string, text: string) => {
-      if (!userName || !text.trim()) return;
+      if (!userName || !text.trim() || !isAuthenticated) return;
 
       const newReply: Reply = {
         id: generateId(),
         text: text.trim(),
         author: userName,
+        authorEmail: userEmail || undefined,
+        avatarUrl: userAvatarUrl || undefined,
         timestamp: new Date().toISOString(),
         color: userColor,
       };
@@ -277,7 +268,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
         );
       }
     },
-    [userName, userColor, comments]
+    [userName, userEmail, userAvatarUrl, isAuthenticated, userColor, comments]
   );
 
   // Toggle resolved status
@@ -332,10 +323,6 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const openPanel = useCallback(() => setIsPanelOpen(true), []);
   const closePanel = useCallback(() => setIsPanelOpen(false), []);
 
-  // Name modal controls
-  const openNameModal = useCallback(() => setIsNameModalOpen(true), []);
-  const closeNameModal = useCallback(() => setIsNameModalOpen(false), []);
-
   // Comment form controls (triggered by double-click)
   const openCommentFormAtPosition = useCallback(
     (screenPos: ContextMenuPosition, commentPos: CommentPosition) => {
@@ -387,17 +374,21 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   // Context value
   const contextValue: CommentsContextValue = {
     comments,
+    // User info from Auth
     userName,
+    userEmail,
+    userAvatarUrl,
+    isAuthenticated,
+    // State
     currentPageId,
     filter,
     isPanelOpen,
-    isNameModalOpen,
+    isLoading,
     // Comment form popup state
     isCommentFormOpen,
     commentFormPosition,
     pendingCommentPosition,
     // Actions
-    setUserName,
     addComment,
     addReply,
     resolveComment,
@@ -406,8 +397,6 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     togglePanel,
     openPanel,
     closePanel,
-    openNameModal,
-    closeNameModal,
     getFilteredComments,
     getOpenCommentsCount,
     // Comment form actions
