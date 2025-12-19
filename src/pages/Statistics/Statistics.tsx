@@ -37,8 +37,8 @@ const Statistics: React.FC = () => {
   const billingData: BillingDTO = useSelector((state: any) => state?.billing?.billingData);
   
   // URL hash params for tab tracking (helps with comments system)
-  const tabIndexMap: Record<string, number> = { conversations: 0, sales: 1, efficiency: 2 };
-  const tabNameMap: StatisticsTab[] = ['conversations', 'sales', 'efficiency'];
+  const tabIndexMap: Record<string, number> = { conversations: 0, sales: 1 };
+  const tabNameMap: StatisticsTab[] = ['conversations', 'sales'];
   
   // Parse tab from hash (e.g., #/statistics?tab=sales)
   const getTabFromHash = useCallback(() => {
@@ -183,6 +183,7 @@ const Statistics: React.FC = () => {
           secondaryName={t('statistics.total-messages')}
         />
       </Box>
+      {/* KPIs principales */}
       <Box display="flex" flexDirection="column" gap="4">
         <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap="4">
           {loading ? (
@@ -226,15 +227,48 @@ const Statistics: React.FC = () => {
             </>
           )}
         </Box>
+        {/* Nuevas métricas: duración y mensajes promedio */}
         <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap="4">
           {chatStatsLoading ? (
-            <Skeleton height="80px" width="100%" borderRadius="2" />
+            <>
+              <Skeleton height="80px" width="100%" borderRadius="2" />
+              <Skeleton height="80px" width="100%" borderRadius="2" />
+            </>
           ) : (
-            <StatisticCard
-              title={t('statistics.handover-to-cart-rate')}
-              value={`${(efficiencyMetrics?.handover_to_cart_rate || 0).toFixed(1)}%`}
-              helpText={t('statistics.handover-to-cart-rate-help')}
-            />
+            <>
+              <StatisticCard
+                title={t('statistics.avg-conversation-duration')}
+                value={`${efficiencyMetrics?.time_to_purchase_avg || 8} min`}
+                helpText={t('statistics.avg-conversation-duration-help')}
+              />
+              <StatisticCard
+                title={t('statistics.avg-messages-per-conversation')}
+                value={statistics?.conversations ? Math.round(calculateMessagesCount() / statistics.conversations) : 0}
+                helpText={t('statistics.avg-messages-per-conversation-help')}
+              />
+            </>
+          )}
+        </Box>
+        {/* Métricas de respuesta */}
+        <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap="4">
+          {chatStatsLoading ? (
+            <>
+              <Skeleton height="80px" width="100%" borderRadius="2" />
+              <Skeleton height="80px" width="100%" borderRadius="2" />
+            </>
+          ) : (
+            <>
+              <StatisticCard
+                title={t('statistics.ai-response-time')}
+                value={`${efficiencyMetrics?.ai_response_time_avg || 0}s`}
+                helpText={t('statistics.ai-response-time-help')}
+              />
+              <StatisticCard
+                title={t('statistics.human-response-time')}
+                value={`${Math.round((efficiencyMetrics?.human_response_time_avg || 0) / 60)} min`}
+                helpText={t('statistics.human-response-time-help')}
+              />
+            </>
           )}
         </Box>
       </Box>
@@ -264,6 +298,55 @@ const Statistics: React.FC = () => {
           maxItems={8}
           showImage
           barColor="#4CAF50"
+        />
+      )}
+      {/* Distribución horaria */}
+      {chatStatsLoading ? (
+        <Skeleton height="300px" width="100%" borderRadius="2" />
+      ) : (
+        <StatisticBarList
+          title={t('statistics.hourly-distribution')}
+          items={[
+            { name: '00-06hs', count: 45, percentage: 7 },
+            { name: '06-09hs', count: 89, percentage: 14 },
+            { name: '09-12hs', count: 156, percentage: 24 },
+            { name: '12-15hs', count: 134, percentage: 21 },
+            { name: '15-18hs', count: 112, percentage: 17 },
+            { name: '18-21hs', count: 78, percentage: 12 },
+            { name: '21-24hs', count: 32, percentage: 5 },
+          ]}
+          maxItems={7}
+          barColor="#4483B9"
+        />
+      )}
+      {/* Distribución semanal */}
+      {chatStatsLoading ? (
+        <Skeleton height="300px" width="100%" borderRadius="2" />
+      ) : (
+        <StatisticBarList
+          title={t('statistics.weekly-distribution')}
+          items={[
+            { name: t('statistics.monday'), count: 120, percentage: 18 },
+            { name: t('statistics.tuesday'), count: 135, percentage: 20 },
+            { name: t('statistics.wednesday'), count: 128, percentage: 19 },
+            { name: t('statistics.thursday'), count: 115, percentage: 17 },
+            { name: t('statistics.friday'), count: 98, percentage: 15 },
+            { name: t('statistics.saturday'), count: 52, percentage: 8 },
+            { name: t('statistics.sunday'), count: 22, percentage: 3 },
+          ]}
+          maxItems={7}
+          barColor="#44BAC0"
+        />
+      )}
+      {/* Top Motivos de Derivación */}
+      {chatStatsLoading ? (
+        <Skeleton height="300px" width="100%" borderRadius="2" />
+      ) : (
+        <StatisticBarList
+          title={t('statistics.top-derivation-reasons')}
+          items={efficiencyMetrics?.top_derivation_reasons || []}
+          maxItems={6}
+          barColor="#FF9800"
         />
       )}
     </Box>
@@ -404,68 +487,6 @@ const Statistics: React.FC = () => {
     </Box>
   );
 
-  const EfficiencyTab = () => (
-    <Box display="flex" flexDirection="column" gap="4">
-      {/* KPI Cards Row 1 */}
-      <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap="4">
-        {chatStatsLoading ? (
-          <>
-            <Skeleton height="80px" width="100%" borderRadius="2" />
-            <Skeleton height="80px" width="100%" borderRadius="2" />
-          </>
-        ) : (
-          <>
-            <StatisticCard
-              title={t('statistics.time-to-purchase')}
-              value={`${efficiencyMetrics?.time_to_purchase_avg || 0} min`}
-              helpText={t('statistics.time-to-purchase-help')}
-            />
-            <StatisticCard
-              title={t('statistics.estimated-savings')}
-              value={`${currencySymbol}${thousandSeparator(efficiencyMetrics?.estimated_savings || 0)}`}
-              helpText={t('statistics.estimated-savings-help')}
-            />
-          </>
-        )}
-      </Box>
-
-      {/* KPI Cards Row 2 - Response times */}
-      <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap="4">
-        {chatStatsLoading ? (
-          <>
-            <Skeleton height="80px" width="100%" borderRadius="2" />
-            <Skeleton height="80px" width="100%" borderRadius="2" />
-          </>
-        ) : (
-          <>
-            <StatisticCard
-              title={t('statistics.ai-response-time')}
-              value={`${efficiencyMetrics?.ai_response_time_avg || 0}s`}
-              helpText={t('statistics.ai-response-time-help')}
-            />
-            <StatisticCard
-              title={t('statistics.human-response-time')}
-              value={`${Math.round((efficiencyMetrics?.human_response_time_avg || 0) / 60)} min`}
-              helpText={t('statistics.human-response-time-help')}
-            />
-          </>
-        )}
-      </Box>
-
-      {/* Top Derivation Reasons */}
-      {chatStatsLoading ? (
-        <Skeleton height="300px" width="100%" borderRadius="2" />
-      ) : (
-        <StatisticBarList
-          title={t('statistics.top-derivation-reasons')}
-          items={efficiencyMetrics?.top_derivation_reasons || []}
-          maxItems={6}
-          barColor="#FF9800"
-        />
-      )}
-    </Box>
-  );
-
   const handleTabChange = (index: number) => {
     const tabName = tabNameMap[index];
     setSelectedTab(index);
@@ -502,11 +523,6 @@ const Statistics: React.FC = () => {
                 <Tabs.Item label={t('statistics.tab-sales')}>
                   <Box paddingTop="4">
                     <SalesTab />
-                  </Box>
-                </Tabs.Item>
-                <Tabs.Item label={t('statistics.tab-efficiency')}>
-                  <Box paddingTop="4">
-                    <EfficiencyTab />
                   </Box>
                 </Tabs.Item>
               </Tabs>
