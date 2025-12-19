@@ -90,31 +90,50 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const [commentFormPosition, setCommentFormPosition] = useState<ContextMenuPosition | null>(null);
   const [pendingCommentPosition, setPendingCommentPosition] = useState<CommentPosition | null>(null);
 
-  // Track hash changes (including manual updates via replaceState + dispatchEvent)
-  const [currentHash, setCurrentHash] = useState(window.location.hash);
+  // Track URL changes (hash, popstate, and location changes from react-router)
+  const [currentUrl, setCurrentUrl] = useState(() => ({
+    hash: window.location.hash,
+    pathname: window.location.pathname,
+  }));
   
+  // Listen for hash changes
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentHash(window.location.hash);
+    const updateUrl = () => {
+      setCurrentUrl({
+        hash: window.location.hash,
+        pathname: window.location.pathname,
+      });
     };
     
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', updateUrl);
+    window.addEventListener('popstate', updateUrl);
+    
+    return () => {
+      window.removeEventListener('hashchange', updateUrl);
+      window.removeEventListener('popstate', updateUrl);
+    };
   }, []);
+  
+  // Also update when react-router location changes
+  useEffect(() => {
+    setCurrentUrl({
+      hash: location.hash || window.location.hash,
+      pathname: location.pathname || window.location.pathname,
+    });
+  }, [location.hash, location.pathname]);
 
   // Current page ID from URL - combines pathname, hash, and hash query params for uniqueness
   const currentPageId = useMemo(() => {
     const parts: string[] = [];
     
     // Add pathname (without leading slash)
-    const path = location.pathname.replace(/^\//, '');
+    const path = currentUrl.pathname.replace(/^\//, '');
     if (path) {
       parts.push(path);
     }
     
     // Parse hash - may contain query params (e.g., #/statistics?tab=sales)
-    // Use currentHash state instead of location.hash for reactivity
-    const fullHash = currentHash;
+    const fullHash = currentUrl.hash;
     const hashParts = fullHash.split('?');
     const hashPath = hashParts[0].replace('#/', '').replace('#', '');
     const hashParams = hashParts[1] || '';
@@ -134,7 +153,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     }
     
     return parts.join('/') || 'home';
-  }, [location.pathname, currentHash, location.search]);
+  }, [currentUrl.pathname, currentUrl.hash, location.search]);
 
   // Load comments from Supabase on mount
   useEffect(() => {
