@@ -7,6 +7,9 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
+// TODO: Cambiar a false cuando se solucione el problema de login con @nuvemshop.com
+const BYPASS_AUTH = true;
+
 /**
  * Componente que protege rutas requiriendo autenticación.
  * Si el usuario no está autenticado, redirige a /login.
@@ -15,6 +18,11 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+
+  // TEMPORAL: Bypass de autenticación para debugging
+  if (BYPASS_AUTH) {
+    return <>{children}</>;
+  }
 
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {

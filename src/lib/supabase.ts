@@ -50,7 +50,7 @@ export const ALLOWED_DOMAINS = ['tiendanube.com', 'nuvemshop.com'];
  */
 export const isAllowedDomain = (email: string | undefined): boolean => {
   if (!email) return false;
-  const domain = email.split('@')[1];
+  const domain = email.split('@')[1]?.toLowerCase();
   return domain ? ALLOWED_DOMAINS.includes(domain) : false;
 };
 
