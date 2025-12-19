@@ -12,6 +12,7 @@ import {
   StatisticLineChart,
   StatisticBarList,
   ConversationFunnel,
+  StatisticDonutChart,
 } from './components';
 import { useWindowWidth } from '@/hooks';
 import StatisticsFilter from './components/StatisticsFilter';
@@ -240,11 +241,17 @@ const Statistics: React.FC = () => {
       {chatStatsLoading ? (
         <Skeleton height="300px" width="100%" borderRadius="2" />
       ) : (
-        <StatisticBarList
-          title={t('statistics.top-conversation-topics')}
-          items={chatStatistics?.conversations?.top_conversation_topics || []}
-          maxItems={7}
-          barColor="#4483B9"
+        <StatisticDonutChart
+          title={t('statistics.topic-distribution')}
+          subtitle={t('statistics.topic-distribution-subtitle')}
+          data={(chatStatistics?.conversations?.top_conversation_topics || [])
+            .slice(0, 6)
+            .map((item) => ({
+              name: item.name,
+              value: Math.round(item.percentage || 0),
+            }))}
+          totalLabel={t('statistics.total-conversations')}
+          showTotal
         />
       )}
       {/* Top Products Discussed */}

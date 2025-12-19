@@ -742,6 +742,9 @@ export default {
       'handover-to-cart-rate-help': 'Porcentagem de conversas onde\nfoi enviado pelo menos um produto/carrinho',
       'top-derivation-reasons': 'Top Motivos de Derivação',
       'top-conversation-topics': 'Top Temas de Conversa',
+      'topic-distribution': 'Distribuição por temas',
+      'topic-distribution-subtitle': 'Temas mais frequentes nas conversas',
+      'total-conversations': 'Total de conversas',
       // Funnel
       'conversation-funnel': 'Funil Conversacional',
       'funnel-conversations': 'Conversas Iniciadas',
