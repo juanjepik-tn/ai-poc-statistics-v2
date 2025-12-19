@@ -247,6 +247,18 @@ const Statistics: React.FC = () => {
           barColor="#4483B9"
         />
       )}
+      {/* Top Products Discussed */}
+      {chatStatsLoading ? (
+        <Skeleton height="300px" width="100%" borderRadius="2" />
+      ) : (
+        <StatisticBarList
+          title={t('statistics.top-products-discussed')}
+          items={salesMetrics?.top_products_discussed || []}
+          maxItems={8}
+          showImage
+          barColor="#4CAF50"
+        />
+      )}
     </Box>
   );
 
@@ -380,19 +392,6 @@ const Statistics: React.FC = () => {
           primaryColor="#FF9800"
           primaryName={t('statistics.cvr')}
           isPercentage
-        />
-      )}
-
-      {/* Top Products */}
-      {chatStatsLoading ? (
-        <Skeleton height="300px" width="100%" borderRadius="2" />
-      ) : (
-        <StatisticBarList
-          title={t('statistics.top-products-discussed')}
-          items={salesMetrics?.top_products_discussed || []}
-          maxItems={8}
-          showImage
-          barColor="#4CAF50"
         />
       )}
     </Box>
