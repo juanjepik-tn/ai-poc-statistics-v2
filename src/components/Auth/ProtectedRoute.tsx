@@ -7,8 +7,8 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-// TODO: Cambiar a false cuando se solucione el problema de login con @nuvemshop.com
-const BYPASS_AUTH = true;
+// Autenticación habilitada - requiere email @tiendanube.com o @nuvemshop.com
+const BYPASS_AUTH = false;
 
 /**
  * Componente que protege rutas requiriendo autenticación.
