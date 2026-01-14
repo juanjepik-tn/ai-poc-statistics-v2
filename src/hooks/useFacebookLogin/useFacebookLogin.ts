@@ -5,12 +5,17 @@ import { useFetch, useRegisterLog } from '@/hooks';
 import { trackingWhatsappBusinessConnect, trackingWhatsappBusinessConnectSuccess, trackingWhatsappBusinessSignupAbandoned, trackingWhatsappBusinessSignupErrorReported} from '@/tracking';
 import { getStoreInfo } from '@tiendanube/nexo';
 import { nexo } from '@/app';
+import { useToast } from '@nimbus-ds/components';
+
+// POC Mode detection
+const IS_POC_MODE = true;
 
 const useFacebookLogin = (onGetInstances: () => void, signupEndpoint?: string) => {
   const [authCode, setAuthCode] = useState<string | null>(null);
   const [signUpData, setSignUpData] = useState<any | null>(null);
   const { request } = useFetch();
   const registerLog = useRegisterLog();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (authCode && signUpData) {
@@ -19,6 +24,12 @@ const useFacebookLogin = (onGetInstances: () => void, signupEndpoint?: string) =
   }, [authCode, signUpData]);
 
   const signUp = async () => {
+    // POC Mode: Skip actual signup
+    if (IS_POC_MODE) {
+      onGetInstances();
+      return;
+    }
+
     try {
       const content = await request<any[]>({
         url: signupEndpoint || API_ENDPOINTS.whatsappBusiness.signUp,
@@ -52,6 +63,11 @@ const useFacebookLogin = (onGetInstances: () => void, signupEndpoint?: string) =
   
 
   useEffect(() => {
+    // POC Mode: Skip Facebook SDK loading
+    if (IS_POC_MODE) {
+      return;
+    }
+
     const loadFacebookScript = async () => {
       const { language, country } = await getStoreInfo(nexo);
       const languageWithCountry = language === 'es' ? 'es_LA' : language === 'pt' ? 'pt_BR' : `${language}_${country}`;
@@ -132,6 +148,34 @@ const useFacebookLogin = (onGetInstances: () => void, signupEndpoint?: string) =
   }, []);
 
 const launchWhatsAppSignup = () => {
+  // POC Mode: Simulate WhatsApp Business connection
+  if (IS_POC_MODE) {
+    trackingWhatsappBusinessConnect();
+    
+    addToast({
+      type: 'primary',
+      text: '🔄 Simulando conexión con WhatsApp Business...',
+      duration: 2000,
+      id: 'poc-connecting',
+    });
+
+    // Simulate the OAuth flow with a delay
+    setTimeout(() => {
+      trackingWhatsappBusinessConnectSuccess('FINISH');
+      setSignUpData({ event: 'FINISH', type: 'WA_EMBEDDED_SIGNUP' });
+      setAuthCode('mock-auth-code-poc');
+      
+      addToast({
+        type: 'success',
+        text: '✅ WhatsApp Business conectado exitosamente',
+        duration: 4000,
+        id: 'poc-connected',
+      });
+    }, 2000);
+    
+    return;
+  }
+
   const skipHttpsCheck = import.meta.env.VITE_FACEBOOK_SKIP_HTTPS_CHECK === 'true';
   if (!skipHttpsCheck && window.location.protocol !== 'https:') {
     console.error('FB.login can only be called from HTTPS pages.');

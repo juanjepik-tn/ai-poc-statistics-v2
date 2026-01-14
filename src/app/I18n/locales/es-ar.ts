@@ -432,6 +432,10 @@ export default {
       connected: 'Conectado',
       disconnected: 'Desconectado',
       initializing: 'Inicializando',
+      unknown: 'Desconocido',
+      undefined: 'Sin estado',
+      connect: 'Conectar canal',
+      whatsappLight: 'Conectar WhatsApp Personal',
       'remove-alert': {
         title: '¿Estás seguro de que deseas eliminar esta conexión?',
         description:
@@ -865,7 +869,59 @@ export default {
     apiCodes:{
       default: 'Ocurrió un error. Probá nuevamente más tarde.',
       error_activate_store: 'Para volver a usar Chat Nube, pagá tus facturas pendientes.',
-    }
+    },
+    // =================================================
+    // INSTAGRAM INTEGRATION - Channel Filter
+    // =================================================
+    channelFilter: {
+      label: 'Canal',
+      all: 'Todos los canales',
+      whatsapp: 'WhatsApp',
+      instagram: 'Instagram',
+    },
+    // =================================================
+    // INSTAGRAM INTEGRATION - Reconnect Banner
+    // =================================================
+    reconnectBanner: {
+      message: 'Tu cuenta de {{channel}} necesita reconectarse para seguir recibiendo mensajes.',
+      reconnect: 'Reconectar ahora',
+      later: 'Después',
+    },
+    // =================================================
+    // INSTAGRAM INTEGRATION - Onboarding
+    // =================================================
+    instagramOnboarding: {
+      step1: {
+        title: 'Conectá tu cuenta de Instagram',
+        description: 'Atendé a tus clientes de Instagram directamente desde Chat Nube, con el mismo agente de IA que ya tenés configurado.',
+        feature1: 'Recibí mensajes directos de Instagram',
+        feature2: 'Respondé automáticamente con tu AI Agent',
+        feature3: 'Gestioná todo desde un solo lugar',
+        requirements: 'Requisitos:',
+        req1: 'Cuenta de Instagram Business o Creator',
+        req2: 'Cuenta vinculada a una Página de Facebook',
+        cta: 'Conectar Instagram',
+      },
+      step2: {
+        title: 'Conectá con tu cuenta de Facebook',
+        description: 'Necesitamos acceso a tu cuenta de Facebook para conectar tu Instagram Business.',
+        cta: 'Continuar con Facebook',
+        security: 'Solo pedimos los permisos necesarios para mensajería',
+      },
+      step3: {
+        title: 'Seleccioná tu cuenta de Instagram',
+        description: 'Encontramos estas cuentas vinculadas a tu Facebook:',
+        cta: 'Conectar cuenta',
+      },
+      step4: {
+        title: '¡Instagram conectado!',
+        description: 'Tu cuenta {{username}} ya está lista para recibir mensajes.',
+        info: 'El AI Agent que configuraste para WhatsApp también responderá tus mensajes de Instagram.',
+        tip: 'Tip: Podés ver de qué canal viene cada mensaje en la lista de conversaciones.',
+        cta: 'Ir a Conversaciones',
+        secondary: 'Ver configuración de canales',
+      },
+    },
   }
 };
 

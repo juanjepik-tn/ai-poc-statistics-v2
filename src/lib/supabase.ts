@@ -1,11 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+// Flag to check if Supabase is configured
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
   console.warn(
-    'Supabase credentials not found. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.'
+    '[POC Mode] Supabase credentials not found. Running without Supabase authentication. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file to enable it.'
   );
 }
 
@@ -28,19 +31,73 @@ const getAppUrl = () => {
   return 'http://localhost:5173';
 };
 
-export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || '',
-  {
+// Create a mock Supabase client for POC mode when credentials are not available
+const createMockSupabaseClient = (): SupabaseClient => {
+  // Create a chainable mock for query builder
+  const createChainableMock = () => {
+    const mock: any = {
+      select: () => mock,
+      insert: () => mock,
+      update: () => mock,
+      delete: () => mock,
+      eq: () => mock,
+      neq: () => mock,
+      gt: () => mock,
+      gte: () => mock,
+      lt: () => mock,
+      lte: () => mock,
+      like: () => mock,
+      ilike: () => mock,
+      is: () => mock,
+      in: () => mock,
+      contains: () => mock,
+      order: () => mock,
+      limit: () => mock,
+      range: () => mock,
+      single: () => mock,
+      maybeSingle: () => mock,
+      then: (resolve: (value: any) => void) => resolve({ data: [], error: null }),
+    };
+    return mock;
+  };
+
+  // Create a mock channel for realtime subscriptions
+  const createMockChannel = () => ({
+    on: () => createMockChannel(),
+    subscribe: () => ({ unsubscribe: () => {} }),
+    unsubscribe: () => {},
+  });
+
+  // Return a minimal mock that won't throw errors
+  return {
     auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-      redirectTo: getAppUrl(),
+      getSession: async () => ({ data: { session: null }, error: null }),
+      getUser: async () => ({ data: { user: null }, error: null }),
+      signInWithOAuth: async () => ({ data: { provider: '', url: '' }, error: null }),
+      signOut: async () => ({ error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
     },
-  }
-);
+    from: () => createChainableMock(),
+    channel: () => createMockChannel(),
+    removeChannel: () => {},
+  } as unknown as SupabaseClient;
+};
+
+export const supabase: SupabaseClient = isSupabaseConfigured
+  ? createClient(
+      supabaseUrl!,
+      supabaseAnonKey!,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+          redirectTo: getAppUrl(),
+        },
+      }
+    )
+  : createMockSupabaseClient();
 
 // Dominios permitidos para login
 export const ALLOWED_DOMAINS = ['tiendanube.com', 'nuvemshop.com'];

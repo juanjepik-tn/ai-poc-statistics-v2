@@ -147,7 +147,7 @@ export const mockStatistics = {
 // CONVERSATIONS DATA - POBLADO COMPLETO
 // ============================================
 
-const mockChannel = {
+const mockChannelWhatsApp = {
   id: 'ch-001',
   channelName: 'WhatsApp Business',
   store: { id: 12345 },
@@ -155,6 +155,29 @@ const mockChannel = {
   bot_status: 'active',
   whatsapp_status: 'connected',
   state: { name: 'Active' },
+  channelType: 'whatsapp' as const,
+};
+
+const mockChannelInstagram = {
+  id: 'ch-002',
+  channelName: 'Instagram',
+  store: { id: 12345 },
+  username: '@mi_tienda_ok',
+  bot_status: 'active',
+  whatsapp_status: 'connected',
+  state: { name: 'Active' },
+  channelType: 'instagram' as const,
+};
+
+const mockChannelFacebook = {
+  id: 'ch-003',
+  channelName: 'Facebook Messenger',
+  store: { id: 12345 },
+  username: 'Mi Tienda OK',
+  bot_status: 'active',
+  whatsapp_status: 'connected',
+  state: { name: 'Active' },
+  channelType: 'facebook' as const,
 };
 
 // Clientes con diferentes estados y configuraciones
@@ -302,6 +325,43 @@ const mockCustomers = [
     frecuent: false,
     undoneHumanAttentionTags: [],
     undoneTaggedTags: []
+  },
+  // Clientes de Facebook Messenger
+  { 
+    id: 13, 
+    name: 'Carolina Vega', 
+    username: 'carolina.vega.fb', 
+    phone: null,
+    state: { name: 'Active', id: 1 },
+    frecuent: true,
+    undoneHumanAttentionTags: [],
+    undoneTaggedTags: [
+      { id: 1301, name: 'cart-sent', summary: 'Carrito enviado' }
+    ]
+  },
+  { 
+    id: 14, 
+    name: 'Diego Morales', 
+    username: 'diego.morales.92', 
+    phone: null,
+    state: { name: 'Active', id: 1 },
+    frecuent: false,
+    undoneHumanAttentionTags: [
+      { id: 1401, name: 'Human Request', summary: 'Solicita atención humana' }
+    ],
+    undoneTaggedTags: []
+  },
+  { 
+    id: 15, 
+    name: 'Ana Belén Castro', 
+    username: 'anabelen.castro', 
+    phone: null,
+    state: { name: 'Active', id: 1 },
+    frecuent: false,
+    undoneHumanAttentionTags: [],
+    undoneTaggedTags: [
+      { id: 1501, name: 'Get Order Status', summary: 'Consulta estado de pedido' }
+    ]
   },
 ];
 
@@ -1397,14 +1457,202 @@ const messagesConv12 = [
 
 // Construir las conversaciones completas
 export const mockConversations = [
-  // Conversación 1: Atención humana requerida
+  // ============================================
+  // CONVERSACIÓN FACEBOOK - Carrito en proceso (más reciente)
+  // ============================================
+  {
+    id: '13',
+    chat_summary: 'Cliente armando carrito desde Facebook',
+    conversation_summary: 13,
+    created_at: new Date(Date.now() - 60000 * 5).toISOString(), // Hace 5 min
+    messages: [
+      {
+        id: 1301,
+        content: 'Hola! Vi en su página que tienen buzos de algodón, ¿tienen stock?',
+        created_at: new Date(Date.now() - 60000 * 15).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: 'carolina.vega.fb',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+      {
+        id: 1302,
+        content: '¡Hola Carolina! 👋 Sí, tenemos buzos de algodón disponibles. ¿Qué talle necesitás? Tenemos desde S hasta XXL.',
+        created_at: new Date(Date.now() - 60000 * 14).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: null,
+        role: 'assistant',
+        class: 'message-bot',
+        fromApp: true,
+        hasImage: false,
+        run_id: 'run-1301',
+        response_score: 10,
+      },
+      {
+        id: 1303,
+        content: 'Genial! Necesito un M en negro y otro en gris. ¿Cuánto sale cada uno?',
+        created_at: new Date(Date.now() - 60000 * 10).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: 'carolina.vega.fb',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+      {
+        id: 1304,
+        content: '¡Perfecto! 🖤 El buzo de algodón talle M está $15.990. Te armé un carrito con los dos buzos (negro y gris). El total sería $31.980. ¿Te envío el link de pago?',
+        created_at: new Date(Date.now() - 60000 * 5).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: null,
+        role: 'assistant',
+        class: 'message-bot',
+        fromApp: true,
+        hasImage: false,
+        run_id: 'run-1302',
+        response_score: 10,
+      },
+    ],
+    channel: mockChannelFacebook,
+    name: mockCustomers[12].name,
+    username: mockCustomers[12].username,
+    chatSummary: 'Carrito armado - 2 buzos',
+    conversationSummary: 'Venta en proceso',
+    unreadMessages: 0,
+    customer: mockCustomers[12],
+    unreadMessagesAfterAccepted: 0,
+    qualification: { id: 'q13', class: 'sales', created_at: new Date().toISOString(), name: 'Venta', description: 'En proceso' },
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(mockCustomers[12].name)}&background=1877F2&color=fff`,
+    virtual_assistant_failed: false,
+    isPaused: false,
+    messagesPanel: [],
+    lastMessage: {
+      id: 1304,
+      content: '¡Perfecto! 🖤 El buzo de algodón talle M está $15.990. Te armé un carrito con los dos buzos...',
+      created_at: new Date(Date.now() - 60000 * 5).toISOString(),
+      saw: true,
+      mimetype: null,
+      username: null,
+      role: 'assistant',
+      class: 'message-bot',
+      fromApp: true,
+      hasImage: false,
+      run_id: 'run-1302',
+      response_score: 10,
+    },
+  },
+  // ============================================
+  // CONVERSACIÓN FACEBOOK - Reclamo (requiere humano)
+  // ============================================
+  {
+    id: '14',
+    chat_summary: 'Cliente con reclamo por producto defectuoso',
+    conversation_summary: 14,
+    created_at: new Date(Date.now() - 60000 * 12).toISOString(), // Hace 12 min
+    messages: [
+      {
+        id: 1401,
+        content: 'Hola, compré una remera la semana pasada y ya se descosió. Quiero hacer un reclamo',
+        created_at: new Date(Date.now() - 60000 * 45).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: 'diego.morales.92',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+      {
+        id: 1402,
+        content: 'Hola Diego, lamento mucho lo que pasó con tu remera 😔 Queremos solucionarlo. ¿Podrías enviarnos una foto del defecto y tu número de pedido?',
+        created_at: new Date(Date.now() - 60000 * 44).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: null,
+        role: 'assistant',
+        class: 'message-bot',
+        fromApp: true,
+        hasImage: false,
+        run_id: 'run-1401',
+        response_score: 8,
+      },
+      {
+        id: 1403,
+        content: 'El pedido es #45892. Esto es inaceptable, la usé una sola vez',
+        created_at: new Date(Date.now() - 60000 * 20).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: 'diego.morales.92',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+      {
+        id: 1404,
+        content: 'Quiero hablar con una persona, no con un bot',
+        created_at: new Date(Date.now() - 60000 * 12).toISOString(),
+        saw: false,
+        mimetype: null,
+        username: 'diego.morales.92',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+    ],
+    channel: mockChannelFacebook,
+    name: mockCustomers[13].name,
+    username: mockCustomers[13].username,
+    chatSummary: '⚠️ Reclamo - Solicita humano',
+    conversationSummary: 'Producto defectuoso',
+    unreadMessages: 2,
+    customer: mockCustomers[13],
+    unreadMessagesAfterAccepted: 0,
+    qualification: { id: 'q14', class: 'support', created_at: new Date().toISOString(), name: 'Soporte', description: 'Reclamo' },
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(mockCustomers[13].name)}&background=F44336&color=fff`,
+    virtual_assistant_failed: false,
+    isPaused: false,
+    messagesPanel: [],
+    lastMessage: {
+      id: 1404,
+      content: 'Quiero hablar con una persona, no con un bot',
+      created_at: new Date(Date.now() - 60000 * 12).toISOString(),
+      saw: false,
+      mimetype: null,
+      username: 'diego.morales.92',
+      role: 'customer',
+      class: 'message-customer',
+      fromApp: false,
+      hasImage: false,
+      run_id: null,
+      response_score: null,
+    },
+  },
+  // Conversación 1: Atención humana requerida (WhatsApp)
   {
     id: '1',
     chat_summary: 'Cliente con pedido incompleto solicita hablar con humano',
     conversation_summary: 1,
     created_at: new Date(Date.now() - 60000 * 30).toISOString(),
     messages: messagesConv1,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[0].name,
     username: mockCustomers[0].username,
     chatSummary: 'Pedido incompleto - Requiere atención humana',
@@ -1419,14 +1667,94 @@ export const mockConversations = [
     messagesPanel: messagesConv1,
     lastMessage: messagesConv1[messagesConv1.length - 1],
   },
-  // Conversación 2: Carrito enviado
+  // ============================================
+  // CONVERSACIÓN FACEBOOK - Tracking resuelto
+  // ============================================
+  {
+    id: '15',
+    chat_summary: 'Consulta sobre estado de envío',
+    conversation_summary: 15,
+    created_at: new Date(Date.now() - 60000 * 50).toISOString(), // Hace 50 min
+    messages: [
+      {
+        id: 1501,
+        content: 'Buenas! Hice un pedido hace 5 días y todavía no llegó. #52341',
+        created_at: new Date(Date.now() - 60000 * 55).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: 'anabelen.castro',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+      {
+        id: 1502,
+        content: '¡Hola Ana Belén! 📦 Revisé tu pedido #52341 y ya está en camino. El código de seguimiento es AR123456789. Según el tracking, debería llegar mañana o pasado. ¿Te sirve esa info?',
+        created_at: new Date(Date.now() - 60000 * 54).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: null,
+        role: 'assistant',
+        class: 'message-bot',
+        fromApp: true,
+        hasImage: false,
+        run_id: 'run-1501',
+        response_score: 10,
+      },
+      {
+        id: 1503,
+        content: 'Ah genial! Gracias por la info 🙏',
+        created_at: new Date(Date.now() - 60000 * 50).toISOString(),
+        saw: true,
+        mimetype: null,
+        username: 'anabelen.castro',
+        role: 'customer',
+        class: 'message-customer',
+        fromApp: false,
+        hasImage: false,
+        run_id: null,
+        response_score: null,
+      },
+    ],
+    channel: mockChannelFacebook,
+    name: mockCustomers[14].name,
+    username: mockCustomers[14].username,
+    chatSummary: 'Seguimiento de envío resuelto ✅',
+    conversationSummary: 'Tracking enviado',
+    unreadMessages: 0,
+    customer: mockCustomers[14],
+    unreadMessagesAfterAccepted: 0,
+    qualification: { id: 'q15', class: 'support', created_at: new Date().toISOString(), name: 'Soporte', description: 'Tracking' },
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(mockCustomers[14].name)}&background=4CAF50&color=fff`,
+    virtual_assistant_failed: false,
+    isPaused: false,
+    messagesPanel: [],
+    lastMessage: {
+      id: 1503,
+      content: 'Ah genial! Gracias por la info 🙏',
+      created_at: new Date(Date.now() - 60000 * 50).toISOString(),
+      saw: true,
+      mimetype: null,
+      username: 'anabelen.castro',
+      role: 'customer',
+      class: 'message-customer',
+      fromApp: false,
+      hasImage: false,
+      run_id: null,
+      response_score: null,
+    },
+  },
+  // Conversación 2: Carrito enviado (Instagram)
   {
     id: '2',
     chat_summary: 'Cliente armando pedido múltiple con carrito generado',
     conversation_summary: 2,
     created_at: new Date(Date.now() - 60000 * 120).toISOString(),
     messages: messagesConv2,
-    channel: mockChannel,
+    channel: mockChannelInstagram,
     name: mockCustomers[1].name,
     username: mockCustomers[1].username,
     chatSummary: 'Carrito generado - Pendiente de pago',
@@ -1441,14 +1769,14 @@ export const mockConversations = [
     messagesPanel: messagesConv2,
     lastMessage: messagesConv2[messagesConv2.length - 1],
   },
-  // Conversación 3: Estado de pedido (pausado)
+  // Conversación 3: Estado de pedido (pausado) (WhatsApp)
   {
     id: '3',
     chat_summary: 'Consulta sobre seguimiento de envío',
     conversation_summary: 3,
     created_at: new Date(Date.now() - 60000 * 180).toISOString(),
     messages: messagesConv3,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[2].name,
     username: mockCustomers[2].username,
     chatSummary: 'Seguimiento de pedido',
@@ -1463,14 +1791,14 @@ export const mockConversations = [
     messagesPanel: messagesConv3,
     lastMessage: messagesConv3[messagesConv3.length - 1],
   },
-  // Conversación 4: Devolución con mensaje fallido
+  // Conversación 4: Devolución con mensaje fallido (Instagram)
   {
     id: '4',
     chat_summary: 'Solicitud de cambio por talle incorrecto',
     conversation_summary: 4,
     created_at: new Date(Date.now() - 60000 * 90).toISOString(),
     messages: messagesConv4,
-    channel: mockChannel,
+    channel: mockChannelInstagram,
     name: mockCustomers[3].name,
     username: mockCustomers[3].username,
     chatSummary: 'Cambio de producto - Talle incorrecto',
@@ -1485,14 +1813,14 @@ export const mockConversations = [
     messagesPanel: messagesConv4,
     lastMessage: messagesConv4[messagesConv4.length - 1],
   },
-  // Conversación 5: Venta exitosa
+  // Conversación 5: Venta exitosa (WhatsApp)
   {
     id: '5',
     chat_summary: 'Venta completada de zapatillas running',
     conversation_summary: 5,
     created_at: new Date(Date.now() - 60000 * 240).toISOString(),
     messages: messagesConv5,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[4].name,
     username: mockCustomers[4].username,
     chatSummary: 'Venta completada ✅',
@@ -1507,14 +1835,14 @@ export const mockConversations = [
     messagesPanel: messagesConv5,
     lastMessage: messagesConv5[messagesConv5.length - 1],
   },
-  // Conversación 6: Mayorista (Copilot)
+  // Conversación 6: Mayorista (Copilot) (Instagram)
   {
     id: '6',
     chat_summary: 'Consulta mayorista en proceso',
     conversation_summary: 6,
     created_at: new Date(Date.now() - 60000 * 300).toISOString(),
     messages: messagesConv6,
-    channel: mockChannel,
+    channel: mockChannelInstagram,
     name: mockCustomers[5].name,
     username: mockCustomers[5].username,
     chatSummary: 'Pedido mayorista',
@@ -1529,14 +1857,14 @@ export const mockConversations = [
     messagesPanel: messagesConv6,
     lastMessage: messagesConv6[messagesConv6.length - 1],
   },
-  // Conversación 7: One-click payment
+  // Conversación 7: One-click payment (WhatsApp)
   {
     id: '7',
     chat_summary: 'Compra rápida vestido floral',
     conversation_summary: 7,
     created_at: new Date(Date.now() - 60000 * 60).toISOString(),
     messages: messagesConv7,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[6].name,
     username: mockCustomers[6].username,
     chatSummary: 'Link de pago enviado',
@@ -1551,14 +1879,14 @@ export const mockConversations = [
     messagesPanel: messagesConv7,
     lastMessage: messagesConv7[messagesConv7.length - 1],
   },
-  // Conversación 8: Modificar pedido con audio
+  // Conversación 8: Modificar pedido con audio (WhatsApp)
   {
     id: '8',
     chat_summary: 'Modificación de pedido en curso',
     conversation_summary: 8,
     created_at: new Date(Date.now() - 60000 * 45).toISOString(),
     messages: messagesConv8,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[7].name,
     username: mockCustomers[7].username,
     chatSummary: 'Agregando producto a pedido',
@@ -1573,14 +1901,14 @@ export const mockConversations = [
     messagesPanel: messagesConv8,
     lastMessage: messagesConv8[messagesConv8.length - 1],
   },
-  // Conversación 9: Consulta simple
+  // Conversación 9: Consulta simple (Instagram)
   {
     id: '9',
     chat_summary: 'Consulta sobre local físico',
     conversation_summary: 9,
     created_at: new Date(Date.now() - 60000 * 360).toISOString(),
     messages: messagesConv9,
-    channel: mockChannel,
+    channel: mockChannelInstagram,
     name: mockCustomers[8].name,
     username: mockCustomers[8].username,
     chatSummary: 'Información del local',
@@ -1595,14 +1923,14 @@ export const mockConversations = [
     messagesPanel: messagesConv9,
     lastMessage: messagesConv9[messagesConv9.length - 1],
   },
-  // Conversación 10: Pedido personalizado
+  // Conversación 10: Pedido personalizado (WhatsApp)
   {
     id: '10',
     chat_summary: 'Remeras personalizadas para equipo de fútbol',
     conversation_summary: 10,
     created_at: new Date(Date.now() - 60000 * 150).toISOString(),
     messages: messagesConv10,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[9].name,
     username: mockCustomers[9].username,
     chatSummary: 'Pedido corporativo - Remeras',
@@ -1617,14 +1945,14 @@ export const mockConversations = [
     messagesPanel: messagesConv10,
     lastMessage: messagesConv10[messagesConv10.length - 1],
   },
-  // Conversación 11: Múltiples tags urgente
+  // Conversación 11: Múltiples tags urgente (Instagram)
   {
     id: '11',
     chat_summary: 'Pedido urgente no entregado - Cliente enojado',
     conversation_summary: 11,
     created_at: new Date(Date.now() - 60000 * 20).toISOString(),
     messages: messagesConv11,
-    channel: mockChannel,
+    channel: mockChannelInstagram,
     name: mockCustomers[10].name,
     username: mockCustomers[10].username,
     chatSummary: '⚠️ URGENTE - Pedido retrasado',
@@ -1639,14 +1967,14 @@ export const mockConversations = [
     messagesPanel: messagesConv11,
     lastMessage: messagesConv11[messagesConv11.length - 1],
   },
-  // Conversación 12: Marketing
+  // Conversación 12: Marketing (WhatsApp)
   {
     id: '12',
     chat_summary: 'Cliente interesado en promoción 2x1',
     conversation_summary: 12,
     created_at: new Date(Date.now() - 60000 * 480).toISOString(),
     messages: messagesConv12,
-    channel: mockChannel,
+    channel: mockChannelWhatsApp,
     name: mockCustomers[11].name,
     username: mockCustomers[11].username,
     chatSummary: 'Respuesta a campaña marketing',
@@ -1772,27 +2100,67 @@ export const mockProducts = Array.from({ length: 20 }, (_, idx) => ({
 }));
 
 // ============================================
-// CHANNELS DATA
+// CHANNELS DATA (for /channels/store endpoint - Instances)
 // ============================================
 
 export const mockChannels = [
   {
     id: 'ch-001',
-    channelName: 'WhatsApp Business Principal',
+    username: '+54 9 11 1234-5678',
+    channelName: 'WhatsAppBusiness',
+    basePath: '/whatsapps-business',
+    country: 'AR',
+    actualStatus: {
+      id: 1,
+      name: 'Connected',
+    },
+    state: {
+      name: 'Active',
+    },
     phone: '+5491112345678',
-    status: 'connected',
     type: 'whatsapp_business',
+    channelType: 'whatsapp',
     bot_status: 'active',
     created_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'ch-002',
-    channelName: 'WhatsApp Ventas',
+    username: '+54 9 11 9876-5432',
+    channelName: 'WhatsappBaileys',
+    basePath: '/whatsapps-baileys',
+    country: 'AR',
+    actualStatus: {
+      id: 1,
+      name: 'Connected',
+    },
+    state: {
+      name: 'Active',
+    },
     phone: '+5491198765432',
-    status: 'connected',
     type: 'whatsapp_baileys',
+    channelType: 'whatsapp',
     bot_status: 'active',
     created_at: '2024-01-10T00:00:00Z',
+  },
+  {
+    id: 'ch-003',
+    username: '@tienda_moda_ok',
+    channelName: 'Instagram',
+    basePath: '/instagram',
+    country: 'AR',
+    actualStatus: {
+      id: 1,
+      name: 'Connected',
+    },
+    state: {
+      name: 'Active',
+    },
+    type: 'instagram',
+    channelType: 'instagram',
+    bot_status: 'active',
+    created_at: '2024-02-15T00:00:00Z',
+    profilePicture: 'https://i.pravatar.cc/150?img=47',
+    followersCount: 12500,
   },
 ];
 

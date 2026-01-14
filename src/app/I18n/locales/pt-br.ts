@@ -433,6 +433,10 @@ export default {
       connected: 'Conectado',
       disconnected: 'Desconectado',
       initializing: 'Inicializando',
+      unknown: 'Desconhecido',
+      undefined: 'Sem estado',
+      connect: 'Conectar canal',
+      whatsappLight: 'Conectar WhatsApp Pessoal',
       'remove-alert': {
         title: 'Tem certeza de que deseja excluir esta conexão?',
         description:

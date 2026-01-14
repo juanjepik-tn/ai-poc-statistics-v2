@@ -36,6 +36,8 @@ import { isMarketingMessage, isPaymentMessage, getSystemMessageContent } from '@
 import FeedbackModal from './FeedbackModal';
 import { toast } from 'sonner';
 import { useIsMessageFailed } from './hooks/use-is-message-failed';
+import { ChannelIcon } from '@/components';
+import { ChannelType } from '@/types/conversation';
 
 //
 
@@ -46,9 +48,10 @@ type Props = {
   participants: any[];
   onOpenLightbox: (value: string) => void;
   store: string;
+  channelType?: ChannelType;
 };
 
-export default function ConversationMessageItem({ message, store }: Props) {
+export default function ConversationMessageItem({ message, store, channelType = 'whatsapp' }: Props) {
   const messageRef = useRef<HTMLDivElement>(null);
 
   const [me, setme] = useState(false);
@@ -694,7 +697,11 @@ export default function ConversationMessageItem({ message, store }: Props) {
         <img src="/imgs/ia-icon.svg" alt="ia-icon" width={18} />
       )}
       {classMessage.includes('store') &&
-        (fromApp ? <WhatsappIcon width={18} /> : <TiendanubeIcon width={18} />)}
+        (fromApp ? (
+          <ChannelIcon channel={channelType} size="small" />
+        ) : (
+          <TiendanubeIcon width={18} />
+        ))}
  
     </BoxNimbus>
   );

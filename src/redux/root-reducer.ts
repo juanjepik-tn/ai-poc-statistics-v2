@@ -8,6 +8,7 @@ import sessionReducer from './slices/session';
 import billingReducer from './slices/billing';
 import metaIssuesAlertReducer from './slices/metaIssue';
 import tagsReducer from './slices/tags';
+import channelsReducer from './slices/channels';
 // ----------------------------------------------------------------------
 
 export const rootPersistConfig = {
@@ -24,5 +25,6 @@ export const rootReducer = combineReducers({
   session: sessionReducer,
   billing: billingReducer,
   metaIssuesAlert: metaIssuesAlertReducer,
-  tags: tagsReducer
+  tags: tagsReducer,
+  channels: channelsReducer,
 });

@@ -11,11 +11,17 @@ import Playground from './components/Playground/Playground';
 import Channels from './components/Channels/Channels';
 import { trackingStepOnboarding } from '@/tracking';
 import Pricing from './components/Pricing/Pricing';
-const OnboardingStepper: React.FC = () => {
+
+interface OnboardingStepperProps {
+  initialStep?: number;
+}
+
+const OnboardingStepper: React.FC<OnboardingStepperProps> = ({ initialStep }) => {
   const navigate = useNavigate();
   //  const { t } = useTranslation('translations');
   const { step } = useParams();  
-  const stepNumber = step ? parseInt(step, 10) : 0;
+  // Use initialStep prop if provided, otherwise fall back to URL param
+  const stepNumber = initialStep ?? (step ? parseInt(step, 10) : 0);
 
   useEffect(() => {
     navigateHeaderRemove(nexo);

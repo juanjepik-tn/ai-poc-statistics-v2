@@ -253,6 +253,7 @@ export default function ConversationMessageList({
                   participants={participants}
                   onOpenLightbox={() => {}}
                   store={store}
+                  channelType={conversation?.channel?.channelType}
                 />
               </div>
             </Grow>            

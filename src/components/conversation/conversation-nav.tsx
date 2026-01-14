@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material/styles';
 //
 // import { IConversation } from 'src/types/conversation';
 
-import { IConversation } from '@/types/conversation';
+import { IConversation, ChannelType } from '@/types/conversation';
 import { Box as BoxNimbus, Icon, IconButton as IconButtonNimbus, Input, Popover, Spinner, Text, Title, Tooltip } from '@nimbus-ds/components';
 import { CogIcon, InfoCircleIcon, SearchIcon, StatsIcon } from '@nimbus-ds/icons';
 import { EmptyMessage, InteractiveList } from '@nimbus-ds/patterns';
@@ -32,8 +32,17 @@ import TagFilterSelect from './header-tag-filter-select';
 import { useResponsive } from './hooks/use-responsive';
 import { ModeContext, ModeOption } from './providers/ModeDataProvider';
 import { BillingDTO } from '@/types/billingDTO';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Announcement from '../Announcement/Announcement';
+import { ChannelFilter } from '../ChannelFilter';
+import { ReconnectBanner } from '../ReconnectBanner';
+import { 
+  selectAvailableChannelTypes, 
+  selectActiveFilter, 
+  setActiveFilter,
+  selectChannelsNeedingReconnection,
+  type ChannelFilterValue 
+} from '@/redux/slices/channels';
 
 // ----------------------------------------------------------------------
 
@@ -277,8 +286,37 @@ export default function ConversationNav({
   };
 
   const { selectedMode, handleRadioChange, modeOptions } = useContext(ModeContext);
+  
+  // Channel filter state from Redux
+  const dispatch = useDispatch();
+  const availableChannelTypes = useSelector(selectAvailableChannelTypes);
+  const channelFilter = useSelector(selectActiveFilter);
+  const channelsNeedingReconnection = useSelector(selectChannelsNeedingReconnection);
+  
+  const handleChannelFilterChange = (value: ChannelFilterValue) => {
+    dispatch(setActiveFilter(value));
+  };
+
+  const handleReconnect = () => {
+    // Navigate to configurations page for channel reconnection
+    navigate('/admin/chat#/configurations');
+  };
+
   const renderContent = (
     <>
+      {/* Reconnection Banner */}
+      {channelsNeedingReconnection.length > 0 && (
+        <BoxNimbus p="2">
+          {channelsNeedingReconnection.map((channel) => (
+            <ReconnectBanner
+              key={channel.channelId}
+              channel={channel.channelType}
+              onReconnect={() => handleReconnect(channel.channelType)}
+            />
+          ))}
+        </BoxNimbus>
+      )}
+      
       <BoxNimbus p="4" gap="1">
         <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" py="2">
           <Title as="h3">{t('app.title')}</Title>
@@ -356,6 +394,19 @@ export default function ConversationNav({
             id="search"
           />
         )}
+        
+        {/* Channel Filter - only show if multiple channels are available */}
+        {availableChannelTypes.length > 1 && (
+          <BoxNimbus paddingTop="2">
+            <ChannelFilter
+              value={channelFilter}
+              onChange={handleChannelFilterChange}
+              availableChannels={availableChannelTypes}
+              disabled={!billingData?.activeStatus}
+            />
+          </BoxNimbus>
+        )}
+        
          <ConversationTabs
         selectedFilter={selectedFilter}
         handleFilterChange={handleFilterChange}

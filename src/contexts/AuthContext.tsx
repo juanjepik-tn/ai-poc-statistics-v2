@@ -7,7 +7,7 @@ import React, {
   useMemo,
 } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
-import { supabase, isAllowedDomain, ALLOWED_DOMAINS } from '@/lib/supabase';
+import { supabase, isAllowedDomain, ALLOWED_DOMAINS, isSupabaseConfigured } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -29,7 +29,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(isSupabaseConfigured); // Skip loading if Supabase not configured
   const [error, setError] = useState<string | null>(null);
 
   const clearError = useCallback(() => {
@@ -55,6 +55,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Escuchar cambios de autenticación
   useEffect(() => {
+    // If Supabase is not configured, skip auth initialization
+    if (!isSupabaseConfigured) {
+      console.info('[POC Mode] Skipping Supabase auth initialization - running in offline mode');
+      return;
+    }
+
     // Obtener sesión inicial
     const getInitialSession = async () => {
       try {
@@ -105,6 +111,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [validateUserDomain]);
 
   const signInWithGoogle = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      console.warn('[POC Mode] Supabase not configured - sign in disabled');
+      setError('Autenticación no disponible en modo POC');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -131,6 +143,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const signOut = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      console.warn('[POC Mode] Supabase not configured - sign out disabled');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 

@@ -20,14 +20,92 @@ yarn dev
 
 | Ruta | Descripción |
 |------|-------------|
-| `/statistics` | Dashboard de estadísticas con gráficos |
-| `/conversations` | Lista de conversaciones de WhatsApp |
-| `/configurations` | Configuraciones de IA y reglas |
+| `/admin/chat#/conversations` | Lista de conversaciones multicanal |
+| `/admin/chat#/statistics` | Dashboard de estadísticas con gráficos |
+| `/admin/chat#/configurations` | Configuraciones de IA y canales |
+| `/admin/chat#/onboarding` | Flujo de onboarding (Paso 4 con canales) |
 | `/products` | Gestión de productos |
 | `/costs` | Información de billing y planes |
 | `/template-messages` | Plantillas de mensajes de WhatsApp |
-| `/onboarding` | Flujo de onboarding |
+| `/onboarding` | Flujo completo de onboarding |
 | `/instances` | Gestión de instancias WhatsApp |
+
+## 🔌 Canales de Mensajería (POC)
+
+### Canales Disponibles
+
+El POC soporta **3 canales de mensajería**:
+
+| Canal | Estado | Onboarding | Tag |
+|-------|--------|------------|-----|
+| **WhatsApp** | ✅ Completo | QR o Facebook Login | - |
+| **Instagram** | ✅ Completo | OAuth con Facebook | 🆕 Nuevo |
+| **Facebook Messenger** | ✅ Completo | OAuth con Facebook | 🆕 Nuevo |
+
+---
+
+## 📱 Probar Instagram y Facebook (NUEVO)
+
+### 1. Ver el Onboarding Multicanal
+
+**Ruta:** `/admin/chat#/onboarding`
+
+En el **Paso 4** del onboarding verás los 3 canales:
+- WhatsApp (conexión por QR o Facebook Login)
+- Instagram (con tag "Nuevo")
+- Facebook Messenger (con tag "Nuevo")
+
+> 💡 Los canales comienzan **desconectados** para probar el flujo completo.
+
+### 2. Flujos de Onboarding Independientes
+
+| Canal | Ruta | Pasos |
+|-------|------|-------|
+| Instagram | `/external/channels/instagram/onboarding` | 4 pasos con stepper visual |
+| Facebook | `/external/channels/facebook/onboarding` | 4 pasos (simplificado si Instagram ya conectado) |
+
+### 3. Ver Conversaciones por Canal
+
+**Ruta:** `/admin/chat#/conversations`
+
+- Las primeras conversaciones son de **Facebook Messenger** (para verlas sin scroll)
+- Usar el **filtro de canal** en el header para ver solo WhatsApp, Instagram o Facebook
+- Cada conversación muestra el **ícono del canal** en la lista y en el header
+
+### 4. Estadísticas por Canal
+
+**Ruta:** `/admin/chat#/statistics`
+
+- **Nuevo gráfico**: "Distribución por canal" (debajo del gráfico de mensajes por día)
+  - WhatsApp: 58% (verde)
+  - Instagram: 28% (rosa)
+  - Facebook: 14% (azul)
+- El gráfico **se oculta** si filtrás por un canal específico
+
+### 5. Configuración de Canales
+
+**Ruta:** `/admin/chat#/configurations`
+
+Sección "Instancias" con:
+- Tarjeta de WhatsApp (conectar por QR o Facebook)
+- Tarjeta de Instagram (con tag "Nuevo")
+- Tarjeta de Facebook Messenger (con tag "Nuevo")
+
+---
+
+### Flujo Simplificado de Facebook
+
+Si **Instagram ya está conectado**, el onboarding de Facebook Messenger:
+- ✅ Detecta la sesión OAuth existente
+- ⏭️ Salta el paso de conexión con Facebook
+- 📄 Solo requiere seleccionar la página
+
+### Estados de Conexión (Mock)
+
+Por defecto los canales comienzan **desconectados**. Al completar cada onboarding:
+- Se simula la conexión (con delay visual)
+- Se actualiza el estado en Redux
+- Se muestra el canal como "Conectado" con badge verde
 
 ## Estructura de Mocks
 

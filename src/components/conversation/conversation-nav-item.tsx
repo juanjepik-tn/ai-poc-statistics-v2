@@ -21,6 +21,8 @@ import { useIsMessageFailed } from './hooks/use-is-message-failed';
 import { useStoreDetails } from '@/hooks';
 import { getTagTranslation } from '@/hooks';
 import { TagText } from './TagText';
+import { ChannelBadge } from '../ChannelBadge';
+import { ChannelType } from '@/types/conversation';
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -264,18 +266,27 @@ const renderMoreTags = () => {
             gap="1"
             width="100%"
           >
-            <Text color="neutral-textHigh">
-              {conversation.customer?.frecuent && (
-                <Iconify
-                  width={12}
-                  icon="solar:star-bold"
-                  color="warning.main"
-                  sx={{ mr: 0.5 }}
+            <Box display="flex" alignItems="center" gap="1">
+              {/* Channel Badge - compact variant */}
+              {conversation?.channel?.channelType && (
+                <ChannelBadge 
+                  channel={conversation.channel.channelType as ChannelType} 
+                  variant="compact" 
                 />
               )}
-              {conversation?.customer?.name}
-            </Text>
-            <Box display="flex" flexDirection="row" gap="0-5">
+              <Text color="neutral-textHigh">
+                {conversation.customer?.frecuent && (
+                  <Iconify
+                    width={12}
+                    icon="solar:star-bold"
+                    color="warning.main"
+                    sx={{ mr: 0.5 }}
+                  />
+                )}
+                {conversation?.customer?.name}
+              </Text>
+            </Box>
+            <Box display="flex" flexDirection="row" gap="0-5" alignItems="center">
               {lastMessage?.role === 'assistant' && undoneHumanAttentionTags?.length === 0 && !isMessageFailed && (
                 <img src="/imgs/tick-icon.svg" alt="tick-icon" width={20} />
               )}

@@ -64,7 +64,9 @@ export type Instance = {
           </Box>
           <Box display='flex' flexDirection='row' gap='1'>
             {hasError && <Tag appearance='danger'>{t('common.error')}</Tag>}
-            <Tag appearance={actualStatus?.name?.toLowerCase() === 'connected' ? 'success' : 'danger'}>{t(`instances.${actualStatus?.name?.toLowerCase()}`)}</Tag>
+            <Tag appearance={actualStatus?.name?.toLowerCase() === 'connected' ? 'success' : 'danger'}>
+              {t(`instances.${actualStatus?.name?.toLowerCase() || 'unknown'}`)}
+            </Tag>
             {instance.channelName === 'WhatsAppBusiness' && <Tag appearance='primary'>WhatsApp Business</Tag>}
           </Box>
           </Box>

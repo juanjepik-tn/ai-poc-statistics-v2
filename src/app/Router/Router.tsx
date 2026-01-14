@@ -20,7 +20,8 @@ import { API_ENDPOINTS } from '../Axios/Axios';
 import TemplateMessagesList from '@/pages/TemplateMessages/TemplateMessagesList';
 import { setStoreInfo } from '@/redux/slices/store';
 import BillingDataProvider from '@/pages/Costs/providers/BillingDataProvider';
-import WhatsappIntegration from '@/pages/External/Channels/Whatsapp/WhatsappIntegration';
+import { InstagramOnboarding } from '@/pages/OnboardingInstagram';
+import { FacebookOnboarding } from '@/pages/OnboardingFacebook';
 import Home from '@/pages/Home/Home';
 import Costs from '@/pages/Costs/Costs';
 import { LoginPage, ProtectedRoute } from '@/components/Auth';
@@ -211,10 +212,18 @@ const Router: React.FC = () => {
         }
       />
       <Route
-        path="/external/whatsapp"
+        path="/external/channels/instagram/onboarding"
         element={
           <ProtectedRoute>
-            <WhatsappIntegration />
+            <InstagramOnboarding />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/external/channels/facebook/onboarding"
+        element={
+          <ProtectedRoute>
+            <FacebookOnboarding />
           </ProtectedRoute>
         }
       />

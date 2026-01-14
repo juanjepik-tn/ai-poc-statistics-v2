@@ -24,6 +24,7 @@ import PricingAlertStatus from '@/components/PricingAlertStatus/PricingAlertStat
 import { BillingDTO } from '@/types/billingDTO';
 import { useSelector } from 'react-redux';
 import { StatisticsTab } from '@/types/chatStatistics.types';
+import { selectActiveFilter } from '@/redux/slices/channels';
 import { thousandSeparator } from '@/common/utils/thousandSeparator';
 
 const Statistics: React.FC = () => {
@@ -35,6 +36,7 @@ const Statistics: React.FC = () => {
   const isMobile = windowWidth !== null && windowWidth <= 768;
   const [formattedFilters, setFormattedFilters] = useState<any>(null);
   const billingData: BillingDTO = useSelector((state: any) => state?.billing?.billingData);
+  const channelFilter = useSelector(selectActiveFilter);
   
   // URL hash params for tab tracking (helps with comments system)
   const tabIndexMap: Record<string, number> = { conversations: 0, sales: 1 };
@@ -183,6 +185,24 @@ const Statistics: React.FC = () => {
           secondaryName={t('statistics.total-messages')}
         />
       </Box>
+      {/* Distribución por Canal - Solo visible si no hay filtro específico */}
+      {channelFilter === 'all' && (
+        chatStatsLoading ? (
+          <Skeleton height="300px" width="100%" borderRadius="2" />
+        ) : (
+          <StatisticDonutChart
+            title="Distribución por canal"
+            subtitle="Porcentaje de conversaciones por canal de mensajería"
+            data={[
+              { name: 'WhatsApp', value: 58, color: '#25D366' },
+              { name: 'Instagram', value: 28, color: '#E1306C' },
+              { name: 'Facebook Messenger', value: 14, color: '#1877F2' },
+            ]}
+            totalLabel="Total conversaciones"
+            showTotal
+          />
+        )
+      )}
       {/* KPIs principales */}
       <Box display="flex" flexDirection="column" gap="4">
         <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} gap="4">
@@ -272,6 +292,7 @@ const Statistics: React.FC = () => {
           )}
         </Box>
       </Box>
+      {/* Distribución por Temas */}
       {chatStatsLoading ? (
         <Skeleton height="300px" width="100%" borderRadius="2" />
       ) : (
