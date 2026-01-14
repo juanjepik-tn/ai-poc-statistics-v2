@@ -275,14 +275,6 @@ const renderMoreTags = () => {
                 />
               )}
               <Text color="neutral-textHigh">
-                {conversation.customer?.frecuent && (
-                  <Iconify
-                    width={12}
-                    icon="solar:star-bold"
-                    color="warning.main"
-                    sx={{ mr: 0.5 }}
-                  />
-                )}
                 {conversation?.customer?.name}
               </Text>
             </Box>
