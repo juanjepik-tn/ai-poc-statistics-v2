@@ -100,7 +100,7 @@ export const supabase: SupabaseClient = isSupabaseConfigured
   : createMockSupabaseClient();
 
 // Dominios permitidos para login
-export const ALLOWED_DOMAINS = ['tiendanube.com', 'nuvemshop.com'];
+export const ALLOWED_DOMAINS = ['tiendanube.com', 'nuvemshop.com', 'nuvemshop.com.br'];
 
 /**
  * Valida si el email pertenece a un dominio permitido
