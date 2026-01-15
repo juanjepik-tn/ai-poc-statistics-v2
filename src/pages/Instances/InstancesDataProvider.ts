@@ -17,6 +17,43 @@ const BAILEYS_DISABLED = 'nuvemchat-baileys-disabled';
 // Mock QR code for POC mode
 const MOCK_QR_CODE = 'https://wa.me/qr/MOCKQRCODE12345';
 
+// Mock instances for POC mode - pre-connected channels
+const MOCK_CONNECTED_INSTANCES = [
+  {
+    id: 'mock-wa-001',
+    username: '+54 9 11 5555-1234',
+    basePath: 'whatsapp',
+    channelName: 'WhatsAppBusiness',
+    channelType: 'whatsapp',
+    country: 'AR',
+    state: { name: 'Active' },
+    actualStatus: { id: 1, name: 'Connected' },
+    createdAt: '2024-01-15T10:30:00.000Z',
+  },
+  {
+    id: 'mock-ig-001',
+    username: '@tienda_evolucion',
+    basePath: 'instagram',
+    channelName: 'Instagram',
+    channelType: 'instagram',
+    country: 'AR',
+    state: { name: 'Active' },
+    actualStatus: { id: 1, name: 'Connected' },
+    createdAt: '2024-01-20T14:15:00.000Z',
+  },
+  {
+    id: 'mock-fb-001',
+    username: 'Tienda Evolución',
+    basePath: 'facebook',
+    channelName: 'Facebook',
+    channelType: 'facebook',
+    country: 'AR',
+    state: { name: 'Active' },
+    actualStatus: { id: 1, name: 'Connected' },
+    createdAt: '2024-01-22T09:45:00.000Z',
+  },
+];
+
 const InstancesDataProvider: React.FC<any> = ({
   children,
 }) => {
@@ -123,10 +160,9 @@ const InstancesDataProvider: React.FC<any> = ({
  }, []);
 
   const onGetInstances = () => {
-    // POC Mode: Start with empty instances
+    // POC Mode: Load pre-connected mock instances
     if (IS_POC_MODE) {
-      // Don't set any instances by default - they start disconnected
-      // Instances will be added when user "connects"
+      setInstances(MOCK_CONNECTED_INSTANCES);
       return;
     }
 
@@ -168,15 +204,17 @@ const InstancesDataProvider: React.FC<any> = ({
           setTimeout(() => {
             const mockInstance = {
               id: `mock-wa-${Date.now()}`,
+              username: '+54 9 11 9876-5432',
               basePath: 'whatsapp',
-              channelName: 'WhatsappBusiness',
+              channelName: 'WhatsappBaileys',
               channelType: 'whatsapp',
-              phoneNumber: '+54 9 11 1234-5678',
+              country: 'AR',
               state: { name: 'Active' },
-              actualStatus: { name: 'Connected' },
+              actualStatus: { id: 1, name: 'Connected' },
               createdAt: new Date().toISOString(),
             };
-            setInstances([mockInstance]);
+            // Add to existing instances instead of replacing
+            setInstances(prev => [...prev, mockInstance]);
             setStatusUpdate('connected');
             setQr('');
             addToast({
@@ -225,11 +263,11 @@ const InstancesDataProvider: React.FC<any> = ({
   const onDeleteInstance = (basePath: string, id: string, showToast: boolean = true): Promise<boolean> => {
     setLoading(true);
     
-    // POC Mode: Simulate deletion
+    // POC Mode: Simulate deletion - remove only the specific instance
     if (IS_POC_MODE) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          setInstances([]);
+          setInstances(prev => prev.filter(inst => inst.id !== id));
           setStatusUpdate('');
           setLoading(false);
           if (showToast) {
@@ -282,11 +320,11 @@ const InstancesDataProvider: React.FC<any> = ({
   const onDisconnectInstance = (id: string): Promise<boolean> => {
     setLoading(true);
     
-    // POC Mode: Simulate disconnection
+    // POC Mode: Simulate disconnection - remove only the specific instance
     if (IS_POC_MODE) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          setInstances([]);
+          setInstances(prev => prev.filter(inst => inst.id !== id));
           setLoading(false);
           addToast({
             type: 'success',
