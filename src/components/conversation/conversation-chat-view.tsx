@@ -713,7 +713,7 @@ const onSendImage = useCallback(
           height: '100%',
           overflow: 'hidden',
           position: 'relative',
-          backgroundImage: 'url(/imgs/conversations-background.jpg)',
+          backgroundColor: '#ffffff',
         }}
       >
         {imgUrl && (
@@ -818,6 +818,10 @@ const onSendImage = useCallback(
       </Stack>
     </Box>
   );
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-chat-view.tsx:822',message:'ChatView render',data:{showChat,hasCurrentConversation:!!currentConversation,conversationId:currentConversation?.id,messagesCount:chatMessages?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H5'})}).catch(()=>{});
+  // #endregion
 
   return (
     <Sidebar padding="none" open={showChat} onRemove={() => {}} maxWidth="100%">

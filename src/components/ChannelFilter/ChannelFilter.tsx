@@ -50,38 +50,36 @@ export const ChannelFilter: React.FC<ChannelFilterProps> = ({
   };
 
   return (
-    <Box display="flex" alignItems="center" gap="2">
+    <Box display="flex" flexDirection="column" gap="1" width="100%">
       {showLabel && (
         <Text fontSize="caption" color="neutral-textLow">
           {t('channelFilter.label', 'Canal')}:
         </Text>
       )}
-      <Box position="relative" display="flex" alignItems="center">
-        <Select
-          id="channel-filter"
-          name="channel-filter"
-          value={value}
-          onChange={handleChange}
-          disabled={disabled}
-        >
-          {options.map((opt) => {
-            const getDefaultLabel = (val: string) => {
-              if (val === 'all') return 'Todos los canales';
-              if (val === 'whatsapp') return 'WhatsApp';
-              if (val === 'instagram') return 'Instagram';
-              if (val === 'facebook') return 'Facebook Messenger';
-              return val;
-            };
-            return (
-              <Select.Option 
-                key={opt.value} 
-                value={opt.value}
-                label={t(opt.labelKey, getDefaultLabel(opt.value))}
-              />
-            );
-          })}
-        </Select>
-      </Box>
+      <Select
+        id="channel-filter"
+        name="channel-filter"
+        value={value}
+        onChange={handleChange}
+        disabled={disabled}
+      >
+        {options.map((opt) => {
+          const getDefaultLabel = (val: string) => {
+            if (val === 'all') return 'Todos los canales';
+            if (val === 'whatsapp') return 'WhatsApp';
+            if (val === 'instagram') return 'Instagram';
+            if (val === 'facebook') return 'Facebook Messenger';
+            return val;
+          };
+          return (
+            <Select.Option 
+              key={opt.value} 
+              value={opt.value}
+              label={t(opt.labelKey, getDefaultLabel(opt.value))}
+            />
+          );
+        })}
+      </Select>
     </Box>
   );
 };

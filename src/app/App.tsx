@@ -91,7 +91,6 @@ const App: React.FC = () => {
         <BrowserRouter>
           <CommentsProvider>
             <ReduxProvider>
-              <POCBanner />
               <Toaster richColors />
               <Notification />
               <Router />

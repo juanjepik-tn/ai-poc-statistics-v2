@@ -31,6 +31,7 @@ import {
   CheckCircleIcon,
   CloseIcon,
   MagicWandIcon,
+  PlusIcon,
   RedoIcon,
   StopIcon,
   TrashIcon
@@ -306,6 +307,10 @@ export default function ConversationMessageInput({
     selectedMode,
   ]);
 
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-message-input.tsx:310',message:'Input render',data:{hasConversation:!!currentConversation,conversationId:currentConversation?.id,hasBillingData:!!billingData},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+  // #endregion
+
   return (
     <>
       <style>
@@ -328,179 +333,135 @@ export default function ConversationMessageInput({
               />
             </BoxNimbus>
           )}
-          <Stack
-            direction="column"
-            spacing={1}
+          {/* Chat Input Container - Figma style */}
+          <Box
             sx={{
               backgroundColor: 'white',
-              p: '8px',
+              border: '1px solid #b0b0b0',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              mx: 1,
+              mb: 1,
             }}
           >
-            <BoxNimbus display="flex" flexDirection="row" alignItems="center">
-              {showOperationMode && (
-                <BoxNimbus
-                  display="flex"
-                  alignItems="center"
-                  gap="1"
-                  marginRight="2"
-                >
-                  <Popover
-                    padding="none"
-                    position="top"
-                    content={
-                      <>
-                        <BoxNimbus>
-                          <BoxNimbus padding="2">
-                            <Text fontWeight="bold">
-                              {t('conversations.client-response-mode')}
-                            </Text>
-                          </BoxNimbus>
-
-                          <InteractiveList>
-                            {modeOptions.map((option: any) => (
-                              <InteractiveList.RadioItem
-                                key={option.number}
-                                title={option.title}
-                                description={option.description}
-                                radio={{
-                                  name: 'radio-element',
-                                  checked:
-                                    selectedModeCustomer?.customerName ===
-                                    option.customerName,
-                                  onChange: () =>
-                                    handleCustomerRadioChange(
-                                      option.customerName,
-                                      option.number,
-                                    ),
-                                }}
-                              />
-                            ))}
-                          </InteractiveList>
-                        </BoxNimbus>
-                      </>
-                    }
-                  >
-                    <BoxNimbus
-                      display="flex"
-                      flexDirection={{ xs: 'column', md: 'row' }}
-                      gap="1"
-                      cursor="pointer"
-                      alignItems="center"
-                      textAlign="center"
-                    >
-                      {isCustomerActive() ? (
-                        <img
-                          src="/imgs/ia-icon.svg"
-                          alt="WandIcon"
-                          width={16}
-                        />
-                      ) : (
-                        <img
-                          src="/imgs/ia-icon-paused.svg"
-                          alt="WandIcon"
-                          width={16}
-                        />
-                      )}
-                      <Text color="primary-interactive" textAlign="center">
-                        {selectedModeCustomer?.title}
-                      </Text>
-                    </BoxNimbus>
-                  </Popover>
-                </BoxNimbus>
-              )}
-
-              <InputBase
-                multiline
-                minRows={1}
-                maxRows={5}
-                inputRef={inputRef}
-                value={message}
-                onKeyDown={handleKeyDown}
-                onChange={handleChange}
-                placeholder={t('settings.step4.write')}
-                disabled={!billingData?.activeStatus || (recipients.length && !id && message.length > 0)}
-                endAdornment={
-                   <Stack direction="row" sx={{ flexShrink: 0 }}>
-                    <IconButton
-                      disabled={!canGenerateSuggest || !billingData?.activeStatus}
-                      onClick={() => {
-                        setGeneratingResponse(true);
-                        generateSuggestResponse();
-                        setSelectedSuggestResponse('');
-                        trackingCopilotRequested(currentConversation.id);
-                      }}
-                    >
-                      <Icon
-                        source={
-                          <MagicWandIcon
-                            size="medium"
-                            style={{ opacity: 0.9 }}
-                          />
-                        }
-                        color={
-                          canGenerateSuggest
-                            ? 'primary-interactive'
-                            : 'neutral-textDisabled'
-                        }
-                      />
-                    </IconButton>
-                  </Stack>
-                }
-                sx={{
-                  px: 1,
-                  border: (theme) => `solid 1px ${theme.palette.divider}`,
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                  '& .MuiInputBase-input': {
-                    paddingLeft: '8px',
+            {/* Input field - top section */}
+            <InputBase
+              multiline
+              minRows={1}
+              maxRows={5}
+              inputRef={inputRef}
+              value={message}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange}
+              placeholder={t('settings.step4.write')}
+              disabled={!billingData?.activeStatus || (recipients.length > 0 && !id && message.length > 0)}
+              sx={{
+                px: 1.5,
+                py: 1,
+                width: '100%',
+                '& .MuiInputBase-input': {
+                  fontSize: '14px',
+                  lineHeight: '20px',
+                  '&::placeholder': {
+                    color: '#6d6d6d',
+                    opacity: 1,
                   },
-                  flexGrow: { xs: 0.9, sm: 1 },
-                  flexShrink: 0,
+                },
+              }}
+            />
+
+            {/* Actions bar - bottom section */}
+            <BoxNimbus 
+              display="flex" 
+              flexDirection="row" 
+              alignItems="center" 
+              justifyContent="space-between"
+              paddingX="2"
+              paddingBottom="2"
+            >
+              {/* Plus button on the left */}
+              <IconButton
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  if (!billingData?.activeStatus) {
+                    return;
+                  }
+                  const input = document.getElementById('selectImage');
+                  if (input) {
+                    input.onchange = function (event: any) {
+                      sendImage(event.target.files[0]);
+                    };
+                    input?.click();
+                  }
                 }}
-              />
-              {message ? (
-                <IconButton onClick={handleSend}>
-                  <Iconify
-                    width={25}
-                    icon="ic:baseline-send"
-                    color={
-                      message ? 'primary-textLow' : 'neutral-textDisabled'
-                    }
+                disabled={!billingData?.activeStatus}
+                sx={{ p: 1 }}
+              >
+                <Icon source={<PlusIcon size={16} />} color="neutral-textHigh" />
+              </IconButton>
+
+              {/* Right side actions */}
+              <BoxNimbus display="flex" alignItems="center" gap="2">
+                {/* Magic wand / AI suggest button */}
+                <IconButton
+                  disabled={!canGenerateSuggest || !billingData?.activeStatus}
+                  onClick={() => {
+                    setGeneratingResponse(true);
+                    generateSuggestResponse();
+                    setSelectedSuggestResponse('');
+                    trackingCopilotRequested(currentConversation.id);
+                  }}
+                  sx={{ p: 1 }}
+                >
+                  <Icon
+                    source={<MagicWandIcon size={16} />}
+                    color={canGenerateSuggest ? 'neutral-textHigh' : 'neutral-textDisabled'}
                   />
                 </IconButton>
-              ) : (
-                <>
-                {/* 
-                  <IconButtonNimbus as="div"                   
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    if (!billingData?.activeStatus) {
-                      return;
-                    }
-                    const input = document.getElementById('selectImage');
-                    if (input) {
-                      input.onchange = function (event: any) {
-                        sendImage(event.target.files[0]);
-                      };
-                      input?.click();
-                    }
-                  }} source={<CameraIcon  />} borderColor="transparent" backgroundColor="transparent" />                   
-                  <IconButtonNimbus as="div" onClick={handleRecordClick} source={isRecording ? <StopIcon /> : <MicIcon height={20} />} borderColor="transparent" backgroundColor="transparent" />                  
-                */}
-                </>
-              )}
-              <Box sx={{ display: 'none' }}>
-                <input type="file" accept="*.*" required id="selectFile" />
-                <input
-                  type="file"
-                  accept="image/jpeg, image/png"
-                  required
-                  id="selectImage"
-                />
-              </Box>
+
+                {/* Send button - Figma style with gray background */}
+                <IconButton
+                  onClick={handleSend}
+                  disabled={!message || !billingData?.activeStatus}
+                  sx={{
+                    backgroundColor: '#e7e7e7',
+                    border: '1px solid #d1d1d1',
+                    borderRadius: '8px',
+                    width: 32,
+                    height: 32,
+                    minWidth: 32,
+                    p: 0,
+                    '&:hover': {
+                      backgroundColor: '#d1d1d1',
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: '#e7e7e7',
+                      border: '1px solid #d1d1d1',
+                    },
+                  }}
+                >
+                  <Iconify
+                    width={16}
+                    icon="mdi:arrow-up"
+                    color="#0a0a0a"
+                  />
+                </IconButton>
+              </BoxNimbus>
+
             </BoxNimbus>
 
-            {generatingResponse && suggestResponse === '' && (
+            <Box sx={{ display: 'none' }}>
+              <input type="file" accept="*.*" required id="selectFile" />
+              <input
+                type="file"
+                accept="image/jpeg, image/png"
+                required
+                id="selectImage"
+              />
+            </Box>
+          </Box>
+
+          {generatingResponse && suggestResponse === '' && (
               <BoxNimbus display="flex" alignItems="center" gap="1" mt="2">
                 <img src="/imgs/ia-icon.svg" alt="WandIcon" />
                 <Text fontSize="base" color="primary-interactive">
@@ -613,7 +574,6 @@ export default function ConversationMessageInput({
                   </BoxNimbus>
                 </Grow>
               )}
-          </Stack>
         </>
       )}
 

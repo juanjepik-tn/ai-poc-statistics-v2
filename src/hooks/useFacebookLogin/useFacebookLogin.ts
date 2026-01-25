@@ -8,7 +8,7 @@ import { nexo } from '@/app';
 import { useToast } from '@nimbus-ds/components';
 
 // POC Mode detection
-const IS_POC_MODE = true;
+const IS_POC_MODE = false;
 
 const useFacebookLogin = (onGetInstances: () => void, signupEndpoint?: string) => {
   const [authCode, setAuthCode] = useState<string | null>(null);

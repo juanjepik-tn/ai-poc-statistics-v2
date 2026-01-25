@@ -61,7 +61,7 @@ const TagFilterSelect: React.FC<TagFilterSelectProps> = ({
       });
   }, [request]);
   return (
-    <BoxNimbus px="4">
+    <BoxNimbus>
       <Select
         appearance="neutral"
         id="Id"

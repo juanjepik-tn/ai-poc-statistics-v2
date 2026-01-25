@@ -38,6 +38,7 @@ export default function ConversationMessageList({
   store,
   newMessage,
   isLoading,
+  conversation,
   isLoadingInitialMessages,
   hasMore,
   fetchingMoreMessages,

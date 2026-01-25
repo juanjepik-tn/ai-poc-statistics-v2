@@ -26,8 +26,9 @@ import {
   Text,
   Icon,
   Link,
+  Popover,
 } from '@nimbus-ds/components';
-import { ClockIcon, ExclamationCircleIcon, ExternalLinkIcon, TiendanubeIcon, WhatsappIcon } from '@nimbus-ds/icons';
+import { ClockIcon, ExclamationCircleIcon, ExternalLinkIcon, TiendanubeIcon, WhatsappIcon, ThumbsUpIcon, ThumbsDownIcon, CopyIcon, EllipsisIcon } from '@nimbus-ds/icons';
 import { t } from 'i18next';
 import Iconify from '../iconify';
 import { AudioMessagePlayer } from './AudioMessagePlayer';
@@ -69,6 +70,7 @@ export default function ConversationMessageItem({ message, store, channelType = 
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const [localResponseScore, setLocalResponseScore] = useState<number | null | undefined>(message.response_score);
+  const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
 
   
   
@@ -267,6 +269,14 @@ export default function ConversationMessageItem({ message, store, channelType = 
     } finally {
       setFeedbackLoading(false);
     }
+  };
+
+  const handleCopyMessage = () => {
+    if (message.content) {
+      navigator.clipboard.writeText(message.content);
+      toast.success(t('conversations.message-copied') || 'Mensaje copiado');
+    }
+    setMoreOptionsOpen(false);
   };
 
   const renderPreview = () => {
@@ -669,32 +679,40 @@ export default function ConversationMessageItem({ message, store, channelType = 
     <BoxNimbus
       justifyContent="flex-end"
       textAlign="right"
-      pr="5"
-      pb="0-5"
+      pr="6"
+      pb="1"
       display="flex"
       alignItems="center"
+      gap="2"
     >
-      <Text as="span" fontSize="caption" color="neutral-textDisabled">
+      <Text as="span" fontSize="caption" style={{ color: '#5d5d5d', fontWeight: 500 }}>
         {me &&
           (classMessage === 'message-bot' || classMessage === 'message-api' && !isPaymentMessage(classMessage)) &&
           t(`conversations.role.${role}`)}
-          {me &&
-(isPaymentMessage(classMessage) || classMessage === 'message-order-status') &&
-        t('conversations.role.sales-assistant')}
-        &nbsp;
+        {me &&
+          (isPaymentMessage(classMessage) || classMessage === 'message-order-status') &&
+          t('conversations.role.sales-assistant')}
         {me &&
           classMessage.includes('store') &&
           fromApp &&
           t(`conversations.source.whatsapp`)}
-        &nbsp;
         {me &&
           classMessage.includes('store') &&
           !fromApp &&
           t(`conversations.source.tiendanube`)}
-        &nbsp;
       </Text>
       {(classMessage === 'message-bot' || classMessage === 'message-api' || isPaymentMessage(classMessage) || classMessage === 'message-order-status') && (
-        <img src="/imgs/ia-icon.svg" alt="ia-icon" width={18} />
+        <div style={{
+          width: '24px',
+          height: '24px',
+          borderRadius: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundImage: 'linear-gradient(72deg, rgba(0, 80, 195, 0.03) 16%, rgba(71, 54, 180, 0.03) 42%, rgba(216, 68, 110, 0.03) 83%)',
+        }}>
+          <img src="/imgs/ia-icon.svg" alt="ia-icon" width={16} height={16} />
+        </div>
       )}
       {classMessage.includes('store') &&
         (fromApp ? (
@@ -702,40 +720,90 @@ export default function ConversationMessageItem({ message, store, channelType = 
         ) : (
           <TiendanubeIcon width={18} />
         ))}
- 
     </BoxNimbus>
   );
-  const renderInfo = (
-    <Typography
-      noWrap
-      textAlign="end"
-      variant="caption"
-      sx={{
-        color: 'text.disabled',
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        gap: 0.5,
-      }}
+  const renderTimestamp = new Date(created_at).getTime() < new Date().setHours(0, 0, 0, 0)
+    ? new Date(created_at).toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+    : new Date(created_at).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+
+  // Actions row with icons + timestamp (outside the bubble)
+  // Figma specs: gap 8px between bubble and row, icons 16px, gap between icons ~4px
+  // User messages: timestamp left-aligned, no action icons
+  // Bot messages: action icons + timestamp right-aligned
+  const renderActionsRow = (
+    <BoxNimbus
+      display="flex"
+      justifyContent={me ? 'flex-end' : 'flex-start'}
+      alignItems="center"
+      gap="2"
+      marginTop="2"
+      marginRight={me ? '6' : 'none'}
+      marginLeft={me ? 'none' : '0'}
+      width="100%"
     >
-      {new Date(created_at).getTime() < new Date().setHours(0, 0, 0, 0)
-        ? new Date(created_at).toLocaleString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          })
-        : new Date(created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          })}
-      {message.role === 'assistant' && !isMessageFailed && (
-        <img src="/imgs/tick-icon.svg" alt="tick-icon" width={18} />
+      {/* Action icons for bot messages - order: 👍 👎 📋 ⋮ timestamp */}
+      {me && message.role === 'assistant' && message.run_id && !isMessageFailed && (
+        <BoxNimbus display="flex" alignItems="center" gap="2">
+          <NimbusIconButton
+            source={likeLoading ? <Spinner size="small" /> : <ThumbsUpIcon size={16} />}
+            backgroundColor="transparent"
+            borderColor="transparent"
+            onClick={handleLike}
+            disabled={likeLoading || feedbackLoading}
+            size="small"
+          />
+          <NimbusIconButton
+            source={<ThumbsDownIcon size={16} />}
+            backgroundColor="transparent"
+            borderColor="transparent"
+            onClick={handleDislike}
+            disabled={likeLoading || feedbackLoading}
+            size="small"
+          />
+          <NimbusIconButton
+            source={<CopyIcon size={16} />}
+            backgroundColor="transparent"
+            borderColor="transparent"
+            onClick={handleCopyMessage}
+            size="small"
+          />
+          <Popover
+            content={
+              <BoxNimbus padding="2" cursor="pointer" onClick={handleCopyMessage}>
+                <Text fontSize="base">{t('conversations.copy-code') || 'Copiar código'}</Text>
+              </BoxNimbus>
+            }
+            visible={moreOptionsOpen}
+            onVisibility={setMoreOptionsOpen}
+            position="top-end"
+          >
+            <NimbusIconButton
+              source={<EllipsisIcon size={16} />}
+              backgroundColor="transparent"
+              borderColor="transparent"
+              onClick={() => setMoreOptionsOpen(!moreOptionsOpen)}
+              size="small"
+            />
+          </Popover>
+        </BoxNimbus>
       )}
-    </Typography>
+      
+      {/* Timestamp */}
+      <Text fontSize="caption" color="neutral-textDisabled" style={{ color: '#777' }}>
+        {renderTimestamp}
+      </Text>
+    </BoxNimbus>
   );
 
   const renderPDF = (
@@ -785,11 +853,9 @@ export default function ConversationMessageItem({ message, store, channelType = 
             paddingX="6"
           >
             <BoxNimbus display="flex" justifyContent="flex-end" gap="0-5" alignItems="center">
-              <img 
-                src={feedbackStatus === false ? "/imgs/thumb-down-icon.svg" : "/imgs/thumb-up-icon.svg"} 
-                alt="Feedback icon" 
-                width="12px" 
-                height="12px"
+              <Icon 
+                source={feedbackStatus === false ? <ThumbsDownIcon size={12} /> : <ThumbsUpIcon size={12} />}
+                color={feedbackStatus === false ? "danger-interactive" : "success-interactive"}
               />
               <Text 
                 as="span" 
@@ -819,14 +885,14 @@ export default function ConversationMessageItem({ message, store, channelType = 
           </BoxNimbus>
           <BoxNimbus display="flex" gap="0-5" justifyContent="flex-end">
             <NimbusIconButton
-              source={likeLoading ? <Spinner size="small" color="success-interactive" /> : <img src="/imgs/thumb-up-button.svg" alt="Thumb up" />}
+              source={likeLoading ? <Spinner size="small" color="success-interactive" /> : <ThumbsUpIcon size={16} />}
               backgroundColor="transparent"
               borderColor="transparent"
               onClick={handleLike}
               disabled={likeLoading || feedbackLoading}
             />
             <NimbusIconButton
-              source={<img src="/imgs/thumb-down-button.svg" alt="Thumb down" />}
+              source={<ThumbsDownIcon size={16} />}
               backgroundColor="transparent"
               borderColor="transparent"
               onClick={handleDislike}
@@ -842,19 +908,18 @@ export default function ConversationMessageItem({ message, store, channelType = 
   const renderBody = (
     <>
       <BoxNimbus
-        p={hasImage ? 'none' : '2'}
+        paddingX={hasImage ? 'none' : '4'}
+        paddingY={hasImage ? 'none' : '2-5'}
         minWidth="40px"
-        borderRadius="2"
-        backgroundColor={(isMarketingMessage(classMessage)) ? 'neutral-surfaceDisabled' : me ? 'primary-surface' : 'neutral-surface'}
+        backgroundColor={(isMarketingMessage(classMessage)) ? 'neutral-surfaceDisabled' : 'primary-surface'}
         marginRight="6"
+        style={{ borderRadius: '16px' }}
       >
         <div style={{ whiteSpace: 'pre-wrap', fontStyle: (isMarketingMessage(classMessage)) ? 'italic' : 'normal' }}>
-          <Text color="neutral-textLow" style={{ wordBreak: 'break-word'}}>
+          <Text color="neutral-textHigh" style={{ wordBreak: 'break-word', fontSize: '14px', lineHeight: '20px' }}>
             {renderMessageContent}
           </Text>
         </div>
-
-        {renderInfo}
       </BoxNimbus>
     </>
   );
@@ -884,15 +949,14 @@ export default function ConversationMessageItem({ message, store, channelType = 
             {me && renderAuthor}
             <BoxNimbus alignItems="center">
               {renderBody}
-              {/* {renderActions} */}
             </BoxNimbus>
+            {renderActionsRow}
             {message.role === 'assistant' && isMessageFailed && (
               <BoxNimbus display="flex" alignItems="center" justifyContent="flex-end" gap="1" marginTop="1" marginRight="6">
                 <Icon color="danger-interactive" source={< ExclamationCircleIcon size="small" />} />
                 <Text color="danger-textLow" fontSize="caption">{t('conversations.message-not-delivered')}</Text>
               </BoxNimbus>
             )}
-            {renderFeedbackButtons()}
           </BoxNimbus>
         </Stack>
       )}

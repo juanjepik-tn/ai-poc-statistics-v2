@@ -1,25 +1,15 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
-// hooks
 
-// routes
-// import { paths } from 'src/routes/paths';
-// types
-// import { IChatParticipant } from 'src/types/chat';
-// components
-// import { useRouter } from 'src/routes/hook';
-//
-// import { IConversation } from 'src/types/conversation';
-
-import { IConversation, ChannelType } from '@/types/conversation';
-import { Box as BoxNimbus, Icon, IconButton as IconButtonNimbus, Input, Popover, Spinner, Text, Title, Tooltip } from '@nimbus-ds/components';
-import { CogIcon, InfoCircleIcon, SearchIcon, StatsIcon } from '@nimbus-ds/icons';
-import { EmptyMessage, InteractiveList } from '@nimbus-ds/patterns';
+import { IConversation } from '@/types/conversation';
+import { Box as BoxNimbus, IconButton as IconButtonNimbus, Input, Spinner, Text, Title } from '@nimbus-ds/components';
+import { CogIcon, InfoCircleIcon, SearchIcon } from '@nimbus-ds/icons';
+import { EmptyMessage } from '@nimbus-ds/patterns';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Iconify from '../iconify/iconify';
@@ -30,10 +20,8 @@ import ConversationNavSearchResults from './conversation-nav-search-results';
 import ConversationTabs from './header-mode-filter-tab';
 import TagFilterSelect from './header-tag-filter-select';
 import { useResponsive } from './hooks/use-responsive';
-import { ModeContext, ModeOption } from './providers/ModeDataProvider';
 import { BillingDTO } from '@/types/billingDTO';
 import { useSelector, useDispatch } from 'react-redux';
-import Announcement from '../Announcement/Announcement';
 import { ChannelFilter } from '../ChannelFilter';
 import { ReconnectBanner } from '../ReconnectBanner';
 import { 
@@ -285,7 +273,6 @@ export default function ConversationNav({
     handleTagFilter(value);
   };
 
-  const { selectedMode, handleRadioChange, modeOptions } = useContext(ModeContext);
   
   // Channel filter state from Redux
   const dispatch = useDispatch();
@@ -297,10 +284,13 @@ export default function ConversationNav({
     dispatch(setActiveFilter(value));
   };
 
-  const handleReconnect = () => {
+  const handleReconnect = (_channelType?: string) => {
     // Navigate to configurations page for channel reconnection
     navigate('/admin/chat#/configurations');
   };
+
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const renderContent = (
     <>
@@ -318,107 +308,85 @@ export default function ConversationNav({
       )}
       
       <BoxNimbus p="4" gap="1">
-        <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" py="2">
-          <Title as="h3">{t('app.title')}</Title>
+        <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" py="2">
+          <Title as="h3">Chat</Title>
           <BoxNimbus display="flex" justifyContent="flex-end" gap="2">
-            <Popover
-              padding='none'  
-              enabledClick={billingData?.activeStatus}
-              content={
-                <>
-                  <BoxNimbus>
-                    <BoxNimbus padding='2'>
-                      <Text fontWeight="bold">
-                        {t('conversations.default-response-mode')}
-                      </Text>
-                    </BoxNimbus>
-
-                    <InteractiveList>
-                      {modeOptions.map((option: ModeOption) => (
-                        <InteractiveList.RadioItem
-                          key={option.number}
-                          title={option.title}
-                          description={option.description}
-                          radio={{
-                            name: 'radio-element',
-                            checked: selectedMode.title === option.title,
-                            onChange: () => handleRadioChange(option)
-                          }}
-                        />
-                      ))}
-                    </InteractiveList>
-                  </BoxNimbus>
-                </>
-              }
-            >
-
-              {/* 
-                <Button>
-                  <img src="/imgs/ia-icon.svg" alt="WandIcon" />
-
-                  {selectedMode.title}
-                </Button> 
-                */}
-              <Tooltip content={selectedMode.title} position="top">
-                <IconButtonNimbus
-                  disabled={!billingData?.activeStatus}
-                  source={selectedMode.number !== 1 ? <img src="/imgs/ia-icon-paused.svg" alt="WandIcon" /> : <img src="/imgs/ia-icon.svg" alt="WandIcon" />}
-                  size="2rem"
-                />
-              </Tooltip>
-            </Popover>
-
-             <IconButtonNimbus
-              source={<StatsIcon />}
+            <IconButtonNimbus
+              source={<SearchIcon />}
               size="2rem"
-              onClick={() => navigate('/statistics')}
-            /> 
-            
-            <Announcement position="bottom">
-                <IconButtonNimbus
-                  source={<CogIcon />}
-                  size="2rem"
-                  onClick={() => navigate('/configurations')}
-                />
-            </Announcement>
+              onClick={() => setShowSearch(!showSearch)}
+              disabled={!billingData?.activeStatus}
+            />
+            <IconButtonNimbus
+              source={<CogIcon />}
+              size="2rem"
+              onClick={() => navigate('/configurations')}
+            />
           </BoxNimbus>
         </BoxNimbus>
-        {!collapseDesktop && (
-          <Input
-            placeholder={t('conversations.search')}
-            disabled={!billingData?.activeStatus}
-            append={<Icon source={<SearchIcon />} />}
-            appendPosition="start"
-            onChange={handleSearchContact}
-            name="search"
-            id="search"
-          />
-        )}
         
-        {/* Channel Filter - only show if multiple channels are available */}
-        {availableChannelTypes.length > 1 && (
+        {/* Segmented Control + Filter Button */}
+        <ConversationTabs
+          selectedFilter={selectedFilter}
+          handleFilterChange={handleFilterChange}
+          unreadMessagesCount={unreadMessagesCount}
+          onFilterClick={() => setShowFilters(!showFilters)}
+          filtersActive={showFilters}
+        />
+
+        {/* Search Input - only visible when search icon is clicked */}
+        {showSearch && !collapseDesktop && (
           <BoxNimbus paddingTop="2">
-            <ChannelFilter
-              value={channelFilter}
-              onChange={handleChannelFilterChange}
-              availableChannels={availableChannelTypes}
+            <Input
+              placeholder={t('conversations.search')}
               disabled={!billingData?.activeStatus}
+              append={<SearchIcon size={16} />}
+              appendPosition="start"
+              onChange={handleSearchContact}
+              name="search"
+              id="search"
             />
           </BoxNimbus>
         )}
         
-         <ConversationTabs
-        selectedFilter={selectedFilter}
-        handleFilterChange={handleFilterChange}
-        unreadMessagesCount={unreadMessagesCount}
-      />
+        {/* Filters Panel - only visible when filter button is clicked */}
+        {showFilters && (
+          <BoxNimbus 
+            paddingTop="4"
+            display="flex" 
+            flexDirection="column" 
+            gap="4"
+          >
+            {/* Channel Filter - only show if multiple channels are available */}
+            {availableChannelTypes.length > 1 && (
+              <BoxNimbus display="flex" flexDirection="column" gap="1">
+                <Text fontSize="caption" fontWeight="medium" color="neutral-textLow">
+                  Canal
+                </Text>
+                <ChannelFilter
+                  value={channelFilter}
+                  onChange={handleChannelFilterChange}
+                  availableChannels={availableChannelTypes}
+                  disabled={!billingData?.activeStatus}
+                />
+              </BoxNimbus>
+            )}
+
+            {/* Tag Filter */}
+            <BoxNimbus display="flex" flexDirection="column" gap="1">
+              <Text fontSize="caption" fontWeight="medium" color="neutral-textLow">
+                Etiqueta
+              </Text>
+              <TagFilterSelect
+                selectedTagFilter={selectedTagFilter}
+                handleTagFilterChange={handleTagFilterChange}
+                availableReferenceIds={availableReferenceIds}
+              />
+            </BoxNimbus>
+          </BoxNimbus>
+        )}
 
       </BoxNimbus>
-      <TagFilterSelect
-        selectedTagFilter={selectedTagFilter}
-        handleTagFilterChange={handleTagFilterChange}
-        availableReferenceIds={availableReferenceIds}
-      />
       <Box
         ref={containerRef}
         sx={{ px: 0, py: 1, height: 1, overflow: 'scroll' }}

@@ -1,6 +1,4 @@
 import Box from '@mui/material/Box';
-//
-import Avatar from '@mui/material/Avatar';
 import { useState } from 'react';
 
 type Props = {
@@ -10,6 +8,16 @@ type Props = {
   width: number;
 };
 
+// Get initials from name (max 2 characters)
+const getInitials = (name: string): string => {
+  if (!name) return '?';
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) {
+    return words[0].substring(0, 2).toUpperCase();
+  }
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+};
+
 export default function ConversationAvatar({
   name,
   imageUrl,
@@ -17,6 +25,7 @@ export default function ConversationAvatar({
   width,
 }: Props) {
   const [loadError, setLoadError] = useState(false);
+  const initials = getInitials(name);
 
   return (
     <>
@@ -38,7 +47,23 @@ export default function ConversationAvatar({
           }}
         />
       ) : (
-        <Avatar alt={name} sx={{ width, height, my: 1 }} />
+        <Box
+          sx={{
+            width,
+            height,
+            borderRadius: '50%',
+            backgroundColor: '#eef5ff', // primary/surface from Figma
+            color: '#0059d5', // primary/interactive from Figma
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: Math.max(width * 0.4, 12),
+            fontWeight: 500,
+            fontFamily: '"Inter", sans-serif',
+          }}
+        >
+          {initials}
+        </Box>
       )}
     </>
   );

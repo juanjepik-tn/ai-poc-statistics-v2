@@ -289,6 +289,9 @@ export default function ConversationView({
   };
 
   const fetchMoreConversations = useCallback(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:fetchMoreConversations',message:'CALLING API',data:{username:currentConversation?.customer?.username,page:currentPageRef.current},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H12'})}).catch(()=>{});
+    // #endregion
     setLoadingMoreMessages(true);
     currentConversation &&
       request<any>({
@@ -299,6 +302,9 @@ export default function ConversationView({
         method: 'GET',
       })
         .then(({ content }) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:fetchMoreConversations:response',message:'API response',data:{rowsCount:content?.rows?.length,total:content?.total,firstRowMessages:content?.rows?.[0]?.messagesPanel?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H12,H13'})}).catch(()=>{});
+          // #endregion
           setConversationsQuantity(content.total);
           setTotalMessagesPages(content.total);
           if (content.rows.length > 0) {
@@ -323,6 +329,9 @@ export default function ConversationView({
           setLoadingMoreConversations(false);
         })
         .catch((error) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:fetchMoreConversations:error',message:'API ERROR',data:{error:error?.message||String(error)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H12'})}).catch(()=>{});
+          // #endregion
           console.error(error);
           // Manejo de errores
         });
@@ -809,12 +818,23 @@ export default function ConversationView({
     }
   };
 
+  const prevStoreIdRef = useRef(stateStore.id);
   useEffect(() => {
+    // Only clear conversation if store actually changed (not on initial render)
+    if (prevStoreIdRef.current !== stateStore.id && prevStoreIdRef.current !== undefined) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:812-useEffect',message:'CLEARING currentConversation (store changed)',data:{prevStoreId:prevStoreIdRef.current,newStoreId:stateStore.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H6-fix'})}).catch(()=>{});
+      // #endregion
+      setCurrentConversation(undefined);
+    }
+    prevStoreIdRef.current = stateStore.id;
     setSelectedStore(stateStore.id);
-    setCurrentConversation(undefined);
   }, [stateStore.id]);
 
   const onClickNavItem = (conversationAux: any) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:onClickNavItem',message:'SELECTING conversation',data:{conversationId:conversationAux?.id,customerId:conversationAux?.customer?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H6,H8'})}).catch(()=>{});
+    // #endregion
     setCurrentConversation(conversationAux);
     currentPageRef.current = 0;
     setCurrentPage(0);
@@ -825,6 +845,9 @@ export default function ConversationView({
   };
 
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:useEffect-fetchMessages',message:'useEffect triggered',data:{hasUsername:!!currentConversation?.customer?.username,username:currentConversation?.customer?.username,conversationId:currentConversation?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H11'})}).catch(()=>{});
+    // #endregion
     if (currentConversation?.customer?.username) {
       fetchMoreConversations();
     }
@@ -954,7 +977,7 @@ export default function ConversationView({
           height: '100%',
           overflow: 'hidden',
           position: 'relative',
-          backgroundImage: 'url(/imgs/conversations-background.jpg)',
+          backgroundColor: '#ffffff',
         }}
       >
         {imgUrl && (
@@ -1016,6 +1039,9 @@ export default function ConversationView({
         )}
         {!imgUrl && currentConversation && (
           <>
+            {/* #region agent log */}
+            {(() => { fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:renderMessages',message:'RENDERING messages area',data:{hasConversation:true,conversationId:currentConversation?.id,messagesCount:chatMessages?.length,isChannelConnected},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H9,H10'})}).catch(()=>{}); return null; })()}
+            {/* #endregion */}
             <ConversationMessageList
               messages={chatMessages || []}
               participants={participantsInConversation}
@@ -1145,6 +1171,10 @@ export default function ConversationView({
       </Box>
     </Card>
   );
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:1148',message:'ConversationView render',data:{hasCurrentConversation:!!currentConversation,conversationId:currentConversation?.id,customerId:currentConversation?.customer?.id,messagesCount:chatMessages?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H4,H5'})}).catch(()=>{});
+  // #endregion
+
   return (
     <ModeCustomerDataProvider
       initialCustomerId={currentConversation?.customer?.id}

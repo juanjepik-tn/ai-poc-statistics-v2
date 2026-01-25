@@ -573,6 +573,7 @@ export default {
       'loading-more': 'Carregando mais conversas...',
       'need-attention': 'Precisam de atenção',
       all: 'Todos',
+      filter: 'Filtrar',
       feedback: {
         title: 'Como poderíamos melhorar?',
         question: 'Esta resposta foi útil?',

@@ -21,7 +21,7 @@ import { useIsMessageFailed } from './hooks/use-is-message-failed';
 import { useStoreDetails } from '@/hooks';
 import { getTagTranslation } from '@/hooks';
 import { TagText } from './TagText';
-import { ChannelBadge } from '../ChannelBadge';
+import { ChannelIcon } from '../ChannelIcon';
 import { ChannelType } from '@/types/conversation';
 // ----------------------------------------------------------------------
 
@@ -222,14 +222,10 @@ const renderMoreTags = () => {
         <Box display="flex" flexDirection="row"
           gap="5" padding="2"
         >
-          <Box
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-          >
+          {/* Avatar container with channel badge */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             {conversation.avatar ? (
               <Box
-                gap="10"
                 backgroundColor="neutral-surfaceDisabled"
                 borderRadius="half"
                 height="32px"
@@ -258,7 +254,16 @@ const renderMoreTags = () => {
                 <Icon color="neutral-textHigh" source={<UserCircleIcon />} />
               </Box>
             )}
-          </Box>
+            {/* Channel Badge - positioned at bottom-right of avatar */}
+            {conversation?.channel?.channelType && (
+              <div style={{ position: 'absolute', bottom: '-3px', right: '-5px' }}>
+                <ChannelIcon 
+                  channel={conversation.channel.channelType as ChannelType} 
+                  size="small"
+                />
+              </div>
+            )}
+          </div>
           <Box
             display="flex"
             flexDirection="column"
@@ -267,14 +272,7 @@ const renderMoreTags = () => {
             width="100%"
           >
             <Box display="flex" alignItems="center" gap="1">
-              {/* Channel Badge - compact variant */}
-              {conversation?.channel?.channelType && (
-                <ChannelBadge 
-                  channel={conversation.channel.channelType as ChannelType} 
-                  variant="compact" 
-                />
-              )}
-              <Text color="neutral-textHigh">
+              <Text color="neutral-textHigh" fontWeight="medium">
                 {conversation?.customer?.name}
               </Text>
             </Box>

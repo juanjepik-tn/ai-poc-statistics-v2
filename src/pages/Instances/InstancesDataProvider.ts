@@ -9,7 +9,7 @@ import { InstancesChannelDTO } from '@/types/instancesDTO';
 import { trackingQRGeneration } from '@/tracking';
 
 // POC Mode detection
-const IS_POC_MODE = true; // Enable POC mock mode
+const IS_POC_MODE = false; // Disable POC mock mode for production
 
 const BAILEYS_ENABLED = 'nuvemchat-baileys-enabled';
 const BAILEYS_DISABLED = 'nuvemchat-baileys-disabled';

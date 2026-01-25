@@ -6,7 +6,7 @@
 import { useEffect } from 'react';
 
 // POC Mode: Disable WebSocket notifications
-const POC_MODE = true;
+const POC_MODE = false;
 
 const Notification = () => {
   useEffect(() => {

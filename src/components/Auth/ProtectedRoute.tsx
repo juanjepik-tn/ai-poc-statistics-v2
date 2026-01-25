@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-// Autenticación habilitada - requiere email @tiendanube.com o @nuvemshop.com
+// POC Mode - bypass authentication to test UI changes
 const BYPASS_AUTH = false;
 
 /**
