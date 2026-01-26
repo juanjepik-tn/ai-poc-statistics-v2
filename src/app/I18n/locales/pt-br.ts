@@ -657,7 +657,7 @@ export default {
       'ia-redo': 'Gerar novamente',
       'ia-use': 'Usar mensagem',
       photo: 'Foto',
-      unreads: 'Intervenção Humana',
+      unreads: 'Não lido',
       'The bot did not respond properly': 'O bot não respondeu corretamente',
       'Failed to retrieve the suggest response':
         'Não foi possível recuperar a sugestão de IA',

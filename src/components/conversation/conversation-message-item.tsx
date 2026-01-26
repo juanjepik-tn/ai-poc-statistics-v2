@@ -675,17 +675,17 @@ export default function ConversationMessageItem({ message, store, channelType = 
       </FormattedTextWrapper>
     );
   }, [thumbnail, audioUrl, cart]);
+  // Figma: Author header with text "Assistente de venda" + IA icon (24px container, 12px icon)
   const renderAuthor = (
     <BoxNimbus
       justifyContent="flex-end"
       textAlign="right"
-      pr="6"
-      pb="1"
       display="flex"
       alignItems="center"
       gap="2"
+      pb="1"
     >
-      <Text as="span" fontSize="caption" style={{ color: '#5d5d5d', fontWeight: 500 }}>
+      <Text as="span" fontSize="caption" style={{ color: '#5d5d5d', fontWeight: 500, fontSize: '12px', lineHeight: '16px', fontFamily: "'Geist', sans-serif" }}>
         {me &&
           (classMessage === 'message-bot' || classMessage === 'message-api' && !isPaymentMessage(classMessage)) &&
           t(`conversations.role.${role}`)}
@@ -709,9 +709,10 @@ export default function ConversationMessageItem({ message, store, channelType = 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          padding: '6px',
           backgroundImage: 'linear-gradient(72deg, rgba(0, 80, 195, 0.03) 16%, rgba(71, 54, 180, 0.03) 42%, rgba(216, 68, 110, 0.03) 83%)',
         }}>
-          <img src="/imgs/ia-icon.svg" alt="ia-icon" width={16} height={16} />
+          <img src="/imgs/ia-icon.svg" alt="ia-icon" width={12} height={12} />
         </div>
       )}
       {classMessage.includes('store') &&
@@ -737,23 +738,33 @@ export default function ConversationMessageItem({ message, store, channelType = 
         hour12: false,
       });
 
-  // Actions row with icons + timestamp (outside the bubble)
-  // Figma specs: gap 8px between bubble and row, icons 16px, gap between icons ~4px
-  // User messages: timestamp left-aligned, no action icons
-  // Bot messages: action icons + timestamp right-aligned
-  const renderActionsRow = (
+  // Figma specs: 
+  // - User messages: timestamp below bubble, LEFT aligned, no action icons
+  // - Bot messages: action icons + timestamp INSIDE bubble area, RIGHT aligned
+  // - Icons: 16px, color #5d5d5d, gap 8px between them
+  // - Timestamp: 12px, color #5d5d5d
+  
+  // User timestamp (below bubble, left aligned)
+  const renderUserTimestamp = (
+    <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '8px' }}>
+      <span style={{ color: '#5d5d5d', fontSize: '12px', lineHeight: '16px', fontFamily: "'Geist', sans-serif" }}>
+        {renderTimestamp}
+      </span>
+    </div>
+  );
+
+  // Bot actions row (inside bubble container, right aligned)
+  const renderBotActionsRow = (
     <BoxNimbus
       display="flex"
-      justifyContent={me ? 'flex-end' : 'flex-start'}
+      justifyContent="flex-end"
       alignItems="center"
       gap="2"
       marginTop="2"
-      marginRight={me ? '6' : 'none'}
-      marginLeft={me ? 'none' : '0'}
       width="100%"
     >
       {/* Action icons for bot messages - order: 👍 👎 📋 ⋮ timestamp */}
-      {me && message.role === 'assistant' && message.run_id && !isMessageFailed && (
+      {message.role === 'assistant' && message.run_id && !isMessageFailed && (
         <BoxNimbus display="flex" alignItems="center" gap="2">
           <NimbusIconButton
             source={likeLoading ? <Spinner size="small" /> : <ThumbsUpIcon size={16} />}
@@ -800,9 +811,9 @@ export default function ConversationMessageItem({ message, store, channelType = 
       )}
       
       {/* Timestamp */}
-      <Text fontSize="caption" color="neutral-textDisabled" style={{ color: '#777' }}>
+      <span style={{ color: '#5d5d5d', fontSize: '12px', lineHeight: '16px', fontFamily: "'Geist', sans-serif" }}>
         {renderTimestamp}
-      </Text>
+      </span>
     </BoxNimbus>
   );
 
@@ -905,23 +916,39 @@ export default function ConversationMessageItem({ message, store, channelType = 
     return null;
   };
 
+  // Figma specs:
+  // - Bot/Store bubble: #eef5ff (primary/surface)
+  // - Client bubble: #f6f6f6 (neutral/surface)
+  // - Border-radius: 16px
+  // - Padding: 16px horizontal, 10px vertical
+  const getBubbleBackground = () => {
+    if (isMarketingMessage(classMessage)) return '#e7e7e7';
+    if (me) return '#eef5ff'; // Bot/Store: azul claro
+    return '#f6f6f6'; // Cliente: gris claro
+  };
+
   const renderBody = (
-    <>
-      <BoxNimbus
-        paddingX={hasImage ? 'none' : '4'}
-        paddingY={hasImage ? 'none' : '2-5'}
-        minWidth="40px"
-        backgroundColor={(isMarketingMessage(classMessage)) ? 'neutral-surfaceDisabled' : 'primary-surface'}
-        marginRight="6"
-        style={{ borderRadius: '16px' }}
-      >
-        <div style={{ whiteSpace: 'pre-wrap', fontStyle: (isMarketingMessage(classMessage)) ? 'italic' : 'normal' }}>
-          <Text color="neutral-textHigh" style={{ wordBreak: 'break-word', fontSize: '14px', lineHeight: '20px' }}>
-            {renderMessageContent}
-          </Text>
-        </div>
-      </BoxNimbus>
-    </>
+    <div
+      style={{
+        minWidth: '40px',
+        backgroundColor: getBubbleBackground(),
+        borderRadius: '16px',
+        padding: hasImage ? '0' : '10px 16px',
+        fontFamily: "'Geist', sans-serif",
+      }}
+    >
+      <div style={{ whiteSpace: 'pre-wrap', fontStyle: (isMarketingMessage(classMessage)) ? 'italic' : 'normal' }}>
+        <span style={{ 
+          wordBreak: 'break-word', 
+          fontSize: '14px', 
+          lineHeight: '20px',
+          color: '#0a0a0a',
+          fontFamily: "'Geist', sans-serif",
+        }}>
+          {renderMessageContent}
+        </span>
+      </div>
+    </div>
   );
 
   return (
@@ -939,21 +966,24 @@ export default function ConversationMessageItem({ message, store, channelType = 
           ref={messageRef}
           direction="row"
           justifyContent={me ? 'flex-end' : 'unset'}
-          sx={{ mb: 0.5 }}
+          sx={{ mb: 1 }}
         >
           <BoxNimbus
-            alignItems="flex-end"
+            display="flex"
+            alignItems={me ? 'flex-end' : 'flex-start'}
             flexDirection="column"
             maxWidth="80%"
+            gap="1"
           >
             {me && renderAuthor}
-            <BoxNimbus alignItems="center">
-              {renderBody}
-            </BoxNimbus>
-            {renderActionsRow}
+            {renderBody}
+            {/* Bot: actions + timestamp below bubble, right aligned */}
+            {me && renderBotActionsRow}
+            {/* User: timestamp below bubble, left aligned */}
+            {!me && renderUserTimestamp}
             {message.role === 'assistant' && isMessageFailed && (
-              <BoxNimbus display="flex" alignItems="center" justifyContent="flex-end" gap="1" marginTop="1" marginRight="6">
-                <Icon color="danger-interactive" source={< ExclamationCircleIcon size="small" />} />
+              <BoxNimbus display="flex" alignItems="center" justifyContent="flex-end" gap="1" marginTop="1">
+                <Icon color="danger-interactive" source={<ExclamationCircleIcon size="small" />} />
                 <Text color="danger-textLow" fontSize="caption">{t('conversations.message-not-delivered')}</Text>
               </BoxNimbus>
             )}

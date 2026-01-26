@@ -356,12 +356,17 @@ export default function ConversationMessageInput({
               placeholder={t('settings.step4.write')}
               disabled={!billingData?.activeStatus || (recipients.length > 0 && !id && message.length > 0)}
               sx={{
-                px: 1.5,
-                py: 1,
+                px: 1,
+                py: 0.5,
                 width: '100%',
+                backgroundColor: 'transparent',
+                fontFamily: "'Geist', sans-serif",
                 '& .MuiInputBase-input': {
                   fontSize: '14px',
                   lineHeight: '20px',
+                  fontFamily: "'Geist', sans-serif",
+                  padding: '4px',
+                  backgroundColor: 'transparent',
                   '&::placeholder': {
                     color: '#6d6d6d',
                     opacity: 1,

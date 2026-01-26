@@ -94,8 +94,7 @@ const App: React.FC = () => {
               <Toaster richColors />
               <Notification />
               <Router />
-              {/* Comments System - Floating button, panel and modal */}
-              <CommentsSystem />
+              {/* Comments System removed for cleaner UX during user testing */}
             </ReduxProvider>
           </CommentsProvider>
         </BrowserRouter>

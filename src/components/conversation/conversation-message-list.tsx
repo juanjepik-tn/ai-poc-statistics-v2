@@ -190,10 +190,12 @@ export default function ConversationMessageList({
         ref={containerRef}
         overflowY="auto"
         paddingLeft="5"
+        paddingRight="4"
         pb={isMobile ? '10' : 'none'}
         width="100%"
         height="100%"
         key="conversation-message-list-box"
+        style={{ backgroundColor: '#f6f6f6' }}
       >
         {isLoading && (
           <TypeAnimation

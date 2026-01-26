@@ -171,40 +171,29 @@ export default function ConversationNavItem({
     )
   };
 
+  // Solo mostrar tags de atención humana (remover badges de status, carrinho, etc.)
   const renderTags = () => (
     <Box display="flex" gap="2" cursor="pointer" flexDirection="row" alignItems="flex-end">
-      {undoneHumanAttentionTags.length > 0 ? (
+      {undoneHumanAttentionTags.length > 0 && (
         undoneHumanAttentionTags.slice(0, 1).map((tag: any, index: any) => (
           <Tag key={index} appearance="warning">
             <TagText tagName={tag?.name} color="warning-textLow" fontSize="caption" lineClamp={1} />
-          </Tag>
-        ))
-      ) : (
-        undoneTaggedTags.length > 0 && undoneTaggedTags
-        .sort((a: any, b: any) => a.id - b.id)
-        .slice(0, 1)
-        .map((tag: any, index: any) => (
-          <Tag key={index} appearance="neutral">
-            {tag.name === 'cart-sent' && <ShoppingCartIcon color="neutral-textLow" />}
-            <TagText tagName={tag?.name} color="neutral-textLow" fontSize="caption" lineClamp={1} />
           </Tag>
         ))
       )}
     </Box>
   );
 
+// Solo mostrar +N para tags de atención humana
 const renderMoreTags = () => {
-  const totalTagsCount = (undoneHumanAttentionTags?.length || 0) + (undoneTaggedTags?.length || 0);
-  const allTags = [...(undoneHumanAttentionTags || []), ...(undoneTaggedTags || [])];
-  const tooltipContent = allTags.slice(1).map(tag => getTagTranslation(t, tag.name)).join(', ');
+  const totalTagsCount = undoneHumanAttentionTags?.length || 0;
+  const tooltipContent = undoneHumanAttentionTags?.slice(1).map((tag: any) => getTagTranslation(t, tag.name)).join(', ');
 
   if (totalTagsCount > 1) {
-    const appearance = undoneHumanAttentionTags.length > 1 ? 'warning' : 'neutral';
-    const textColor = undoneHumanAttentionTags.length > 1 ? 'warning-textLow' : 'neutral-textLow';
     return (
       <Tooltip position='top' content={tooltipContent}>
-        <Tag key="more" appearance={appearance}>
-          <Text color={textColor} fontSize="caption" lineClamp={1}>
+        <Tag key="more" appearance="warning">
+          <Text color="warning-textLow" fontSize="caption" lineClamp={1}>
             {`+${totalTagsCount - 1}`}
           </Text>
         </Tag>

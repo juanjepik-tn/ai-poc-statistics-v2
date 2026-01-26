@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -51,6 +52,7 @@ import { BillingDTO } from '@/types/billingDTO';
 import FailedMessageAlertStatus from '@/components/FailedMessageAlertStatus/FailedMessageAlertStatus';
 import { IConversationMessage } from '@/types/conversation';
 import WhatsAppAlertsContainer from '@/components/FailedMessageAlertStatus/WhatsAppAlertsContainer';
+import { selectActiveFilter } from '@/redux/slices/channels';
 
 //
 
@@ -79,6 +81,17 @@ export default function ConversationView({
     useState<boolean>(false);
 
   const notification = useSelector((state: any) => state.notification);
+  const channelFilter = useSelector(selectActiveFilter);
+
+  // Filter conversations by channel
+  const filteredConversations = useMemo(() => {
+    if (channelFilter === 'all') {
+      return conversations;
+    }
+    return conversations.filter((conv: any) => 
+      conv.channel?.channelType === channelFilter
+    );
+  }, [conversations, channelFilter]);
 
   //Paginación de las conversaciones anteriores
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -934,7 +947,7 @@ export default function ConversationView({
   const renderNav = (
     <ConversationNav
       contacts={contacts}
-      conversations={conversations || []}
+      conversations={filteredConversations || []}
       onClickConversation={onClickNavItem}
       loading={loadingConversations}
       currentConversationId={currentConversation?.id}
@@ -1108,7 +1121,7 @@ export default function ConversationView({
   const renderMobile = (
     <Box>
       <ConversationNavMobile
-        conversations={conversations || []}
+        conversations={filteredConversations || []}
         onClickConversation={onClickNavItem}
         loading={loadingConversations}
         fetchingMoreConversations={loadingMoreConversations}
