@@ -17,16 +17,17 @@
 export const getTagTranslation = (t: (key: string) => string, tagName: string): string => {
   if (!tagName) return '';
   
-  const translationKey = `conversations.tags.${tagName}`;
+  // Clean tagName if it already has the prefix (shouldn't happen but just in case)
+  const cleanTagName = tagName.startsWith('conversations.tags.') 
+    ? tagName.replace('conversations.tags.', '') 
+    : tagName;
+  
+  const translationKey = `conversations.tags.${cleanTagName}`;
   const translated = t(translationKey);
   
-  // If translation doesn't exist, extract the last segment
-  if (translated === translationKey) {
-    const lastDotIndex = translated.lastIndexOf('.');
-    if (lastDotIndex !== -1 && lastDotIndex < translated.length - 1) {
-      return translated.substring(lastDotIndex + 1);
-    }
-    return tagName;
+  // If translation doesn't exist (i18next returns the key), return the clean tag name
+  if (translated === translationKey || translated.startsWith('conversations.tags.')) {
+    return cleanTagName;
   }
   
   return translated;
