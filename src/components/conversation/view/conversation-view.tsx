@@ -82,16 +82,33 @@ export default function ConversationView({
 
   const notification = useSelector((state: any) => state.notification);
   const channelFilter = useSelector(selectActiveFilter);
+  
+  // State for "No leído" filter - needs to be before filteredConversations
+  const [neeedAttention, setNeedAttention] = useState<boolean>(false);
 
-  // Filter conversations by channel
+  // Filter conversations by channel AND by "No leído" (includes CTH)
   const filteredConversations = useMemo(() => {
-    if (channelFilter === 'all') {
-      return conversations;
+    let filtered = conversations;
+    
+    // Apply channel filter
+    if (channelFilter !== 'all') {
+      filtered = filtered.filter((conv: any) => 
+        conv.channel?.channelType === channelFilter
+      );
     }
-    return conversations.filter((conv: any) => 
-      conv.channel?.channelType === channelFilter
-    );
-  }, [conversations, channelFilter]);
+    
+    // When "No leído" filter is active, include conversations with:
+    // - unreadMessages > 0 OR
+    // - undoneHumanAttentionTags.length > 0 (CTH)
+    if (neeedAttention) {
+      filtered = filtered.filter((conv: any) => 
+        (conv.unreadMessages > 0) || 
+        (conv.customer?.undoneHumanAttentionTags?.length > 0)
+      );
+    }
+    
+    return filtered;
+  }, [conversations, channelFilter, neeedAttention]);
 
   //Paginación de las conversaciones anteriores
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -112,7 +129,6 @@ export default function ConversationView({
 
   const { t } = useTranslation('translations');
   const { request } = useFetch();
-  const [neeedAttention, setNeedAttention] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedTagFilter, setSelectedTagFilter] = useState<string>('all');
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
