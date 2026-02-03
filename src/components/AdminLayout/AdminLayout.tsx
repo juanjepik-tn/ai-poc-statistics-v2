@@ -3,7 +3,7 @@
  * Layout que se mantiene para todas las pantallas de Chat
  */
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useCallback } from 'react';
 import { Box, Button, Icon, IconButton, Text } from '@nimbus-ds/components';
 import {
   ChevronLeftIcon,
@@ -40,8 +40,13 @@ const UserAvatar: React.FC<{ name: string; size?: string }> = ({ name, size = '3
 };
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const [menuExpanded, setMenuExpanded] = useState(true);
+  const [menuExpanded, setMenuExpanded] = useState(false);
   const userName = 'ar-nuvemchat';
+
+  // Toggle function para colapsar/expandir o menu
+  const handleToggleMenu = useCallback(() => {
+    setMenuExpanded((prev) => !prev);
+  }, []);
 
   // Slot izquierdo del header - Botón volver
   const leftSlot = (
@@ -54,22 +59,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   // Slot derecho del header - Botones de acción (igual al diseño de referencia)
   const rightSlot = (
     <Box display="flex" alignItems="center" gap="4">
-      {/* Lumi Button - Con borde y gradiente */}
+      {/* Lumi Button - Con borde azul y glow violeta */}
       <Box
         borderWidth="1"
         borderStyle="solid"
-        borderColor="primary-interactive"
         borderRadius="2"
-        padding="2"
-        paddingLeft="3"
-        paddingRight="3"
+        padding="1-5"
+        paddingLeft="2"
+        paddingRight="2"
         display="flex"
         alignItems="center"
-        gap="2"
+        justifyContent="center"
+        gap="1"
         backgroundColor="neutral-background"
-        style={{ cursor: 'pointer' }}
+        style={{ 
+          cursor: 'pointer',
+          borderColor: '#0050c3',
+          boxShadow: '0px 0px 0px 3px #E8DEF8'
+        }}
       >
-        <Icon source={<GenerativeStarsIcon />} color="primary-interactive" />
+        <Icon source={<GenerativeStarsIcon size={16} />} color="primary-interactive" />
         <Text fontSize="caption" fontWeight="medium" color="neutral-textHigh">Lumi</Text>
       </Box>
 
@@ -104,7 +113,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <AppShell
-      menu={<AdminMenu />}
+      menu={<AdminMenu menuExpanded={menuExpanded} onToggleMenu={handleToggleMenu} />}
       menuExpanded={menuExpanded}
       menuExpandedWidth="270px"
       menuCollapsedWidth="48px"
@@ -118,7 +127,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           height="100%" 
           width="100%"
           backgroundColor="neutral-surface"
-          overflow="auto"
+          overflow="hidden"
         >
           {children}
         </Box>

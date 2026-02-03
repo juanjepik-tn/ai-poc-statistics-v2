@@ -2,7 +2,7 @@ import { Responsive } from '@/components';
 import { useFacebookLogin } from '@/hooks/useFacebookLogin';
 import { InstancesChannelDTO } from '@/types/instancesDTO';
 import { Box, Button, Card, Icon, Link, Spinner, Text, Title } from '@nimbus-ds/components';
-import { RedoIcon } from '@nimbus-ds/icons';
+import { RedoIcon, CheckCircleIcon } from '@nimbus-ds/icons';
 import { EmptyMessage } from '@nimbus-ds/patterns';
 import QRCodeSVG from 'qrcode.react';
 import React from 'react';
@@ -19,120 +19,157 @@ type InstancesQRProps = {
 
 const InstancesQR: React.FC<InstancesQRProps> = ({ loading, onGenerateQr, qr, onStatusUpdate, default_whatsapp }) => {
   const { t } = useTranslation('translations');  
-  const { launchWhatsAppSignup } = useFacebookLogin(onStatusUpdate);  
-  const generateSteps = (
-    <Box>      
-      <Text as="p" color="neutral-textHigh">
-        1. {t('instances.whatsApp.step1')}
-      </Text>
-      <Text as="p" color="neutral-textHigh">
-        2. <Trans i18nKey="instances.whatsApp.step2" components={{ bold: <strong /> }} />
-      </Text>
-      <Text as="p" color="neutral-textHigh">
-        3. <Trans i18nKey="instances.whatsApp.step3" components={{ bold: <strong /> }} />
-      </Text>
-      <Text as="p" color="neutral-textHigh">
-        4. <Trans i18nKey="instances.whatsApp.step4" components={{ bold: <strong /> }} />
-      </Text>
-      <Text as="p" color="neutral-textHigh">
-        5. <Trans i18nKey="instances.whatsApp.step5" components={{ bold: <strong /> }} />
-      </Text>
-    </Box>
-  );
-  const generateStepsWhatsappBusiness = (
-    <Box gap="2">
-      <Text as="p" color="neutral-textHigh">
-        1. {t('instances.whatsAppBusiness.step1')}
-      </Text>
-      <Text as="p" color="neutral-textHigh">
-        2. {t('instances.whatsAppBusiness.step2')}
-      </Text>     
-    </Box>
-  );
+  const { launchWhatsAppSignup } = useFacebookLogin(onStatusUpdate);
+  
+  // Steps para QR WhatsApp - layout melhorado
+  const qrSteps = [
+    t('instances.whatsApp.step1'),
+    t('instances.whatsApp.step2'),
+    t('instances.whatsApp.step3'),
+    t('instances.whatsApp.step4'),
+    t('instances.whatsApp.step5'),
+  ];
+  
+  // Steps para WhatsApp Business
+  const businessSteps = [
+    t('instances.whatsAppBusiness.step1'),
+    t('instances.whatsAppBusiness.step2'),
+  ];
+
   const renderWhatsappBusiness = (
-    <>
-    <Box display="flex" flexDirection="column" alignItems="flex-start" justifyContent="center" gap="2">      
-      <Title as="h4">{t('instances.connect-whatsapp-business-title')}</Title>
-      {generateStepsWhatsappBusiness}
-      <Box width="100%" display="flex" textAlign="center" justifyContent="center" alignItems="center" >
-      <Button appearance="primary" onClick={launchWhatsAppSignup}>{t('instances.connect-whatsapp-business')}</Button>
+    <Box display="flex" flexDirection="column" gap="4" padding="4">
+      <Box display="flex" flexDirection="column" gap="2">
+        <Title as="h4">{t('instances.connect-whatsapp-business-title')}</Title>
+        <Box display="flex" flexDirection="column" gap="2">
+          {businessSteps.map((step, index) => (
+            <Box key={index} display="flex" alignItems="flex-start" gap="3">
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minWidth="24px"
+                height="24px"
+                borderRadius="full"
+                backgroundColor="primary-surface"
+                flexShrink="0"
+              >
+                <Text fontSize="caption" fontWeight="bold" color="primary-interactive">
+                  {index + 1}
+                </Text>
+              </Box>
+              <Text fontSize="base" color="neutral-textHigh">{step}</Text>
+            </Box>
+          ))}
+        </Box>
       </Box>
-    </Box>    
-   </>
- 
+      <Box display="flex" justifyContent="center">
+        <Button appearance="primary" onClick={launchWhatsAppSignup}>
+          {t('instances.connect-whatsapp-business')}
+        </Button>
+      </Box>
+    </Box>
   );
   const renderWhatsappBaileys = (
-    
-    <Card
-      padding="base"      
-    >
-      <Box minHeight="250px" display="flex" flexDirection="column" justifyContent="space-around" >
-      <Card.Header title={t('instances.connect-whatsapp-title')} >
-      <Text color="neutral-textLow" fontSize="caption">
-        {t('instances.whatsApp.subtitle')}
-      </Text>
-        </Card.Header>
-      <Card.Body>
-      <EmptyMessage
-        // @ts-ignore
-        text={generateSteps}
-        illustration={
+    <Card padding="base">
+      <Box display="flex" flexDirection="column" gap="4">
+        {/* Header */}
+        <Box display="flex" flexDirection="column" gap="1">
+          <Title as="h4">{t('instances.connect-whatsapp-title')}</Title>
+          <Text color="neutral-textLow" fontSize="caption">
+            {t('instances.whatsApp.subtitle')}
+          </Text>
+        </Box>
+        
+        {/* Conteúdo - grid em desktop */}
+        <Box 
+          display="grid"
+          gridTemplateColumns={{ xs: '1fr', md: '1fr 1fr' }}
+          gap="4"
+          alignItems="center"
+        >
+          {/* QR Code */}
           <Box
-         //   marginRight="20"
-            position="relative"
             display="flex"
             justifyContent="center"
             alignItems="center"
-            backgroundColor="neutral-surface"
-            borderColor="neutral-interactive"
-            borderWidth="1"
             padding="4"
-            borderStyle="solid"
+            backgroundColor="neutral-surface"
             borderRadius="base"
-            width="100%"
+            borderWidth="1"
+            borderStyle="solid"
+            borderColor="neutral-surfaceHighlight"
+            minHeight="200px"
           >
             {qr ? (
-               <QRCodeSVG
-               width='160px'
-               height='160px'
-               renderAs='svg'               
-               value={qr}                     
-             />
+              <QRCodeSVG
+                width="176px"
+                height="176px"
+                renderAs="svg"               
+                value={qr}                     
+              />
             ) : (
-              <>
+              <Box
+                position="relative"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <img
                   src="/imgs/sample-qr.svg"
                   alt="Imagen de un QR"
-                  style={{ opacity: 0.2 }}
+                  style={{ opacity: 0.15, width: '176px', height: '176px' }}
                 />
                 <Box
                   position="absolute"
                   display="flex"
+                  flexDirection="column"
                   justifyContent="center"
                   alignItems="center"
-                  width="160px"
-                  height="160px"
-                  borderRadius="full"
-                  backgroundColor="primary-surface"
-                  padding="none"
+                  gap="2"
                 >
-                  {loading && <Spinner size="medium" />}
-                  <Link
-                    appearance="primary"
-                    textDecoration="none"
-                    fontSize="caption"
-                    onClick={onGenerateQr}
-                  >
-                    {t('instances.generate-qr')}
-                    <Icon color="currentColor" source={<RedoIcon />} />
-                  </Link>
+                  {loading ? (
+                    <Spinner size="medium" />
+                  ) : (
+                    <Link
+                      as="button"
+                      appearance="primary"
+                      textDecoration="none"
+                      onClick={onGenerateQr}
+                    >
+                      <Box display="flex" alignItems="center" gap="1">
+                        <Text fontSize="base" color="currentColor">{t('instances.generate-qr')}</Text>
+                        <Icon color="currentColor" source={<RedoIcon size={16} />} />
+                      </Box>
+                    </Link>
+                  )}
                 </Box>
-              </>
+              </Box>
             )}
           </Box>
-        }
-      />
-      </Card.Body>
+          
+          {/* Instruções - numeradas claramente */}
+          <Box display="flex" flexDirection="column" gap="3">
+            {qrSteps.map((step, index) => (
+              <Box key={index} display="flex" alignItems="flex-start" gap="3">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  minWidth="24px"
+                  height="24px"
+                  borderRadius="full"
+                  backgroundColor="primary-surface"
+                  flexShrink="0"
+                >
+                  <Text fontSize="caption" fontWeight="bold" color="primary-interactive">
+                    {index + 1}
+                  </Text>
+                </Box>
+                <Text fontSize="base" color="neutral-textHigh">{step}</Text>
+              </Box>
+            ))}
+          </Box>
+        </Box>
       </Box>
     </Card>
   )

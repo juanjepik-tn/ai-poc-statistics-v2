@@ -1,4 +1,5 @@
 import { Page } from '@nimbus-ds/patterns';
+import { Box } from '@nimbus-ds/components';
 import { navigateHeaderRemove } from '@tiendanube/nexo';
 import React, { useEffect, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
@@ -47,6 +48,10 @@ const OnboardingStepper: React.FC<OnboardingStepperProps> = ({ initialStep }) =>
     <Playground prevStep={() => prevStep('Playground')} nextStep={() => nextStep('Playground')} />,
     <Channels  prevStep={() => prevStep('Channels')} />
   ];
-  return <Page maxWidth="800px">{steps[currentStep]}</Page>;
+  return (
+    <Box height="100%" overflow="auto">
+      <Page maxWidth="800px">{steps[currentStep]}</Page>
+    </Box>
+  );
 };
 export default OnboardingStepper;

@@ -4,7 +4,7 @@ import { ChannelType } from '@/types/conversation';
 
 export interface ChannelIconProps {
   channel: ChannelType;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
   showLabel?: boolean;
   className?: string;
 }
@@ -69,9 +69,10 @@ const CHANNEL_CONFIG = {
 };
 
 const SIZE_MAP = {
-  small: 18,
-  medium: 24,
-  large: 32,
+  xsmall: 16,  // Para badges em avatares pequenos
+  small: 24,   // Aumentado de 18 para melhor reconhecimento
+  medium: 32,  // Aumentado de 24 para cards
+  large: 48,   // Aumentado de 32 para hero/destaque
 };
 
 export const ChannelIcon: React.FC<ChannelIconProps> = ({

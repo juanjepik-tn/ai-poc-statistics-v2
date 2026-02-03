@@ -389,7 +389,7 @@ export default function ConversationNav({
       </BoxNimbus>
       <Box
         ref={containerRef}
-        sx={{ px: 0, py: 1, height: 1, overflow: 'scroll' }}
+        sx={{ px: 0, py: 1, height: 1, overflow: 'auto' }}
       >
         {!searchQuery ? renderList : renderListResults}
         {fetchingMoreConversations && (

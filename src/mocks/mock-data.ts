@@ -2260,10 +2260,13 @@ export const mockProducts = Array.from({ length: 20 }, (_, idx) => ({
 // CHANNELS DATA (for /channels/store endpoint - Instances)
 // ============================================
 
+// Connected channels for testing the configured chat view
+// Includes WhatsApp (with phone number), Instagram (with username), and Facebook Messenger (with page name)
 export const mockChannels = [
   {
     id: 'ch-001',
     username: '+54 9 11 1234-5678',
+    phoneNumber: '+54 9 11 1234-5678',
     channelName: 'WhatsAppBusiness',
     basePath: '/whatsapps-business',
     country: 'AR',
@@ -2279,25 +2282,6 @@ export const mockChannels = [
     channelType: 'whatsapp',
     bot_status: 'active',
     created_at: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 'ch-002',
-    username: '+54 9 11 9876-5432',
-    channelName: 'WhatsappBaileys',
-    basePath: '/whatsapps-baileys',
-    country: 'AR',
-    actualStatus: {
-      id: 1,
-      name: 'Connected',
-    },
-    state: {
-      name: 'Active',
-    },
-    phone: '+5491198765432',
-    type: 'whatsapp_baileys',
-    channelType: 'whatsapp',
-    bot_status: 'active',
-    created_at: '2024-01-10T00:00:00Z',
   },
   {
     id: 'ch-003',
@@ -2319,7 +2303,31 @@ export const mockChannels = [
     profilePicture: 'https://i.pravatar.cc/150?img=47',
     followersCount: 12500,
   },
+  {
+    id: 'ch-004',
+    username: 'Tienda Moda OK',
+    pageName: 'Tienda Moda OK',
+    channelName: 'Facebook',
+    basePath: '/facebook',
+    country: 'AR',
+    actualStatus: {
+      id: 1,
+      name: 'Connected',
+    },
+    state: {
+      name: 'Active',
+    },
+    type: 'facebook',
+    channelType: 'facebook',
+    bot_status: 'active',
+    created_at: '2024-02-20T00:00:00Z',
+    profilePicture: 'https://i.pravatar.cc/150?img=48',
+    followersCount: 8500,
+  },
 ];
+
+// Empty channels for testing onboarding flow with disconnected channels
+// export const mockChannels: any[] = [];
 
 // ============================================
 // CONFIGURATIONS DATA
