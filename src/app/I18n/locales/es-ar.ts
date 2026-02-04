@@ -618,12 +618,12 @@ export default {
         'Payment': 'Medios de pago',
         'Return Or Exchange': 'Cambios y devoluciones',
         'proof of payment': 'Comprobante de pago',
-        'Human Request': 'Necesita atención humana',
+        'Human Request': 'Atención humana',
         'view_once': 'Mensaje de visualización única',
         'The user sent a message that will be deleted after being viewed once.': 'El usuario envió un mensaje que se eliminará después de que se haya visto una vez.',
         'Promotions': 'Promociones',
         'Catalog': 'Catálogo',
-        'requires_human_review': 'Necesita revisión humana',
+        'requires_human_review': 'Revisión humana',
         'Complementary Shipment Policies': 'Políticas de envío complementarias',
         'Complementary Payment Policies': 'Información complementaria de pagos',
         'link-checkout': 'Checkout',
@@ -637,7 +637,7 @@ export default {
           user_sent_image: 'El usuario envió una imagen',
           order_status: 'Estado del pedido',
           get_order_status: 'Estado del pedido',
-          requires_human_review: 'Necesita revisión humana',
+          requires_human_review: 'Revisión humana',
           complementary_shipment_policies: 'Políticas de envío complementarias',
           complementary_payment_policies: 'Información complementaria de pagos',
           modify_order_in_progress: 'Modificación de pedido en curso',
@@ -645,7 +645,7 @@ export default {
           delivery_coordination: 'Coordinación de entrega',
           customize_order: 'Pedido personalizado',
           wholesale_order: 'Pedido al por mayor',
-          human_request: 'Necesita atención humana',
+          human_request: 'Atención humana',
           // Just a fallback. If appears is should be considered a warning.
           unknown: 'Otros',
         }
@@ -922,6 +922,45 @@ export default {
         cta: 'Ir a Conversaciones',
         secondary: 'Ver configuración de canales',
       },
+    },
+    // =================================================
+    // WHATSAPP PRE-ONBOARDING - Checklist
+    // =================================================
+    whatsappPreOnboarding: {
+      // New redesigned version
+      'hero-title': 'Conectar WhatsApp Business',
+      'hero-subtitle': '3 minutos para comenzar',
+      'essential-1-title': 'Acceso Admin Meta',
+      'essential-1-desc': 'Tené permiso de administrador en el Meta Business Portfolio',
+      'essential-2-title': 'WhatsApp Business App',
+      'essential-2-desc': 'Instalá la app en tu celular antes de empezar',
+      'essential-3-title': 'Desactivá 2FA',
+      'essential-3-desc': 'Desactivá temporalmente la verificación en 2 pasos',
+      'complete-checklist-toggle': 'Ver checklist completo',
+      'cta-continue': 'Iniciar conexión',
+      'reassurance': 'Tu historial queda seguro en el celular',
+      'help-link-text': '¿Necesitás ayuda?',
+      
+      // Legacy keys (kept for backward compatibility)
+      title: 'Antes de conectar tu WhatsApp Business',
+      subtitle: 'Leé la información a continuación para garantizar una conexión exitosa.',
+      'section-a-title': 'Lo que necesitás saber',
+      'history-safe-title': 'Tu historial está seguro',
+      'history-safe-desc': 'Tus conversaciones anteriores en WhatsApp permanecen en tu celular. Chat Nube solo recibe mensajes nuevos a partir de la conexión.',
+      'multidevice-title': 'Multidispositivo',
+      'multidevice-desc': 'Vas a poder seguir usando WhatsApp en tu celular normalmente mientras Chat Nube gestiona tus mensajes de negocio.',
+      'section-b-title': 'Checklist de preparación',
+      'checklist-1': 'Usá una computadora para hacer este proceso',
+      'checklist-2': 'Tené WhatsApp Business App instalada en tu celular',
+      'checklist-3': 'Desactivá temporalmente la verificación en 2 pasos en WhatsApp',
+      'checklist-4': 'Verificá que haya espacio disponible en "Dispositivos Conectados" en WhatsApp',
+      'checklist-5': 'Tené acceso de administrador al Meta Business Portfolio de tu empresa',
+      'checklist-6': 'Desconectá tu número de otros proveedores de API (si aplica)',
+      'checklist-7': 'Seleccioná el portafolio correcto durante el proceso de Meta',
+      'important-title': 'Importante',
+      'important-desc': 'Durante el proceso de Meta, asegurate de seleccionar el portafolio de negocios correcto. Seleccionar el portafolio equivocado puede causar problemas en la conexión.',
+      'more-info': 'Más información sobre cómo conectar',
+      'help-link': 'https://ayuda.tiendanube.com/es_AR/nuvem-chat',
     },
   }
 };

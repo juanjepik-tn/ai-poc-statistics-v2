@@ -19,7 +19,6 @@ import {
 import { navigateHeaderRemove } from '@tiendanube/nexo';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-// import { useNavigate } from 'react-router-dom';
 
 import { nexo } from '@/app';
 
@@ -35,7 +34,9 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { PricingTermsCard } from '../Pricing/PricingTermsCard';
 import { ExternalLinkIcon } from '@nimbus-ds/icons';
-import { ChannelIcon } from '@/components';
+import { ChannelCard } from '@/components';
+import { useFacebookLogin } from '@/hooks/useFacebookLogin';
+import WhatsAppPreOnboarding from './WhatsAppPreOnboarding';
 
 type ChannelsProps = {
   prevStep: () => void;
@@ -43,7 +44,9 @@ type ChannelsProps = {
 const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
   const { t } = useTranslation('translations');
   const [open, setOpen] = useState(false);
+  const [showPreOnboarding, setShowPreOnboarding] = useState(false);
   const handleOpen = () => setOpen((prevState) => !prevState);
+  const handlePreOnboarding = () => setShowPreOnboarding((prevState) => !prevState);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { request } = useFetch();
@@ -109,6 +112,38 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
         });
       });
   };
+  
+  // SE ESTÁ MOSTRANDO PRÉ-ONBOARDING, RENDERIZA DIRETO
+  if (showPreOnboarding) {
+    return (
+      <>
+        <Page.Header
+          title={t('app.title')}
+          subtitle={t('instances.description')}
+        >
+          <Tag appearance="primary">
+            <Text color="primary-textLow">
+              {t('settings.step', { step: 4, total: 4 })}
+            </Text>
+          </Tag>
+        </Page.Header>
+        <Page.Body>
+          <Layout columns="1">
+            <Layout.Section>
+              <WhatsAppPreOnboarding 
+                onContinue={() => {
+                  setShowPreOnboarding(false);
+                  // Will reconnect after closing pre-onboarding
+                }}
+                onCancel={() => setShowPreOnboarding(false)}
+              />
+            </Layout.Section>
+          </Layout>
+        </Page.Body>
+      </>
+    );
+  }
+  
   return (
     <>
       <Page.Header
@@ -128,6 +163,8 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
               <Box display="flex" flexDirection="column" gap="4">
                   <InstancesDataProvider>
                     {({ loading, onGenerateInstance, qr, statusUpdate, instances, onDeleteInstance, cleanQr, onGetInstances, baileysEnabled }: any) => {
+                      const { launchWhatsAppSignup } = useFacebookLogin(onGetInstances);
+                      
                       useEffect(() => {
                         if (statusUpdate === 'connected') {
                           trackingWhatsappConnectSuccess();
@@ -164,256 +201,67 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                       }, [qr]);
                       
                       const whatsappConnected = currentInstance?.actualStatus?.name === 'Connected';
-                      const connectedCount = [whatsappConnected, instagramConnected, facebookConnected].filter(Boolean).length;
                       
                       return (
                         <Box display="flex" flexDirection="column" gap="6">
-                          {/* Header section */}
-                          <Box display="flex" flexDirection="column" gap="2" alignItems="center" textAlign="center">
-                            <Title as="h3">Conectá tus canales de mensajería</Title>
+                          {/* Header section - centralizado com hierarquia clara */}
+                          <Box display="flex" flexDirection="column" gap="3" alignItems="center" textAlign="center">
+                            <Title as="h3" color="danger-textHigh">Conectá tus canales de mensajería</Title>
                             <Text color="neutral-textLow" fontSize="base">
-                              Elegí al menos un canal para comenzar a recibir mensajes. Podés agregar más después.
+                              Elegí al menos un canal para comenzar a recibir mensajes.
                             </Text>
-                            {connectedCount > 0 && (
-                              <Tag appearance="success">
-                                {connectedCount} {connectedCount === 1 ? 'canal conectado' : 'canales conectados'}
-                              </Tag>
-                            )}
                           </Box>
 
-                          {/* Channels grid */}
+                          {/* Channels grid using ChannelCard */}
                           <Box 
                             display="grid" 
                             gap="4"
                             gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }}
                           >
-                            {/* ===== WHATSAPP CARD ===== */}
-                            <Card padding="base">
-                              <Box display="flex" flexDirection="column" gap="3" alignItems="center" padding="2">
-                                {/* Icon */}
-                                <Box
-                                  display="flex"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  width="56px"
-                                  height="56px"
-                                  borderRadius="full"
-                                  style={{
-                                    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                                    boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)',
-                                  }}
-                                >
-                                  <Box
-                                    display="flex"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    width="46px"
-                                    height="46px"
-                                    borderRadius="full"
-                                    backgroundColor="neutral-background"
-                                  >
-                                    <ChannelIcon channel="whatsapp" size="medium" />
-                                  </Box>
-                                </Box>
-                                
-                                {/* Title */}
-                                <Box display="flex" alignItems="center" gap="1">
-                                  <Text fontWeight="bold" fontSize="highlight">WhatsApp</Text>
-                                </Box>
-                                
-                                {/* Description */}
-                                <Text textAlign="center" color="neutral-textLow" fontSize="caption">
-                                  Conectá tu WhatsApp Business para atender clientes
-                                </Text>
-                                
-                                {/* Status/Action */}
-                                {whatsappConnected ? (
-                                  <Box 
-                                    display="flex" 
-                                    alignItems="center" 
-                                    gap="1" 
-                                    padding="2"
-                                    paddingLeft="3"
-                                    paddingRight="3"
-                                    backgroundColor="success-surface"
-                                    borderRadius="full"
-                                  >
-                                    <Text color="success-textHigh" fontSize="caption" fontWeight="medium">
-                                      ✓ Conectado
-                                    </Text>
-                                  </Box>
-                                ) : (
-                                  <Box display="flex" flexDirection="column" gap="2" alignItems="center" width="100%">
-                                    <Button 
-                                      appearance="primary"
-                                      onClick={() => checkGenerateInstance(onDeleteInstance, onGenerateInstance, instances)}
-                                    >
-                                      Conectar
-                                    </Button>
-                                    {baileysEnabled && (
-                                      <Link as="button" onClick={() => {
-                                        trackingWhatsappBaileysConnect();
-                                        handleOpen();
-                                      }} fontSize="caption">
-                                        Usar QR personal
-                                      </Link>
-                                    )}
-                                  </Box>
-                                )}
-                              </Box>
-                            </Card>
+                            {/* WhatsApp */}
+                            <ChannelCard
+                              channel="whatsapp"
+                              status="disconnected"
+                              onConnect={handlePreOnboarding}
+                            />
 
-                            {/* ===== INSTAGRAM CARD ===== */}
-                            <Card padding="base">
-                              <Box display="flex" flexDirection="column" gap="3" alignItems="center" padding="2" position="relative">
-                                {/* New tag */}
-                                <Box position="absolute" style={{ top: '-4px', right: '-4px' }}>
-                                  <Tag appearance="primary">Nuevo</Tag>
-                                </Box>
-                                
-                                {/* Icon */}
-                                <Box
-                                  display="flex"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  width="56px"
-                                  height="56px"
-                                  borderRadius="full"
-                                  style={{
-                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
-                                    boxShadow: '0 4px 12px rgba(225, 48, 108, 0.3)',
-                                  }}
-                                >
-                                  <Box
-                                    display="flex"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    width="46px"
-                                    height="46px"
-                                    borderRadius="full"
-                                    backgroundColor="neutral-background"
-                                  >
-                                    <ChannelIcon channel="instagram" size="medium" />
-                                  </Box>
-                                </Box>
-                                
-                                {/* Title */}
-                                <Text fontWeight="bold" fontSize="highlight">Instagram</Text>
-                                
-                                {/* Description */}
-                                <Text textAlign="center" color="neutral-textLow" fontSize="caption">
-                                  Respondé mensajes directos de Instagram Business
-                                </Text>
-                                
-                                {/* Status/Action */}
-                                {instagramConnected ? (
-                                  <Box 
-                                    display="flex" 
-                                    alignItems="center" 
-                                    gap="1" 
-                                    padding="2"
-                                    paddingLeft="3"
-                                    paddingRight="3"
-                                    backgroundColor="success-surface"
-                                    borderRadius="full"
-                                  >
-                                    <Text color="success-textHigh" fontSize="caption" fontWeight="medium">
-                                      ✓ Conectado
-                                    </Text>
-                                  </Box>
-                                ) : (
-                                  <Button 
-                                    appearance="primary"
-                                    onClick={() => navigate('/external/channels/instagram/onboarding')}
-                                  >
-                                    Conectar
-                                  </Button>
-                                )}
-                              </Box>
-                            </Card>
+                            {/* Instagram */}
+                            <ChannelCard
+                              channel="instagram"
+                              status="disconnected"
+                              onConnect={() => navigate('/external/channels/instagram/onboarding')}
+                            />
 
-                            {/* ===== FACEBOOK CARD ===== */}
-                            <Card padding="base">
-                              <Box display="flex" flexDirection="column" gap="3" alignItems="center" padding="2" position="relative">
-                                {/* New tag */}
-                                <Box position="absolute" style={{ top: '-4px', right: '-4px' }}>
-                                  <Tag appearance="primary">Nuevo</Tag>
-                                </Box>
-                                
-                                {/* Icon */}
-                                <Box
-                                  display="flex"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  width="56px"
-                                  height="56px"
-                                  borderRadius="full"
-                                  style={{
-                                    background: 'linear-gradient(135deg, #1877F2 0%, #0D65D9 100%)',
-                                    boxShadow: '0 4px 12px rgba(24, 119, 242, 0.3)',
-                                  }}
-                                >
-                                  <Box
-                                    display="flex"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    width="46px"
-                                    height="46px"
-                                    borderRadius="full"
-                                    backgroundColor="neutral-background"
-                                  >
-                                    <ChannelIcon channel="facebook" size="medium" />
-                                  </Box>
-                                </Box>
-                                
-                                {/* Title */}
-                                <Text fontWeight="bold" fontSize="highlight">Messenger</Text>
-                                
-                                {/* Description */}
-                                <Text textAlign="center" color="neutral-textLow" fontSize="caption">
-                                  Atendé mensajes de tu página de Facebook
-                                </Text>
-                                
-                                {/* Simplified notice */}
-                                {instagramConnected && !facebookConnected && (
-                                  <Text fontSize="caption" color="success-textHigh">
-                                    ✓ Conexión rápida
-                                  </Text>
-                                )}
-                                
-                                {/* Status/Action */}
-                                {facebookConnected ? (
-                                  <Box 
-                                    display="flex" 
-                                    alignItems="center" 
-                                    gap="1" 
-                                    padding="2"
-                                    paddingLeft="3"
-                                    paddingRight="3"
-                                    backgroundColor="success-surface"
-                                    borderRadius="full"
-                                  >
-                                    <Text color="success-textHigh" fontSize="caption" fontWeight="medium">
-                                      ✓ Conectado
-                                    </Text>
-                                  </Box>
-                                ) : (
-                                  <Button 
-                                    appearance="primary"
-                                    onClick={() => navigate('/external/channels/facebook/onboarding')}
-                                  >
-                                    Conectar
-                                  </Button>
-                                )}
-                              </Box>
-                            </Card>
+                            {/* Facebook */}
+                            <ChannelCard
+                              channel="facebook"
+                              status="disconnected"
+                              onConnect={() => navigate('/external/channels/facebook/onboarding')}
+                            />
                           </Box>
 
-                          {/* QR display area for WhatsApp */}
+                          {/* WhatsApp Light Option (if enabled) */}
+                          {baileysEnabled && !whatsappConnected && (
+                            <Box display="flex" justifyContent="center" paddingTop="1">
+                              <Link 
+                                as="button" 
+                                onClick={() => {
+                                  trackingWhatsappBaileysConnect();
+                                  checkGenerateInstance(onDeleteInstance, onGenerateInstance, instances);
+                                }}
+                              >
+                                <Text fontSize="caption" color="primary-interactive">
+                                  {t('instances.whatsappLight', 'Usar QR personal')}
+                                </Text>
+                              </Link>
+                            </Box>
+                          )}
+
+                          {/* QR display area for WhatsApp Light */}
                           {qr && !whatsappConnected && (
                             <Card padding="base">
-                              <Box display="flex" flexDirection="column" alignItems="center" gap="4" padding="4">
-                                <Text fontWeight="bold">Escaneá el código QR con WhatsApp</Text>
+                              <Box display="flex" flexDirection="column" alignItems="center" gap="4">
+                                <Title as="h4">Escaneá el código QR con WhatsApp</Title>
                                 <InstancesQR
                                   default_whatsapp={{ id: 3, name: "WhatsappBusiness" }}
                                   sholudRedirect={false}
@@ -427,7 +275,7 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                           )}
 
                           {/* Modal QR WhatsApp Light */}
-                          <Modal open={open} onDismiss={() => { handleOpen(); cleanQr(); }} padding="none" maxWidth="600px">
+                          <Modal open={open} onDismiss={() => { handleOpen(); cleanQr(); }} padding="none" maxWidth="680px">
                             <Modal.Body padding="none">
                               <InstancesQR
                                 loading={loading}
@@ -438,6 +286,7 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                               />
                             </Modal.Body>
                           </Modal>
+
                         </Box>
                       );
                     }}
@@ -448,10 +297,11 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
             </Card>
             
             <Box
-              alignSelf="flex-end"
               display="flex"
               justifyContent="space-between"
-              gap="2"
+              alignItems="center"
+              gap="4"
+              paddingTop="2"
             >
               <Button appearance="neutral" onClick={prevStep}>
                 {t('settings.previous-step')}

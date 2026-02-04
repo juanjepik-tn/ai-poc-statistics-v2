@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Menu } from '@nimbus-ds/patterns';
-import { Badge, Box, Icon, IconButton, Tag, Text } from '@nimbus-ds/components';
+import { Badge, Box, Icon, IconButton, Tag, Text, Tooltip } from '@nimbus-ds/components';
 import {
   TiendanubeIcon,
   ExternalLinkIcon,
@@ -23,10 +23,16 @@ import {
   OnlineStoreIcon,
   CreditCardIcon,
   MarketingIcon,
+  SidebarIcon,
 } from '@nimbus-ds/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const AdminMenu: React.FC = () => {
+interface AdminMenuProps {
+  menuExpanded?: boolean;
+  onToggleMenu?: () => void;
+}
+
+const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu }) => {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
@@ -35,9 +41,10 @@ const AdminMenu: React.FC = () => {
   const isConversations = hash === '#/conversations' || hash === '' || !hash;
   const isStatistics = hash === '#/statistics';
   const isConfigurations = hash === '#/configurations';
+  const isOnboarding = hash.startsWith('#/onboarding');
 
   return (
-    <Menu>
+    <Menu expanded={menuExpanded} popoverPosition="right">
       <Menu.Header>
         <Box display="flex" gap="2" alignItems="center" width="100%">
           <Icon
@@ -46,10 +53,27 @@ const AdminMenu: React.FC = () => {
           />
           <Box display="inline-flex" flex="1">
             <Text fontSize="base" color="neutral-textHigh" fontWeight="bold">
-              evolución
+              next
             </Text>
           </Box>
-          <IconButton source={<ExternalLinkIcon />} size="2rem" />
+          <Tooltip content={menuExpanded ? "Fechar menu lateral" : "Abrir menu lateral"} position={menuExpanded ? "bottom" : "right"}>
+            <button
+              type="button"
+              onClick={onToggleMenu}
+              style={{ 
+                cursor: 'pointer',
+                background: 'transparent',
+                border: 'none',
+                padding: '8px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Icon source={<SidebarIcon />} color="neutral-textHigh" />
+            </button>
+          </Tooltip>
         </Box>
       </Menu.Header>
       <Menu.Body>
@@ -95,6 +119,11 @@ const AdminMenu: React.FC = () => {
               active={isChatSection && isConfigurations}
               onClick={() => navigate('/admin/chat#/configurations')}
             />
+            <Menu.Button 
+              label="Onboarding" 
+              active={isChatSection && isOnboarding}
+              onClick={() => navigate('/admin/chat#/onboarding/3')}
+            />
           </Menu.ButtonAccordion>
 
           <Menu.Button startIcon={UserIcon} label="Clientes" />
@@ -104,10 +133,7 @@ const AdminMenu: React.FC = () => {
 
         {/* Canales de venta */}
         <Menu.Section title="Canales de venta">
-          <Menu.Button 
-            startIcon={OnlineStoreIcon} 
-            label="Tienda online"
-          >
+          <Menu.Button startIcon={OnlineStoreIcon} label="Tienda online">
             <Icon source={<ExternalLinkIcon size="small" />} color="neutral-textLow" />
           </Menu.Button>
           <Menu.Button startIcon={EcosystemIcon} label="Punto de Venta">

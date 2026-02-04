@@ -41,7 +41,7 @@ export const PricingTermsCard: React.FC = () => {
     return (
         <>
         <Box display="flex" flexDirection="column" gap="2" padding="2">            
-            <Text color="neutral-textLow" fontSize="base" fontWeight="bold">{t('pricing.terms.title')}</Text>
+            <Text color="success-textHigh" fontSize="base" fontWeight="bold">{t('pricing.terms.title')}</Text>
             <List as="ul">
                         <List.Item>
                             <Text color="neutral-textLow" fontSize="caption">

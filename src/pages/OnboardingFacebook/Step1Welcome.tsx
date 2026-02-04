@@ -30,16 +30,16 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" gap="6" padding="6">
-      {/* Facebook branded header with "Nuevo" tag */}
+      {/* Facebook branded header com badge "Nuevo" - formato consistente com Instagram */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="2">
         <Box position="relative">
           <Box
             display="flex"
             alignItems="center"
             justifyContent="center"
-            width="100px"
-            height="100px"
-            borderRadius="base"
+            width="96px"
+            height="96px"
+            borderRadius="full"
             style={{
               background: 'linear-gradient(135deg, #1877F2 0%, #0D65D9 100%)',
               boxShadow: '0 8px 24px rgba(24, 119, 242, 0.3)',
@@ -51,7 +51,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
               justifyContent="center"
               width="80px"
               height="80px"
-              borderRadius="base"
+              borderRadius="full"
               backgroundColor="neutral-background"
             >
               <ChannelIcon channel="facebook" size="large" />
@@ -63,8 +63,8 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
         </Box>
       </Box>
 
-      {/* Title */}
-      <Box display="flex" flexDirection="column" alignItems="center" gap="2">
+      {/* Title - gap consistente */}
+      <Box display="flex" flexDirection="column" alignItems="center" gap="1">
         <Title as="h2" textAlign="center">
           Conectá Facebook Messenger
         </Title>
@@ -79,7 +79,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
           display="flex"
           alignItems="center"
           gap="3"
-          padding="3"
+          padding="4"
           borderRadius="base"
           width="100%"
           maxWidth="420px"
@@ -89,7 +89,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
           }}
         >
           <Icon source={<CheckCircleIcon size={20} />} color="success-interactive" />
-          <Box display="flex" flexDirection="column" gap="0-5">
+          <Box display="flex" flexDirection="column" gap="1">
             <Text fontWeight="bold" fontSize="caption" color="success-textHigh">
               ¡Conexión simplificada!
             </Text>
@@ -148,8 +148,8 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
           {requirements.map((req, index) => (
             <Box key={index} display="flex" alignItems="center" gap="2">
               <Box
-                width="6px"
-                height="6px"
+                width="8px"
+                height="8px"
                 borderRadius="full"
                 style={{ background: '#1877F2' }}
               />

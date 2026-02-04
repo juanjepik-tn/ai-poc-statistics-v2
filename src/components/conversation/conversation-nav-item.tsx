@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 // import { paths } from 'src/routes/paths';
 // import useHasRoles from 'src/hooks/use-has-roles';
 import { Badge, Box, Icon, Tag, Text, Tooltip } from '@nimbus-ds/components';
-import { ExclamationTriangleIcon, UserCircleIcon, CreditCardIcon, MarketingIcon, ExclamationCircleIcon, ShoppingCartIcon } from '@nimbus-ds/icons';
+import { UserCircleIcon, CreditCardIcon, MarketingIcon, ExclamationCircleIcon, ShoppingCartIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
 import Iconify from '../iconify';
 import ConversationAvatar from './conversation-avatar';
@@ -245,10 +245,10 @@ const renderMoreTags = () => {
             )}
             {/* Channel Badge - positioned at bottom-right of avatar */}
             {conversation?.channel?.channelType && (
-              <div style={{ position: 'absolute', bottom: '-3px', right: '-5px' }}>
+              <div style={{ position: 'absolute', bottom: '-2px', right: '-3px' }}>
                 <ChannelIcon 
                   channel={conversation.channel.channelType as ChannelType} 
-                  size="small"
+                  size="xsmall"
                 />
               </div>
             )}
@@ -270,8 +270,8 @@ const renderMoreTags = () => {
                 <img src="/imgs/tick-icon.svg" alt="tick-icon" width={20} />
               )}
               <div style={{ whiteSpace: 'pre-wrap', fontStyle: (isMarketingMessage(lastMessage?.class) || isPaymentMessage(lastMessage?.class)) ? 'italic' : 'normal' }}>
-                <Text lineClamp={1} color={undoneHumanAttentionTags?.length > 0 ? 'warning-textLow' : 'neutral-textLow'}>
-                  {undoneHumanAttentionTags?.length > 0 ? t('conversations.tags.attention-message') : renderLastMessage()}
+                <Text lineClamp={1} color="neutral-textLow">
+                  {renderLastMessage()}
                 </Text>
               </div>
             </Box>
@@ -307,14 +307,8 @@ const renderMoreTags = () => {
                 <Badge appearance="primary" count={unreadMessagesCount} />
               )} */}
 
-              {(undoneHumanAttentionTags?.length > 0) ? (
-                <Tooltip content={t('conversations.tags.attention-message')}>
-                  <Icon color="warning-interactive" source={<ExclamationTriangleIcon height={20} width={20} />} />
-                </Tooltip>
-              ) : (
-                !selected && unreadMessagesCount > 0 && (
-                  <Badge appearance="primary" count={unreadMessagesCount} />
-                )
+              {!selected && unreadMessagesCount > 0 && (
+                <Badge appearance="primary" count={unreadMessagesCount} />
               )}
             </Box>
           </Box>

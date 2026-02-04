@@ -51,20 +51,6 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  // For onboarding, render without AdminLayout to have full screen experience
-  if (activeSection === 'onboarding') {
-    return (
-      <Box 
-        height="100vh" 
-        display="flex" 
-        flexDirection="column"
-        backgroundColor="neutral-background"
-      >
-        {renderContent()}
-      </Box>
-    );
-  }
-
   return (
     <AdminLayout>
       <Box 

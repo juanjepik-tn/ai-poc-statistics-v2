@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Icon, Link, Text, Title } from '@nimbus-ds/components';
+import { Box, Button, Icon, Link, Text, Title, Tag } from '@nimbus-ds/components';
 import { CheckCircleIcon, ChevronRightIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
 import { ChannelIcon } from '@/components';
@@ -25,34 +25,41 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onContinue, onCancel
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" gap="6" padding="6">
-      {/* Instagram branded header */}
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        width="100px"
-        height="100px"
-        borderRadius="base"
-        style={{
-          background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
-          boxShadow: '0 8px 24px rgba(225, 48, 108, 0.3)',
-        }}
-      >
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          width="80px"
-          height="80px"
-          borderRadius="base"
-          backgroundColor="neutral-background"
-        >
-          <ChannelIcon channel="instagram" size="large" />
+      {/* Instagram branded header com badge "Nuevo" */}
+      <Box display="flex" flexDirection="column" alignItems="center" gap="2">
+        <Box position="relative">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            width="96px"
+            height="96px"
+            borderRadius="full"
+            style={{
+              background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+              boxShadow: '0 8px 24px rgba(225, 48, 108, 0.3)',
+            }}
+          >
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              width="80px"
+              height="80px"
+              borderRadius="full"
+              backgroundColor="neutral-background"
+            >
+              <ChannelIcon channel="instagram" size="large" />
+            </Box>
+          </Box>
+          <Box position="absolute" style={{ top: '-8px', right: '-24px' }}>
+            <Tag appearance="primary">Nuevo</Tag>
+          </Box>
         </Box>
       </Box>
 
       {/* Title */}
-      <Box display="flex" flexDirection="column" alignItems="center" gap="2">
+      <Box display="flex" flexDirection="column" alignItems="center" gap="1">
         <Title as="h2" textAlign="center">
           {t('instagramOnboarding.step1.title', 'Conectá tu cuenta de Instagram')}
         </Title>
@@ -112,8 +119,8 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onContinue, onCancel
           {requirements.map((req, index) => (
             <Box key={index} display="flex" alignItems="center" gap="2">
               <Box
-                width="6px"
-                height="6px"
+                width="8px"
+                height="8px"
                 borderRadius="full"
                 style={{ background: 'linear-gradient(45deg, #e6683c, #cc2366)' }}
               />
