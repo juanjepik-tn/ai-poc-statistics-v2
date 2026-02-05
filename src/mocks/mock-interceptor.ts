@@ -38,6 +38,10 @@ import {
 // Simulate network delay
 const MOCK_DELAY_MS = 300;
 
+// Mutable storage for created/updated content (persists during session)
+const createdRelevantContent: any[] = [];
+let nextContentId = 1000;
+
 // Helper to create a delayed promise
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -64,7 +68,8 @@ const matchRoute = (url: string, pattern: string): boolean => {
  */
 export const getMockResponse = (
   url: string | undefined,
-  method: string | undefined
+  method: string | undefined,
+  config?: AxiosRequestConfig
 ): MockResponse | null => {
   if (!url) return null;
 
@@ -282,13 +287,21 @@ export const getMockResponse = (
 
   // Relevant Content (Biblioteca)
   // List content - returns { rows: [...], total: number }
-  if (normalizedUrl.includes('/relevantcontents/by/store') && !normalizedUrl.includes('optionals')) {
-    return { data: mockRelevantContent, status: 200 };
+  if (normalizedUrl.includes('/relevantcontents/by/store') && !normalizedUrl.includes('optionals') && normalizedMethod === 'GET') {
+    // Combine static mock data with dynamically created content
+    const allContent = [...(mockRelevantContent.rows || []), ...createdRelevantContent];
+    return { 
+      data: { 
+        rows: allContent, 
+        total: allContent.length 
+      }, 
+      status: 200 
+    };
   }
 
   // Optionals - suggested content user can add
-  if (normalizedUrl.includes('/relevantcontents/by/store/optionals') || 
-      normalizedUrl.includes('/relevantcontents/optionals')) {
+  if ((normalizedUrl.includes('/relevantcontents/by/store/optionals') || 
+      normalizedUrl.includes('/relevantcontents/optionals')) && normalizedMethod === 'GET') {
     return { data: mockRelevantContentOptionals, status: 200 };
   }
 
@@ -296,23 +309,70 @@ export const getMockResponse = (
     return { data: mockRelevantContentCategories, status: 200 };
   }
 
-  // Create content
+  // Create content - persist in createdRelevantContent array
   if (normalizedUrl.includes('/relevantcontents/') && normalizedMethod === 'POST') {
+    // @ts-ignore - config.data might be string or object
+    const requestData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    
+    const newContent = {
+      id: nextContentId++,
+      title: requestData.title || 'Nuevo contenido',
+      content: requestData.content || '',
+      class: requestData.class || 'relevant_content_store',
+      tool: requestData.tool || false,
+      tool_name: requestData.tool_name || 'transfer_to_human',
+      state: requestData.state || 'disabled',
+      canBeDeleted: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    
+    // Add to our mutable storage
+    createdRelevantContent.push(newContent);
+    console.log('[Mock] Created content:', newContent);
+    
     return { 
-      data: { 
-        id: Date.now(),
-        title: 'Nuevo contenido',
-        content: 'Contenido creado',
-        class: 'relevant_content_store',
-        tool: false,
-        created_at: new Date().toISOString(),
-      }, 
+      data: newContent, 
       status: 201 
     };
   }
 
-  // Update/Delete content
-  if (normalizedUrl.includes('/relevantcontents/') && ['PUT', 'DELETE'].includes(normalizedMethod)) {
+  // Update content
+  if (normalizedUrl.includes('/relevantcontents/') && normalizedMethod === 'PUT') {
+    const idMatch = normalizedUrl.match(/\/relevantcontents\/(?:store|optional|mandatory)\/(\d+)/);
+    const contentId = idMatch ? parseInt(idMatch[1], 10) : null;
+    
+    // @ts-ignore
+    const requestData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    
+    // Try to find and update in createdRelevantContent
+    const createdIndex = createdRelevantContent.findIndex(c => c.id === contentId);
+    if (createdIndex !== -1) {
+      createdRelevantContent[createdIndex] = {
+        ...createdRelevantContent[createdIndex],
+        ...requestData,
+        updated_at: new Date().toISOString(),
+      };
+      console.log('[Mock] Updated content:', createdRelevantContent[createdIndex]);
+      return { data: createdRelevantContent[createdIndex], status: 200 };
+    }
+    
+    // Otherwise just return success (mock data is immutable)
+    return { data: { success: true, ...requestData }, status: 200 };
+  }
+
+  // Delete content
+  if (normalizedUrl.includes('/relevantcontents/') && normalizedMethod === 'DELETE') {
+    const idMatch = normalizedUrl.match(/\/relevantcontents\/(\d+)/);
+    const contentId = idMatch ? parseInt(idMatch[1], 10) : null;
+    
+    // Remove from createdRelevantContent if exists
+    const createdIndex = createdRelevantContent.findIndex(c => c.id === contentId);
+    if (createdIndex !== -1) {
+      createdRelevantContent.splice(createdIndex, 1);
+      console.log('[Mock] Deleted content with id:', contentId);
+    }
+    
     return { data: { success: true }, status: 200 };
   }
 
@@ -492,7 +552,7 @@ export const createMockAxiosResponse = <T>(data: T, status: number = 200): Axios
 export const handleMockRequest = async (config: AxiosRequestConfig): Promise<AxiosResponse> => {
   await delay(MOCK_DELAY_MS);
 
-  const mockResponse = getMockResponse(config.url, config.method);
+  const mockResponse = getMockResponse(config.url, config.method, config);
 
   if (mockResponse) {
     console.log(`[Mock] ${config.method?.toUpperCase()} ${config.url} -> ${mockResponse.status}`);

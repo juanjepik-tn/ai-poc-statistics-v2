@@ -1,10 +1,12 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@nimbus-ds/components';
 import { useFetch } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '@/app/Axios/Axios';
 import { trackingCTHEnabled } from '@/tracking';
 import { MCP_RELEVANT_CONTENT} from '@/constants/mcpRelevantContent';
+import { detectHumanHelpInstructions } from './humanHelpDetection';
+import { HumanHelpState } from './step2.types';
 
 
 const TOAST_CONFIG = {
@@ -43,7 +45,41 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
       method: 'GET',
     })
       .then(({content}: any) => {                  
-          let processedContent = content.rows;
+          // Process content to ensure all items have tool_name and state
+          let processedContent = content.rows.map((item: any) => {
+            // Skip MCP/dummy content
+            if (item.class === 'relevant_content_dummy') {
+              return item;
+            }
+            
+            // Ensure tool_name exists
+            const toolName = item.tool_name || 'transfer_to_human';
+            
+            // Check if content has human help instructions
+            const hasHumanHelpInstructions = detectHumanHelpInstructions(item.content || '');
+            
+            // Determine tool and state
+            let toolEnabled = item.tool;
+            let state = item.state;
+            
+            if (!state) {
+              // If human help instructions detected and tool is not already enabled,
+              // enable it and mark as 'to_review' for user confirmation
+              if (hasHumanHelpInstructions && !item.tool) {
+                toolEnabled = true; // Enable human help by default
+                state = 'to_review'; // Mark for user review/confirmation
+              } else {
+                state = item.tool ? 'enabled' : 'disabled';
+              }
+            }
+            
+            return {
+              ...item,
+              tool: toolEnabled,
+              tool_name: toolName,
+              state: state,
+            };
+          });
           
           if (!searchQuery) {
             processedContent = [...MCP_RELEVANT_CONTENT, ...processedContent];
@@ -134,10 +170,23 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
   }, []);
 
   const onCreateContent = (formData: any, className: string): Promise<boolean> => {    
+    // Detect if content has human help instructions
+    const hasHumanHelpInstructions = detectHumanHelpInstructions(formData.content);
+    
+    // If human help instructions are detected, ALWAYS enable human help (even if form has tool: false)
+    // This ensures automatic detection takes precedence for new content
+    const toolEnabled = hasHumanHelpInstructions ? true : (formData.tool || false);
+    
+    // If detected, mark as 'to_review' for user confirmation
+    // Otherwise, use 'enabled' or 'disabled' based on tool state
+    const state: HumanHelpState = hasHumanHelpInstructions ? 'to_review' : (toolEnabled ? 'enabled' : 'disabled');
+    
     const PARAMS = {
       title: formData.title,
       content: formData.content,      
-      tool: formData.tool,
+      tool: toolEnabled,
+      tool_name: formData.tool_name || 'transfer_to_human',
+      state: state,
     };
     setLoading(true);
     const url = className === 'relevant_content_store' 
@@ -175,10 +224,15 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
        });
   };
   const onUpdateContent = (contentId: string, formData: any, className: string): Promise<boolean> => {    
+    // When user confirms toggle, update state from 'to_review' to 'enabled' or 'disabled'
+    const newState: HumanHelpState = formData.tool ? 'enabled' : 'disabled';
+    
     const PARAMS = {
       title: formData.title,
       content: formData.content,     
-      tool: formData.tool, 
+      tool: formData.tool,
+      tool_name: formData.tool_name || 'transfer_to_human',
+      state: newState,
     };
     setLoading(true);
     const url = className === 'relevant_content_store' 
@@ -194,7 +248,7 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
        .then(() => {
          setLoading(false);
          const updatedContentList = contentList.map((item) => 
-           item.id === parseInt(contentId, 10) ? { ...item, ...formData } : item
+           item.id === parseInt(contentId, 10) ? { ...item, ...formData, state: newState, tool_name: PARAMS.tool_name } : item
          );         
          setContentList(updatedContentList);
          addToast({
@@ -204,9 +258,9 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
            id: 'update-content',
          });
          //if the content has a tool, track the CTH enabled
-         if (formData.tool_name) {
+         if (formData.tool_name || PARAMS.tool_name) {
           trackingCTHEnabled(
-            formData.tool_name && formData.tool ? 'Enabled' : 'Disabled',
+            formData.tool ? 'Enabled' : 'Disabled',
             formData.title,
             'onboarding'
           );
@@ -259,6 +313,17 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
     setPage(prevPage => prevPage + 1);
     setFetchingMoreData(true);
   };
+
+  // Count items that need review (to_review state)
+  const itemsToReviewCount = useMemo(() => {
+    return contentList.filter(item => item.state === 'to_review').length;
+  }, [contentList]);
+
+  // Count items with human help enabled
+  const humanHelpEnabledCount = useMemo(() => {
+    return contentList.filter(item => item.tool === true && item.class !== 'relevant_content_dummy').length;
+  }, [contentList]);
+
   const contextValue = {
     contentList,    
     onCreateContent,
@@ -269,7 +334,9 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
     fetchMoreData,
     fetchingMoreData,
     optionalsList,
-    onSearchContent
+    onSearchContent,
+    itemsToReviewCount,
+    humanHelpEnabledCount,
   };
 
   return (

@@ -97,7 +97,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ onClick, onDelete, content, color, 
               </Tag>
             ) : (
               <>
-                {content?.class === 'relevant_content_mandatory' ? 
+                {content?.class === 'relevant_content_mandatory' && source === 'onboarding' && !content?.content ? 
                   <Tag appearance={color}>{t('settings.step2.mandatory-content')}</Tag> : 
                   showTags && <Tag appearance="success">{t('settings.step2.optional-content')}</Tag>
                 }
@@ -108,7 +108,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ onClick, onDelete, content, color, 
                 )}
               </>
             )}
-            {!isMCPTool && content?.tool_name && (
+            {!isMCPTool && (
               <Box display="flex" alignItems="center" gap="2" onClick={(ev) => ev.stopPropagation()}>
                 {/*@ts-ignore*/}
                 <Tooltip content={
@@ -126,7 +126,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ onClick, onDelete, content, color, 
                 </Tooltip>
 
                 <Toggle
-                  checked={content?.tool_name && content?.tool ? true : false}
+                  checked={content?.tool ? true : false}
                   onChange={handleToggleHumanAttention}
                   name={`toggle-human-attention-${content?.id}`}
                 />

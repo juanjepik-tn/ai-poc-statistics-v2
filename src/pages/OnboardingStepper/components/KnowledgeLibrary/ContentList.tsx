@@ -42,10 +42,24 @@ const ContentList = ({
   
   const sortedContentList = useMemo(() => {
     return [...contentList].sort((a: any, b: any) => {
+      // 1. MCP tools (dummy) first
       if (a.class === 'relevant_content_dummy' && b.class !== 'relevant_content_dummy') return -1;
       if (b.class === 'relevant_content_dummy' && a.class !== 'relevant_content_dummy') return 1;
       if (a.class === 'relevant_content_dummy' && b.class === 'relevant_content_dummy') return a.id - b.id;
-      return 0;
+      
+      // 2. Human help enabled (tool: true) at the top
+      // This includes items that need review since they also have tool: true
+      if (a.tool && !b.tool) return -1;
+      if (b.tool && !a.tool) return 1;
+      
+      // 3. Within human help enabled items, show 'to_review' first for user confirmation
+      if (a.tool && b.tool) {
+        if (a.state === 'to_review' && b.state !== 'to_review') return -1;
+        if (b.state === 'to_review' && a.state !== 'to_review') return 1;
+      }
+      
+      // 4. Maintain order by ID for equal items
+      return a.id - b.id;
     });
   }, [contentList]);
 
@@ -78,7 +92,7 @@ const ContentList = ({
                 setCurrentEntity(content);
                 setConfirmAlert(true);
               }}
-              color={content.class === 'relevant_content_mandatory' && proxStep && !content.content ? 'danger' : 'warning'}
+              color={!content.content ? 'neutral' : 'warning'}
               showTags={showTags}
               onToggleHumanAttention={() => {                
                 onToggleHumanAttention && onToggleHumanAttention(content);

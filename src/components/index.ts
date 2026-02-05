@@ -12,5 +12,10 @@ export { ChannelIcon, type ChannelIconProps } from './ChannelIcon';
 export { ChannelBadge, type ChannelBadgeProps } from './ChannelBadge';
 export { ChannelFilter, type ChannelFilterProps, type ChannelFilterValue } from './ChannelFilter';
 export { ReconnectBanner, type ReconnectBannerProps } from './ReconnectBanner';
-export { ChannelCard, type ChannelCardProps, type ChannelType, type ChannelStatus } from './ChannelCard';// UI Components
+export { ChannelCard, type ChannelCardProps, type ChannelType, type ChannelStatus } from './ChannelCard';
+
+// Language Selector
+export { LanguageSelectorModal } from './LanguageSelectorModal';
+
+// UI Components
 export { ExpandableSection, type ExpandableSectionProps } from './ExpandableSection';

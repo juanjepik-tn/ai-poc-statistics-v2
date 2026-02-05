@@ -23,6 +23,7 @@ import { MCP_TITLES } from '@/constants/mcpRelevantContent';
 import AdditionInformation from './AdditionInformation';
 import { IContentItem } from './step2.types';
 import ContentList from './ContentList';
+import HumanHelpReviewBanner from './HumanHelpReviewBanner';
 import { trackingDeleteLibraryContent, trackingHelpLink } from '@/tracking';
 import { useHelpLink } from '@/hooks';
 import { ExternalLinkIcon } from '@nimbus-ds/icons';
@@ -54,7 +55,7 @@ const KnowledgeLibrary: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   }, []);
   return (
     <Step2DataProvider>
-      {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, mcpEnabled }: any) => {
+      {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, mcpEnabled, itemsToReviewCount }: any) => {
         
         const validateMandatoryFields = (contentList: any) => {
           let hasIncompleteMandatoryContent = false;
@@ -113,6 +114,7 @@ const KnowledgeLibrary: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
           <Page.Body>
             <Layout>
               <Layout.Section>
+                <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} />
                 <Card padding="small">
                   <ContentList
                     contentList={contentList}

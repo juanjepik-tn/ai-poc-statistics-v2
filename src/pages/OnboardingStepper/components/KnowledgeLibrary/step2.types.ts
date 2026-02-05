@@ -1,3 +1,5 @@
+export type HumanHelpState = 'enabled' | 'disabled' | 'to_review';
+
 export interface IContentItem {
   id: number;
   title: string;
@@ -10,7 +12,8 @@ export interface IContentItem {
   class: string;
   color?: "primary" | "danger" | "neutral" | "warning" | "success" | undefined;
   iaGenerated: boolean;
-  }
+  state?: HumanHelpState;
+}
 
 export interface ICategoryItem {
   id: number;
