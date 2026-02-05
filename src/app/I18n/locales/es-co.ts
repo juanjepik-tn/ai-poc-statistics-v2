@@ -3,6 +3,10 @@ export default {
     app: {
       title: 'Chat Nube',
     },
+    languageSelector: {
+      title: 'Seleccionar idioma de la app',
+      currentLanguage: 'Idioma actual',
+    },
     menu: {
       home: 'Comenzar',
       'examples-gallery': 'Galería de ejemplo',
@@ -143,7 +147,7 @@ export default {
         actions: {
           'add-information': 'Agregar información',
           'add-other-information': 'Agregar otro tipo de información',
-          'request-human-help': 'Solicitar ayuda de un asistente humano',
+          'request-human-help': 'Solicitar atención humana',
           show: 'Visualizar',
           edit: 'Editar',
           delete: 'Eliminar',
@@ -153,6 +157,16 @@ export default {
           'human-help': 'Atención humana',
           'respond-with-ia': 'Responder con IA',
           'connected': 'Conectado',
+        },
+        reviewBanner: {
+          title: 'Revisa los contenidos con atención humana',
+          description: 'Identificamos instrucciones de atención humana en {{count}} contenido(s). La atención humana fue habilitada automáticamente.',
+          descriptionWithLink: 'Identificamos instrucciones de atención humana en {{count}} contenido(s) de la biblioteca.',
+          goToLibrary: 'Ir a la biblioteca',
+        },
+        reviewBadge: 'Confirmar',
+        humanHelpWarning: {
+          description: 'Activamos la atención humana porque identificamos instrucciones relacionadas en el contenido.',
         },
         'no-content': 'No hay contenido para mostrar',
         'mcp-connected': 'La información ya está conectada con la configuración de ',

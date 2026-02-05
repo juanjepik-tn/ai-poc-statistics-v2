@@ -2505,6 +2505,28 @@ export const mockRelevantContentList = [
     created_at: '2024-01-08T10:00:00Z',
     updated_at: '2024-01-08T10:00:00Z',
   },
+  {
+    id: 9,
+    title: 'Reclamos y problemas',
+    content: 'Si tenés algún problema con tu pedido o querés hacer un reclamo, por favor contactanos. En caso de que no podamos resolver tu consulta, vamos a transferir para atención humana para que un agente te ayude personalmente.',
+    class: 'relevant_content_store',
+    tool: true,
+    tool_name: 'transfer_to_human',
+    state: 'to_review',
+    created_at: '2024-01-07T10:00:00Z',
+    updated_at: '2024-01-07T10:00:00Z',
+  },
+  {
+    id: 10,
+    title: 'Consultas especiales',
+    content: 'Para pedidos mayoristas, personalizaciones o consultas especiales que requieran atención personalizada, te vamos a derivar con nuestro equipo de atendimento humano para brindarte la mejor asistencia.',
+    class: 'relevant_content_store',
+    tool: true,
+    tool_name: 'transfer_to_human',
+    state: 'to_review',
+    created_at: '2024-01-06T10:00:00Z',
+    updated_at: '2024-01-06T10:00:00Z',
+  },
 ];
 
 // Estructura que espera Step2DataProvider: { rows: [...], total: number }

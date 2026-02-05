@@ -20,11 +20,15 @@ import { BillingDTO } from '@/types/billingDTO';
 import { useSelector } from 'react-redux';
 import useFeatureFlag from './hooks/useFeatureFlag';
 
-const Configurations: React.FC = () => {
+interface ConfigurationsProps {
+  initialTab?: number;
+}
+
+const Configurations: React.FC<ConfigurationsProps> = ({ initialTab }) => {
   const { t } = useTranslation('translations');
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const { tab } = useParams();
-  const tabNumber = tab ? parseInt(tab, 10) : 0;
+  const tabNumber = initialTab !== undefined ? initialTab : (tab ? parseInt(tab, 10) : 0);
   const { isHumanSupportEnabled } = useFeatureFlag();
 
   const TABS = useMemo(() => {
@@ -140,7 +144,7 @@ const Configurations: React.FC = () => {
                 {renderMobileContent()}
               </>
             ) : (
-              <Tabs preSelectedTab={tabNumber}>
+              <Tabs preSelectedTab={tabNumber} key={tabNumber}>
                 {TABS.map((tabItem) => (
                   <Tabs.Item label={tabItem.label} key={tabItem.label}>
                     {tabItem.component}

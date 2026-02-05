@@ -3,16 +3,19 @@
  * Layout que se mantiene para todas las pantallas de Chat
  */
 
-import React, { ReactNode, useState, useCallback } from 'react';
+import React, { ReactNode, useState, useCallback, useEffect } from 'react';
 import { Box, Button, Icon, IconButton, Text } from '@nimbus-ds/components';
 import {
   ChevronLeftIcon,
   NotificationIcon,
   QuestionCircleIcon,
   GenerativeStarsIcon,
+  GlobeIcon,
 } from '@nimbus-ds/icons';
 import { AppShell } from '@nimbus-ds/patterns';
+import { useTranslation } from 'react-i18next';
 import AdminMenu from './AdminMenu';
+import { LanguageSelectorModal } from '../LanguageSelectorModal';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -39,13 +42,44 @@ const UserAvatar: React.FC<{ name: string; size?: string }> = ({ name, size = '3
   );
 };
 
+// Language code to display name mapping
+const languageNames: Record<string, string> = {
+  'pt-BR': 'Português (Brasil)',
+  'es-AR': 'Español (Argentina)',
+  'es-MX': 'Español (México)',
+  'es-CO': 'Español (Colombia)',
+  'es-CL': 'Español (Chile)',
+};
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [menuExpanded, setMenuExpanded] = useState(false);
+  const [languageModalOpen, setLanguageModalOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('es-AR');
+  const { i18n } = useTranslation();
   const userName = 'ar-nuvemchat';
+
+  // Initialize language from localStorage or i18n
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('app_language') || i18n.language || 'es-AR';
+    setCurrentLanguage(savedLanguage);
+  }, [i18n.language]);
 
   // Toggle function para colapsar/expandir o menu
   const handleToggleMenu = useCallback(() => {
     setMenuExpanded((prev) => !prev);
+  }, []);
+
+  // Language modal handlers
+  const handleOpenLanguageModal = useCallback(() => {
+    setLanguageModalOpen(true);
+  }, []);
+
+  const handleCloseLanguageModal = useCallback(() => {
+    setLanguageModalOpen(false);
+  }, []);
+
+  const handleLanguageChange = useCallback((language: string) => {
+    setCurrentLanguage(language);
   }, []);
 
   // Slot izquierdo del header - Botón volver
@@ -82,6 +116,32 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <Text fontSize="caption" fontWeight="medium" color="neutral-textHigh">Lumi</Text>
       </Box>
 
+      {/* Language Selector - Icono de globo con idioma actual */}
+      <Box
+        as="button"
+        display="flex"
+        alignItems="center"
+        gap="1"
+        padding="1-5"
+        paddingLeft="2"
+        paddingRight="2"
+        borderRadius="2"
+        borderWidth="1"
+        borderStyle="solid"
+        borderColor="neutral-surfaceHighlight"
+        backgroundColor="neutral-background"
+        cursor="pointer"
+        onClick={handleOpenLanguageModal}
+        style={{
+          transition: 'background-color 0.2s ease',
+        }}
+      >
+        <Icon source={<GlobeIcon size="medium" />} color="neutral-textLow" />
+        <Text fontSize="caption" color="neutral-textHigh">
+          {languageNames[currentLanguage]?.split(' ')[0] || 'Idioma'}
+        </Text>
+      </Box>
+
       {/* Notificaciones - Solo ícono */}
       <IconButton 
         source={<NotificationIcon />} 
@@ -112,27 +172,37 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   );
 
   return (
-    <AppShell
-      menu={<AdminMenu menuExpanded={menuExpanded} onToggleMenu={handleToggleMenu} />}
-      menuExpanded={menuExpanded}
-      menuExpandedWidth="270px"
-      menuCollapsedWidth="48px"
-    >
-      <AppShell.Header
-        leftSlot={leftSlot}
-        rightSlot={rightSlot}
+    <>
+      <AppShell
+        menu={<AdminMenu menuExpanded={menuExpanded} onToggleMenu={handleToggleMenu} />}
+        menuExpanded={menuExpanded}
+        menuExpandedWidth="270px"
+        menuCollapsedWidth="48px"
+      >
+        <AppShell.Header
+          leftSlot={leftSlot}
+          rightSlot={rightSlot}
+        />
+        <AppShell.Body>
+          <Box 
+            height="100%" 
+            width="100%"
+            backgroundColor="neutral-surface"
+            overflow="hidden"
+          >
+            {children}
+          </Box>
+        </AppShell.Body>
+      </AppShell>
+
+      {/* Language Selector Modal */}
+      <LanguageSelectorModal
+        open={languageModalOpen}
+        onDismiss={handleCloseLanguageModal}
+        currentLanguage={currentLanguage}
+        onLanguageChange={handleLanguageChange}
       />
-      <AppShell.Body>
-        <Box 
-          height="100%" 
-          width="100%"
-          backgroundColor="neutral-surface"
-          overflow="hidden"
-        >
-          {children}
-        </Box>
-      </AppShell.Body>
-    </AppShell>
+    </>
   );
 };
 

@@ -3,6 +3,10 @@ export default {
     app: {
       title: 'Nuvem Chat',
     },
+    languageSelector: {
+      title: 'Selecionar idioma do app',
+      currentLanguage: 'Idioma atual',
+    },
     menu: {
       home: 'Início',
       'examples-gallery': 'Galeria de exemplos',
@@ -143,16 +147,26 @@ export default {
         actions: {
           'add-information': 'Adicione outras informações',
           'add-other-information': 'Adicione outro tipo de informação',
-          'request-human-help': 'Solicitar ajuda de um assistente humano',
+          'request-human-help': 'Solicitar atendimento humano',
           show: 'Visualizar',
           edit: 'Editar',
           delete: 'Deletar',
         },
         tags: {
           example: 'Exemplo',
-          'human-help': 'Ajuda humana',
+          'human-help': 'Atendimento humano',
           'respond-with-ia': 'Responder com IA',
           'connected': 'Conectado',
+        },
+        reviewBanner: {
+          title: 'Revise os conteúdos com atendimento humano',
+          description: 'Identificamos instruções de atendimento humano em {{count}} conteúdo(s). O atendimento humano foi habilitado automaticamente.',
+          descriptionWithLink: 'Identificamos instruções de atendimento humano em {{count}} conteúdo(s) da biblioteca.',
+          goToLibrary: 'Ir para a biblioteca',
+        },
+        reviewBadge: 'Confirmar',
+        humanHelpWarning: {
+          description: 'Ativamos o atendimento humano pois identificamos instruções relacionadas no conteúdo.',
         },
         'no-content': 'Não há conteúdo para mostrar',
         'mcp-connected': 'As informações já estão conectadas com as configurações de ',

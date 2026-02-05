@@ -19,7 +19,7 @@ const AdminPage: React.FC = () => {
   // Determinar qué contenido mostrar basado en el hash
   const activeSection = useMemo(() => {
     if (hash === '#/statistics') return 'statistics';
-    if (hash === '#/configurations') return 'configurations';
+    if (hash === '#/configurations' || hash.startsWith('#/configurations/')) return 'configurations';
     if (hash.startsWith('#/onboarding')) return 'onboarding';
     return 'conversations'; // default
   }, [hash]);
@@ -33,6 +33,15 @@ const AdminPage: React.FC = () => {
     return 0;
   }, [hash]);
 
+  // Extract configurations tab from hash (e.g., #/configurations/1 -> 1)
+  const configurationsTab = useMemo(() => {
+    if (hash.startsWith('#/configurations/')) {
+      const tab = hash.replace('#/configurations/', '');
+      return parseInt(tab, 10) || 0;
+    }
+    return 0;
+  }, [hash]);
+
   const renderContent = () => {
     switch (activeSection) {
       case 'statistics':
@@ -42,7 +51,7 @@ const AdminPage: React.FC = () => {
           </StatisticsDataProvider>
         );
       case 'configurations':
-        return <Configurations />;
+        return <Configurations initialTab={configurationsTab} />;
       case 'onboarding':
         return <OnboardingStepper initialStep={onboardingStep} />;
       case 'conversations':

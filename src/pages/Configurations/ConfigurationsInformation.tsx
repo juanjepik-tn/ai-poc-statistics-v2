@@ -5,6 +5,7 @@ import ContentForm from '../OnboardingStepper/components/KnowledgeLibrary/Conten
 import Step2DataProvider from '../OnboardingStepper/components/KnowledgeLibrary/Step2DataProvider';
 import ContentList from '../OnboardingStepper/components/KnowledgeLibrary/ContentList';
 import AdditionInformation from '../OnboardingStepper/components/KnowledgeLibrary/AdditionInformation';
+import HumanHelpReviewBanner from '../OnboardingStepper/components/KnowledgeLibrary/HumanHelpReviewBanner';
 import { SearchIcon } from '@nimbus-ds/icons';
 import { trackingDeleteLibraryContent } from '@/tracking';
 
@@ -40,10 +41,11 @@ const ConfigurationsInstances: React.FC = () => {
   
   return (
       <Step2DataProvider>
-        {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, onSearchContent }: any) => (
+        {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, onSearchContent, itemsToReviewCount }: any) => (
     <Box gap="6" display="flex" flexDirection="column">
           <>
-          <Text>{t('settings.step2.description')}</Text>          
+          <Text>{t('settings.step2.description')}</Text>
+          <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} />
             <Box display="flex" justifyContent="flex-end" ml="auto" width="400px">
               <Input
               append={<Icon source={<SearchIcon />} />}
