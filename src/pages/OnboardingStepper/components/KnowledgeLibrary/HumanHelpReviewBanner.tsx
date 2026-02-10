@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Alert, Box, Button, Text } from '@nimbus-ds/components';
 import { useTranslation } from 'react-i18next';
 
 interface HumanHelpReviewBannerProps {
   itemsToReviewCount: number;
   showLibraryButton?: boolean;
+  onMarkAllReviewed?: () => void;
 }
 
-const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToReviewCount, showLibraryButton = false }) => {
+const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToReviewCount, showLibraryButton = false, onMarkAllReviewed }) => {
   const { t } = useTranslation('translations');
-  const [visible, setVisible] = useState(true);
 
   if (itemsToReviewCount === 0) {
     return null;
   }
-
-  const handleDismiss = () => {
-    setVisible(false);
-  };
 
   const handleGoToLibrary = () => {
     window.location.href = '/admin/chat#/configurations/1';
@@ -28,8 +24,6 @@ const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToRe
       <Alert 
         appearance="warning"
         title={t('settings.step2.reviewBanner.title')}
-        show={visible}
-        onRemove={handleDismiss}
       >
         <Box display="flex" flexDirection="column" gap="3">
           <Text>
@@ -38,13 +32,18 @@ const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToRe
               : t('settings.step2.reviewBanner.description', { count: itemsToReviewCount })
             }
           </Text>
-          {showLibraryButton && (
-            <Box display="flex" justifyContent="flex-start">
+          <Box display="flex" justifyContent="flex-start" gap="2">
+            {showLibraryButton && (
               <Button appearance="neutral" onClick={handleGoToLibrary}>
                 {t('settings.step2.reviewBanner.goToLibrary')}
               </Button>
-            </Box>
-          )}
+            )}
+            {onMarkAllReviewed && (
+              <Button appearance="neutral" onClick={onMarkAllReviewed}>
+                {t('settings.step2.reviewBanner.markReviewed')}
+              </Button>
+            )}
+          </Box>
         </Box>
       </Alert>
     </Box>
