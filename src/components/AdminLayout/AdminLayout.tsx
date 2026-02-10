@@ -86,7 +86,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const leftSlot = (
     <Button appearance="transparent" onClick={() => window.history.back()}>
       <Icon source={<ChevronLeftIcon />} color="neutral-textLow" />
-      <Text color="neutral-textLow">Volver</Text>
+      <Text color="neutral-textLow">Voltar</Text>
     </Button>
   );
 
@@ -188,7 +188,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             height="100%" 
             width="100%"
             backgroundColor="neutral-surface"
-            overflow="hidden"
+            overflow="auto"
           >
             {children}
           </Box>

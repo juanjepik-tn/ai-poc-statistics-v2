@@ -97,7 +97,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       {/* Title with emoji */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="2">
         <Title as="h2" textAlign="center">
-          🎉 {t('instagramOnboarding.step4.title', '¡Instagram conectado!')}
+          🎉 {t('instagramOnboarding.step4.title', 'Instagram conectado!')}
         </Title>
       </Box>
 
@@ -140,7 +140,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         <Box display="flex" flexDirection="column" gap="0-5">
           <Text fontWeight="bold" fontSize="highlight">{username}</Text>
           <Text fontSize="caption" color="success-textHigh">
-            ✓ Conectado y listo
+            ✓ Conectado e pronto
           </Text>
         </Box>
       </Box>
@@ -149,7 +149,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       <Text color="neutral-textLow" textAlign="center" maxWidth="400px">
         {t('instagramOnboarding.step4.description', {
           username,
-          defaultValue: `Tu cuenta ya está lista para recibir mensajes.`,
+          defaultValue: `Sua conta já está pronta para receber mensagens.`,
         })}
       </Text>
 
@@ -178,7 +178,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         <Text fontSize="base" color="primary-textHigh">
           {t(
             'instagramOnboarding.step4.info',
-            'El AI Agent que configuraste para WhatsApp también responderá tus mensajes de Instagram.'
+            'O AI Agent que você configurou para o WhatsApp também responderá suas mensagens do Instagram.'
           )}
         </Text>
       </Box>
@@ -197,7 +197,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         <Text fontSize="caption" color="warning-textHigh">
           {t(
             'instagramOnboarding.step4.tip',
-            'Tip: Podés ver de qué canal viene cada mensaje en la lista de conversaciones.'
+            'Dica: Você pode ver de qual canal vem cada mensagem na lista de conversas.'
           )}
         </Text>
       </Box>
@@ -206,13 +206,13 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       <Box display="flex" flexDirection="column" gap="3" width="100%" maxWidth="420px">
         <Button appearance="primary" onClick={onGoToConversations}>
           <Box display="flex" alignItems="center" gap="2">
-            <Text color="currentColor">{t('instagramOnboarding.step4.cta', 'Ir a Conversaciones')}</Text>
+            <Text color="currentColor">{t('instagramOnboarding.step4.cta', 'Ir para Conversas')}</Text>
             <Icon source={<ChevronRightIcon />} color="currentColor" />
           </Box>
         </Button>
         <Box display="flex" justifyContent="center">
           <Link as="button" appearance="neutral" onClick={onGoToChannels}>
-            {t('instagramOnboarding.step4.secondary', 'Ver configuración de canales')}
+            {t('instagramOnboarding.step4.secondary', 'Ver configuração de canais')}
           </Link>
         </Box>
       </Box>

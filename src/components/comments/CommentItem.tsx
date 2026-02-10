@@ -99,7 +99,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
   };
 
   const handleDelete = () => {
-    if (window.confirm('¿Eliminar este comentario?')) {
+    if (window.confirm('Excluir este comentário?')) {
       deleteComment(comment.id);
     }
   };
@@ -197,7 +197,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
       {showReplyForm && (
         <Box marginTop="3">
           <CommentForm
-            placeholder="Escribe tu respuesta..."
+            placeholder="Escreva sua resposta..."
             onSubmit={handleReply}
             onCancel={() => setShowReplyForm(false)}
             submitLabel="Responder"

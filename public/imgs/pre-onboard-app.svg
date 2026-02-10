@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" fill="none">
+  <!-- Background -->
+  <circle cx="120" cy="80" r="70" fill="#F0F7FF"/>
+
+  <!-- Phone body -->
+  <rect x="55" y="22" width="58" height="116" rx="10" fill="white" stroke="#0050C3" stroke-width="2"/>
+  <rect x="61" y="36" width="46" height="82" rx="4" fill="#E8F5FF"/>
+  <!-- Phone notch -->
+  <rect x="73" y="27" width="22" height="4" rx="2" fill="#C9D2DF"/>
+  <!-- Phone home button -->
+  <circle cx="84" cy="126" r="5" fill="none" stroke="#C9D2DF" stroke-width="1.5"/>
+
+  <!-- WhatsApp icon on phone screen -->
+  <circle cx="84" cy="62" r="14" fill="#25D366"/>
+  <path d="M80 67.5c-.3-.15-1.5-.75-1.7-.85-.2-.1-.35-.15-.5.15-.15.3-.6.85-.75 1.05-.13.18-.27.2-.5.07-.7-.32-1.3-.7-1.8-1.2-.5-.5-.85-1.05-1-1.3-.1-.25 0-.4.1-.5.1-.15.25-.3.35-.45.08-.12.15-.25.2-.38.04-.06.05-.13.05-.2s-.05-.13-.05-.2c0-.12-.55-1.35-.75-1.85-.2-.5-.4-.42-.55-.42h-.45c-.25 0-.55.1-.75.35-.18.25-.4.55-.5.88-.1.33-.17.7-.13 1.1.08.95.4 1.85.95 2.6.95 1.55 2.25 2.8 3.8 3.55.55.25.95.4 1.3.52.5.15.95.2 1.45.12.3-.07.6-.22.86-.42.25-.2.47-.45.6-.75.15-.35.18-.75.12-1.12-.06-.1-.2-.17-.45-.3z" fill="white"/>
+  <path d="M91.5 55.5c-.85-.9-1.9-1.6-3.05-2.05-1.15-.45-2.4-.68-3.65-.65-1.7 0-3.35.45-4.8 1.3-1.45.85-2.65 2.1-3.5 3.6-.85 1.5-1.3 3.2-1.3 4.95 0 1.7.45 3.35 1.3 4.85l-1.3 4.8 4.9-1.3c1.4.75 2.95 1.15 4.55 1.15h.1c1.9 0 3.75-.55 5.35-1.6 1.6-1.05 2.85-2.55 3.6-4.3.75-1.75.95-3.7.55-5.6-.4-1.85-1.35-3.55-2.7-4.85z" fill="none" stroke="white" stroke-width="1"/>
+
+  <!-- QR Code -->
+  <rect x="142" y="32" width="52" height="52" rx="6" fill="white" stroke="#0050C3" stroke-width="1.5"/>
+  <!-- QR pattern - top left -->
+  <rect x="148" y="38" width="14" height="14" rx="2" fill="#0050C3"/>
+  <rect x="151" y="41" width="8" height="8" rx="1" fill="white"/>
+  <rect x="153" y="43" width="4" height="4" rx="0.5" fill="#0050C3"/>
+  <!-- QR pattern - top right -->
+  <rect x="174" y="38" width="14" height="14" rx="2" fill="#0050C3"/>
+  <rect x="177" y="41" width="8" height="8" rx="1" fill="white"/>
+  <rect x="179" y="43" width="4" height="4" rx="0.5" fill="#0050C3"/>
+  <!-- QR pattern - bottom left -->
+  <rect x="148" y="64" width="14" height="14" rx="2" fill="#0050C3"/>
+  <rect x="151" y="67" width="8" height="8" rx="1" fill="white"/>
+  <rect x="153" y="69" width="4" height="4" rx="0.5" fill="#0050C3"/>
+  <!-- QR data dots -->
+  <rect x="165" y="39" width="4" height="4" fill="#0050C3"/>
+  <rect x="165" y="46" width="4" height="4" fill="#0050C3"/>
+  <rect x="165" y="53" width="4" height="4" fill="#0050C3"/>
+  <rect x="148" y="56" width="4" height="4" fill="#0050C3"/>
+  <rect x="155" y="56" width="4" height="4" fill="#0050C3"/>
+  <rect x="165" y="60" width="4" height="4" fill="#0050C3"/>
+  <rect x="172" y="60" width="4" height="4" fill="#0050C3"/>
+  <rect x="165" y="67" width="4" height="4" fill="#0050C3"/>
+  <rect x="172" y="67" width="4" height="4" fill="#0050C3"/>
+  <rect x="179" y="67" width="4" height="4" fill="#0050C3"/>
+  <rect x="165" y="74" width="4" height="4" fill="#0050C3"/>
+  <rect x="179" y="74" width="4" height="4" fill="#0050C3"/>
+  <rect x="172" y="53" width="4" height="4" fill="#0050C3"/>
+  <rect x="179" y="56" width="4" height="4" fill="#0050C3"/>
+  <rect x="186" y="56" width="4" height="4" fill="#0050C3"/>
+  <rect x="186" y="67" width="4" height="4" fill="#0050C3"/>
+
+  <!-- Scan line animation hint -->
+  <line x1="140" y1="58" x2="196" y2="58" stroke="#25D366" stroke-width="2" stroke-dasharray="4 2" opacity="0.6"/>
+
+  <!-- Arrow from phone to QR -->
+  <path d="M116 72 L136 58" stroke="#25D366" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
+  <polygon points="136,56 138,62 132,60" fill="#25D366"/>
+
+  <!-- Decorative dots -->
+  <circle cx="44" cy="46" r="4" fill="#DEF0FF"/>
+  <circle cx="200" cy="110" r="6" fill="#DEF0FF"/>
+  <circle cx="180" cy="130" r="3" fill="#25D366" opacity="0.3"/>
+
+  <!-- "Scan" label -->
+  <rect x="148" y="90" width="40" height="16" rx="8" fill="#25D366"/>
+  <text x="168" y="101" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" font-weight="600" fill="white">SCAN</text>
+</svg>

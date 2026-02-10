@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, Box, Button, Text } from '@nimbus-ds/components';
 import { useTranslation } from 'react-i18next';
 
@@ -9,10 +9,15 @@ interface HumanHelpReviewBannerProps {
 
 const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToReviewCount, showLibraryButton = false }) => {
   const { t } = useTranslation('translations');
+  const [visible, setVisible] = useState(true);
 
   if (itemsToReviewCount === 0) {
     return null;
   }
+
+  const handleDismiss = () => {
+    setVisible(false);
+  };
 
   const handleGoToLibrary = () => {
     window.location.href = '/admin/chat#/configurations/1';
@@ -23,6 +28,8 @@ const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToRe
       <Alert 
         appearance="warning"
         title={t('settings.step2.reviewBanner.title')}
+        show={visible}
+        onRemove={handleDismiss}
       >
         <Box display="flex" flexDirection="column" gap="3">
           <Text>

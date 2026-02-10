@@ -14,17 +14,17 @@ import CommentForm from './CommentForm';
 // Filter tab configuration
 const FILTER_TABS: { id: CommentFilter; label: string }[] = [
   { id: 'page', label: 'Esta página' },
-  { id: 'open', label: 'Abiertos' },
-  { id: 'closed', label: 'Cerrados' },
+  { id: 'open', label: 'Abertos' },
+  { id: 'closed', label: 'Fechados' },
   { id: 'all', label: 'Todos' },
 ];
 
 // Empty state messages
 const EMPTY_MESSAGES: Record<CommentFilter, string> = {
-  page: 'No hay comentarios en esta página',
-  open: '¡No hay comentarios abiertos! 🎉',
-  closed: 'No hay comentarios cerrados',
-  all: 'No hay comentarios aún',
+  page: 'Não há comentários nesta página',
+  open: 'Não há comentários abertos! 🎉',
+  closed: 'Não há comentários fechados',
+  all: 'Não há comentários ainda',
 };
 
 const CommentsPanel: React.FC = () => {
@@ -102,7 +102,7 @@ const CommentsPanel: React.FC = () => {
               💬
             </Text>
             <Text fontSize="base" fontWeight="bold" color="primary-textHigh">
-              Comentarios
+              Comentários
             </Text>
           </Box>
           <IconButton
@@ -121,7 +121,7 @@ const CommentsPanel: React.FC = () => {
           borderColor="neutral-surfaceHighlight"
         >
           <Text fontSize="caption" color="neutral-textLow">
-            📍 Página actual:{' '}
+            📍 Página atual:{' '}
             <Text as="span" fontWeight="medium" color="neutral-textHigh">
               {currentPageId}
             </Text>
@@ -179,7 +179,7 @@ const CommentsPanel: React.FC = () => {
                 {EMPTY_MESSAGES[filter]}
               </Text>
               <Text fontSize="caption" color="neutral-textDisabled" textAlign="center">
-                Agrega un comentario usando el formulario de abajo
+                Adicione um comentário usando o formulário abaixo
               </Text>
             </Box>
           ) : (

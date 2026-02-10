@@ -55,7 +55,7 @@ export const ChannelCard: React.FC<ChannelCardProps> = ({
     >
       {/* New badge - moved outside for proper positioning */}
       {isNew && !isConnected && (
-        <Tag appearance="primary">Nuevo</Tag>
+        <Tag appearance="primary">Novo</Tag>
       )}
       <Box 
         display="flex" 
@@ -128,7 +128,7 @@ export const ChannelCard: React.FC<ChannelCardProps> = ({
               <Box display="flex" alignItems="center" gap="1">
                 <Icon source={<CheckCircleIcon size={12} />} color="success-interactive" />
                 <Text fontSize="caption" color="success-textHigh">
-                  Conexión rápida
+                  Conexão rápida
                 </Text>
               </Box>
             )}

@@ -74,10 +74,10 @@ export const Step3SelectPage: React.FC<Step3SelectPageProps> = ({
       {/* Title */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="2">
         <Title as="h3" textAlign="center">
-          Seleccioná tu página de Facebook
+          Selecione sua página do Facebook
         </Title>
         <Text color="neutral-textLow" textAlign="center" maxWidth="400px">
-          Elegí la página desde la cual querés recibir y responder mensajes de Messenger.
+          Escolha a página a partir da qual você quer receber e responder mensagens do Messenger.
         </Text>
       </Box>
 
@@ -167,7 +167,7 @@ export const Step3SelectPage: React.FC<Step3SelectPageProps> = ({
         {disabledPages.length > 0 && (
           <Box display="flex" flexDirection="column" gap="2" marginTop="2">
             <Text fontSize="caption" color="neutral-textLow" fontWeight="bold">
-              Páginas sin mensajería habilitada:
+              Páginas sem mensagens habilitadas:
             </Text>
             {disabledPages.map((page) => (
               <Box
@@ -197,7 +197,7 @@ export const Step3SelectPage: React.FC<Step3SelectPageProps> = ({
                     <Box display="flex" alignItems="center" gap="1">
                       <Icon source={<AlertCircleIcon size={12} />} color="warning-interactive" />
                       <Text fontSize="caption" color="warning-textHigh">
-                        Habilitá la mensajería en Facebook
+                        Habilite as mensagens no Facebook
                       </Text>
                     </Box>
                   </Box>
@@ -226,7 +226,7 @@ export const Step3SelectPage: React.FC<Step3SelectPageProps> = ({
       <Link as="button" appearance="neutral" onClick={onBack}>
         <Box display="flex" alignItems="center" gap="1">
           <Icon source={<ChevronLeftIcon size={16} />} color="currentColor" />
-          <Text color="currentColor">Volver</Text>
+          <Text color="currentColor">Voltar</Text>
         </Box>
       </Link>
     </Box>

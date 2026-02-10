@@ -18,14 +18,14 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
   const { t } = useTranslation('translations');
 
   const features = [
-    'Recibí mensajes de tu página de Facebook',
-    'Respondé automáticamente con tu AI Agent',
-    'Gestioná todo desde un solo lugar',
+    'Receba mensagens da sua página do Facebook',
+    'Responda automaticamente com seu AI Agent',
+    'Gerencie tudo em um só lugar',
   ];
 
   const requirements = [
-    'Tener una Página de Facebook activa',
-    'Ser administrador de la página',
+    'Ter uma Página do Facebook ativa',
+    'Ser administrador da página',
   ];
 
   return (
@@ -58,7 +58,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
             </Box>
           </Box>
           <Box position="absolute" style={{ top: '-8px', right: '-24px' }}>
-            <Tag appearance="primary">Nuevo</Tag>
+            <Tag appearance="primary">Novo</Tag>
           </Box>
         </Box>
       </Box>
@@ -66,10 +66,10 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
       {/* Title - gap consistente */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="1">
         <Title as="h2" textAlign="center">
-          Conectá Facebook Messenger
+          Conecte o Facebook Messenger
         </Title>
         <Text color="neutral-textLow" textAlign="center" fontSize="base">
-          Atendé a tus clientes de Facebook directamente desde Chat Nube, con el mismo agente de IA que ya tenés configurado.
+          Atenda seus clientes do Facebook diretamente pelo Nuvem Chat, com o mesmo agente de IA que você já tem configurado.
         </Text>
       </Box>
 
@@ -91,10 +91,10 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
           <Icon source={<CheckCircleIcon size={20} />} color="success-interactive" />
           <Box display="flex" flexDirection="column" gap="1">
             <Text fontWeight="bold" fontSize="caption" color="success-textHigh">
-              ¡Conexión simplificada!
+              Conexão simplificada!
             </Text>
             <Text fontSize="caption" color="success-textLow">
-              Ya tenés Instagram conectado, así que solo necesitás seleccionar la página.
+              Você já tem o Instagram conectado, então só precisa selecionar a página.
             </Text>
           </Box>
         </Box>

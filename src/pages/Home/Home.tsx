@@ -65,7 +65,7 @@ const NavCard: React.FC<NavCardProps> = ({
       </Card.Body>
       <Card.Footer>
         <Button appearance={highlighted ? 'primary' : 'neutral'} onClick={() => navigate(path)}>
-          Ir a {title}
+          Ir para {title}
         </Button>
       </Card.Footer>
     </Card>
@@ -77,62 +77,62 @@ const Home: React.FC = () => {
 
   const sections: NavCardProps[] = [
     {
-      title: 'Estadísticas',
-      description: 'Dashboard con métricas de conversaciones, mensajes y rendimiento de la IA',
+      title: 'Estatísticas',
+      description: 'Dashboard com métricas de conversas, mensagens e desempenho da IA',
       emoji: '📊',
       path: '/statistics',
       tag: 'Gráficos',
       tagAppearance: 'success',
     },
     {
-      title: 'Conversaciones',
-      description: 'Lista de chats de WhatsApp con clientes y gestión de mensajes',
+      title: 'Conversas',
+      description: 'Lista de chats de WhatsApp com clientes e gestão de mensagens',
       emoji: '💬',
       path: '/conversations',
       tag: '10 chats',
       tagAppearance: 'primary',
     },
     {
-      title: 'Configuraciones',
-      description: 'Ajustes de personalidad de IA, reglas de transferencia y preferencias',
+      title: 'Configurações',
+      description: 'Ajustes de personalidade da IA, regras de transferência e preferências',
       emoji: '⚙️',
       path: '/configurations',
     },
     {
-      title: 'Productos',
-      description: 'Gestión del catálogo de productos de la tienda',
+      title: 'Produtos',
+      description: 'Gestão do catálogo de produtos da loja',
       emoji: '📦',
       path: '/products',
-      tag: '20 productos',
+      tag: '20 produtos',
       tagAppearance: 'neutral',
     },
     {
-      title: 'Costos',
-      description: 'Información de billing, planes activos y historial de pagos',
+      title: 'Custos',
+      description: 'Informações de billing, planos ativos e histórico de pagamentos',
       emoji: '💰',
       path: '/costs',
     },
     {
-      title: 'Templates de Mensajes',
-      description: 'Plantillas de mensajes para WhatsApp Business',
+      title: 'Templates de Mensagens',
+      description: 'Modelos de mensagens para WhatsApp Business',
       emoji: '📝',
       path: '/template-messages',
     },
     {
       title: 'Onboarding',
-      description: 'Flujo de configuración inicial paso a paso',
+      description: 'Fluxo de configuração inicial passo a passo',
       emoji: '🚀',
       path: '/onboarding',
     },
     {
-      title: 'Instancias WhatsApp',
-      description: 'Gestión de canales y conexiones de WhatsApp',
+      title: 'Instâncias WhatsApp',
+      description: 'Gestão de canais e conexões de WhatsApp',
       emoji: '📱',
       path: '/instances',
     },
     {
       title: 'Settings',
-      description: 'Configuración general de la aplicación',
+      description: 'Configuração geral da aplicação',
       emoji: '🔧',
       path: '/settings',
     },
@@ -142,7 +142,7 @@ const Home: React.FC = () => {
     <Page maxWidth="1000px">
       <Page.Header
         title="🧪 POC UI Playground"
-        subtitle="Navegá por las diferentes secciones para explorar la UI"
+        subtitle="Navegue pelas diferentes seções para explorar a UI"
       />
       <Page.Body>
         <Layout columns="1">
@@ -154,10 +154,10 @@ const Home: React.FC = () => {
               marginBottom="4"
             >
               <Box display="flex" flexDirection="column" gap="2">
-                <Title as="h3">Bienvenido al entorno de pruebas</Title>
+                <Title as="h3">Bem-vindo ao ambiente de testes</Title>
                 <Text>
-                  Este es un entorno aislado con datos mock. Podés navegar por todas 
-                  las secciones y experimentar con la UI sin afectar ningún dato real.
+                  Este é um ambiente isolado com dados mock. Você pode navegar por todas 
+                  as seções e experimentar com a UI sem afetar nenhum dado real.
                 </Text>
                 <Text fontSize="caption" color="neutral-textLow">
                   💡 Tip: Los datos se pueden modificar en src/mocks/mock-data.ts
@@ -188,9 +188,9 @@ const Home: React.FC = () => {
                         <Tag appearance="success">Recomendado</Tag>
                       </Box>
                       <Text color="neutral-textLow" fontSize="caption">
-                        POC con el layout completo del nuevo admin de Tiendanube. 
-                        Incluye sidebar de navegación y la sección de Chat integrada 
-                        (Conversaciones, Estadísticas, Configuraciones).
+                        POC com o layout completo do novo admin da Nuvemshop. 
+                        Inclui sidebar de navegação e a seção de Chat integrada 
+                        (Conversas, Estatísticas, Configurações).
                       </Text>
                     </Box>
                   </Box>
@@ -205,7 +205,7 @@ const Home: React.FC = () => {
 
             <Box marginBottom="2">
               <Text color="neutral-textLow" fontSize="caption">
-                Secciones standalone (sin layout de admin):
+                Seções standalone (sem layout de admin):
               </Text>
             </Box>
 

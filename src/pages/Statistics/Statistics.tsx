@@ -191,8 +191,8 @@ const Statistics: React.FC = () => {
           <Skeleton height="300px" width="100%" borderRadius="2" />
         ) : (
           <StatisticDonutChart
-            title="Distribución por canal"
-            subtitle="Porcentaje de conversaciones por canal de mensajería"
+            title="Distribuição por canal"
+            subtitle="Porcentagem de conversas por canal de mensagens"
             data={[
               { name: 'WhatsApp', value: 58, color: '#25D366' },
               { name: 'Instagram', value: 28, color: '#E1306C' },

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" fill="none">
+  <!-- Background -->
+  <circle cx="120" cy="80" r="70" fill="#F0F7FF"/>
+
+  <!-- WhatsApp Business card -->
+  <rect x="30" y="40" width="84" height="80" rx="12" fill="white" stroke="#25D366" stroke-width="2"/>
+  <circle cx="72" cy="62" r="14" fill="#25D366"/>
+  <text x="72" y="67" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="white">B</text>
+  <text x="72" y="87" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" font-weight="600" fill="#1A1A1A">WhatsApp</text>
+  <text x="72" y="97" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" fill="#666">Business</text>
+
+  <!-- Phone number badge -->
+  <rect x="44" y="104" width="56" height="14" rx="7" fill="#E8F5FF" stroke="#0050C3" stroke-width="1"/>
+  <text x="72" y="114" text-anchor="middle" font-family="monospace" font-size="7" fill="#0050C3">+55 11 9...</text>
+
+  <!-- Meta Business card -->
+  <rect x="126" y="40" width="84" height="80" rx="12" fill="white" stroke="#0050C3" stroke-width="2"/>
+  <!-- Meta logo simplified -->
+  <circle cx="168" cy="62" r="14" fill="#0050C3"/>
+  <text x="168" y="67" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="white">M</text>
+  <text x="168" y="87" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" font-weight="600" fill="#1A1A1A">Business</text>
+  <text x="168" y="97" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" fill="#666">Portfolio</text>
+
+  <!-- Connection line between cards -->
+  <line x1="114" y1="80" x2="126" y2="80" stroke="#0050C3" stroke-width="2" stroke-dasharray="4 2"/>
+
+  <!-- Link icon in center -->
+  <circle cx="120" cy="80" r="10" fill="#DEF0FF" stroke="#0050C3" stroke-width="1.5"/>
+  <path d="M116.5 82.5c-.8-.8-.8-2 0-2.8l2-2c.8-.8 2-.8 2.8 0" stroke="#0050C3" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M123.5 77.5c.8.8.8 2 0 2.8l-2 2c-.8.8-2 .8-2.8 0" stroke="#0050C3" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Decorative -->
+  <circle cx="38" cy="32" r="4" fill="#25D366" opacity="0.3"/>
+  <circle cx="202" cy="32" r="4" fill="#0050C3" opacity="0.2"/>
+  <circle cx="120" cy="145" r="3" fill="#DEF0FF"/>
+</svg>

@@ -79,16 +79,16 @@ const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu
       <Menu.Body>
         {/* Sección principal */}
         <Menu.Section>
-          <Menu.Button startIcon={HomeIcon} label="Inicio" />
-          <Menu.Button startIcon={StatsIcon} label="Estadísticas" />
+          <Menu.Button startIcon={HomeIcon} label="Início" />
+          <Menu.Button startIcon={StatsIcon} label="Estatísticas" />
         </Menu.Section>
 
         {/* Sección Gestión */}
-        <Menu.Section title="Gestión">
-          <Menu.Button startIcon={CashIcon} label="Ventas">
+        <Menu.Section title="Gestão">
+          <Menu.Button startIcon={CashIcon} label="Vendas">
             <Badge appearance="primary" count="12" />
           </Menu.Button>
-          <Menu.Button startIcon={TagIcon} label="Productos" />
+          <Menu.Button startIcon={TagIcon} label="Produtos" />
           <Menu.Button startIcon={CreditCardIcon} label="Pago Nube" />
           
           {/* Chat - Con acordeón expandido */}
@@ -100,22 +100,22 @@ const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu
               id: "chat-control",
               startIcon: ChatDotsIcon,
               label: "Chat",
-              children: <Tag appearance="primary">Nuevo</Tag>,
+              children: <Tag appearance="primary">Novo</Tag>,
               "aria-controls": "chat-content",
             }}
           >
             <Menu.Button 
-              label="Conversaciones" 
+              label="Conversas" 
               active={isChatSection && isConversations}
               onClick={() => navigate('/admin/chat#/conversations')}
             />
             <Menu.Button 
-              label="Estadísticas" 
+              label="Estatísticas" 
               active={isChatSection && isStatistics}
               onClick={() => navigate('/admin/chat#/statistics')}
             />
             <Menu.Button 
-              label="Configuraciones" 
+              label="Configurações" 
               active={isChatSection && isConfigurations}
               onClick={() => navigate('/admin/chat#/configurations')}
             />
@@ -127,16 +127,16 @@ const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu
           </Menu.ButtonAccordion>
 
           <Menu.Button startIcon={UserIcon} label="Clientes" />
-          <Menu.Button startIcon={DiscountCircleIcon} label="Descuentos" />
+          <Menu.Button startIcon={DiscountCircleIcon} label="Descontos" />
           <Menu.Button startIcon={MarketingIcon} label="Marketing" />
         </Menu.Section>
 
-        {/* Canales de venta */}
-        <Menu.Section title="Canales de venta">
-          <Menu.Button startIcon={OnlineStoreIcon} label="Tienda online">
+        {/* Canais de venda */}
+        <Menu.Section title="Canais de venda">
+          <Menu.Button startIcon={OnlineStoreIcon} label="Loja online">
             <Icon source={<ExternalLinkIcon size="small" />} color="neutral-textLow" />
           </Menu.Button>
-          <Menu.Button startIcon={EcosystemIcon} label="Punto de Venta">
+          <Menu.Button startIcon={EcosystemIcon} label="Ponto de Venda">
             <Icon source={<ExternalLinkIcon size="small" />} color="neutral-textLow" />
           </Menu.Button>
           <Menu.Button startIcon={EcosystemIcon} label="Instagram y Facebook" />
@@ -147,13 +147,13 @@ const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu
         </Menu.Section>
 
         {/* Potenciar */}
-        <Menu.Section title="Potenciar">
-          <Menu.Button startIcon={AppsIcon} label="Aplicaciones" />
+        <Menu.Section title="Potencializar">
+          <Menu.Button startIcon={AppsIcon} label="Aplicativos" />
           <Menu.Button startIcon={ChatDotsIcon} label="Nuvem Chat (Dev)" />
           <Menu.Button startIcon={ChatDotsIcon} label="Nuvem Chat (QA)" />
         </Menu.Section>
       </Menu.Body>
-      <Menu.Footer label="Configuración" startIcon={CogIcon} />
+      <Menu.Footer label="Configuração" startIcon={CogIcon} />
     </Menu>
   );
 };

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" fill="none">
+  <!-- Background -->
+  <circle cx="120" cy="80" r="70" fill="#F0F7FF"/>
+
+  <!-- Person silhouette -->
+  <circle cx="120" cy="52" r="20" fill="#DEF0FF" stroke="#0050C3" stroke-width="2"/>
+  <!-- Person face -->
+  <circle cx="113" cy="49" r="2" fill="#0050C3"/>
+  <circle cx="127" cy="49" r="2" fill="#0050C3"/>
+  <path d="M114 57c2.5 3 8.5 3 12 0" stroke="#0050C3" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Body -->
+  <path d="M88 110c0-18 14.5-32 32-32s32 14 32 32" fill="#DEF0FF" stroke="#0050C3" stroke-width="2"/>
+
+  <!-- Admin badge -->
+  <g transform="translate(138, 38)">
+    <circle cx="14" cy="14" r="16" fill="white" stroke="#0050C3" stroke-width="2"/>
+    <circle cx="14" cy="14" r="12" fill="#0050C3"/>
+    <!-- Star / shield icon -->
+    <path d="M14 6l2 4 4.5.7-3.2 3.2.8 4.5L14 16l-4 2.4.8-4.5L7.5 10.7 12 10z" fill="white"/>
+  </g>
+
+  <!-- Admin label -->
+  <rect x="82" y="116" width="76" height="20" rx="10" fill="#0050C3"/>
+  <text x="120" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="600" fill="white">ADMINISTRADOR</text>
+
+  <!-- Decorative -->
+  <circle cx="48" cy="40" r="5" fill="#DEF0FF"/>
+  <circle cx="192" cy="40" r="5" fill="#DEF0FF"/>
+  <circle cx="56" cy="120" r="3" fill="#0050C3" opacity="0.2"/>
+  <circle cx="184" cy="120" r="3" fill="#0050C3" opacity="0.2"/>
+</svg>
