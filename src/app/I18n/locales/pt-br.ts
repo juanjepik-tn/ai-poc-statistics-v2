@@ -163,8 +163,10 @@ export default {
           description: 'Identificamos instruções de atendimento humano em {{count}} conteúdo(s). O atendimento humano foi habilitado automaticamente.',
           descriptionWithLink: 'Identificamos instruções de atendimento humano em {{count}} conteúdo(s) da biblioteca.',
           goToLibrary: 'Ir para a biblioteca',
+          markReviewed: 'Entendi, já revisei',
         },
         reviewBadge: 'Confirmar',
+        reviewTag: 'Revisar',
         humanHelpWarning: {
           description: 'Ativamos o atendimento humano pois identificamos instruções relacionadas no conteúdo.',
         },

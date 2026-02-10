@@ -163,8 +163,10 @@ export default {
           description: 'Identificamos instrucciones de atención humana en {{count}} contenido(s). La atención humana fue habilitada automáticamente.',
           descriptionWithLink: 'Identificamos instrucciones de atención humana en {{count}} contenido(s) de la biblioteca.',
           goToLibrary: 'Ir a la biblioteca',
+          markReviewed: 'Entendido, ya revisé',
         },
         reviewBadge: 'Confirmar',
+        reviewTag: 'Revisar',
         humanHelpWarning: {
           description: 'Activamos la atención humana porque identificamos instrucciones relacionadas en el contenido.',
         },

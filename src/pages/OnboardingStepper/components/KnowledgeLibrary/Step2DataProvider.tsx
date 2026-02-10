@@ -324,6 +324,44 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
     return contentList.filter(item => item.tool === true && item.class !== 'relevant_content_dummy').length;
   }, [contentList]);
 
+  // Mark all 'to_review' items as 'enabled' (user confirmed review)
+  const onMarkAllReviewed = useCallback(() => {
+    const itemsToReview = contentList.filter(item => item.state === 'to_review');
+    
+    // Update each item's state locally and on server
+    const updatedContentList = contentList.map(item => {
+      if (item.state === 'to_review') {
+        return { ...item, state: 'enabled' };
+      }
+      return item;
+    });
+    setContentList(updatedContentList);
+
+    // Fire updates to the server for each reviewed item
+    itemsToReview.forEach(item => {
+      const updatedItem = { ...item, state: 'enabled' };
+      const PARAMS = {
+        title: updatedItem.title,
+        content: updatedItem.content,
+        tool: updatedItem.tool,
+        tool_name: updatedItem.tool_name || 'transfer_to_human',
+        state: 'enabled' as const,
+      };
+      const url = updatedItem.class === 'relevant_content_store'
+        ? API_ENDPOINTS.relevantContent.updateStore(updatedItem.id.toString())
+        : updatedItem.class === 'relevant_content_mandatory'
+        ? API_ENDPOINTS.relevantContent.updateMandatory(updatedItem.id.toString())
+        : API_ENDPOINTS.relevantContent.updateOptionals(updatedItem.id.toString());
+      request<unknown>({
+        url: url,
+        method: 'PUT',
+        data: PARAMS,
+      }).catch(() => {
+        // Silently handle errors — the local state is already updated
+      });
+    });
+  }, [contentList, request]);
+
   const contextValue = {
     contentList,    
     onCreateContent,
@@ -337,6 +375,7 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
     onSearchContent,
     itemsToReviewCount,
     humanHelpEnabledCount,
+    onMarkAllReviewed,
   };
 
   return (

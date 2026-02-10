@@ -130,6 +130,11 @@ const InfoCard: React.FC<InfoCardProps> = ({ onClick, onDelete, content, color, 
                   onChange={handleToggleHumanAttention}
                   name={`toggle-human-attention-${content?.id}`}
                 />
+                {content?.state === 'to_review' && (
+                  <Tag appearance="warning">
+                    {t('settings.step2.reviewTag')}
+                  </Tag>
+                )}
               </Box>
             )}
           </Box>
