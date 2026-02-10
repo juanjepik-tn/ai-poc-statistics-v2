@@ -112,12 +112,12 @@ export const Step2FacebookConnect: React.FC<Step2FacebookConnectProps> = ({
       {/* Title */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="2">
         <Title as="h2" textAlign="center">
-          {t('instagramOnboarding.step2.title', 'Conectá con tu cuenta de Facebook')}
+          {t('instagramOnboarding.step2.title', 'Conecte com sua conta do Facebook')}
         </Title>
         <Text color="neutral-textLow" textAlign="center" fontSize="base">
           {t(
             'instagramOnboarding.step2.description',
-            'Necesitamos acceso a tu cuenta de Facebook para conectar tu Instagram Business.'
+            'Precisamos de acesso à sua conta do Facebook para conectar seu Instagram Business.'
           )}
         </Text>
       </Box>
@@ -171,7 +171,7 @@ export const Step2FacebookConnect: React.FC<Step2FacebookConnectProps> = ({
           }}>
             {isConnecting 
               ? 'Conectando...' 
-              : t('instagramOnboarding.step2.cta', 'Continuar con Facebook')
+              : t('instagramOnboarding.step2.cta', 'Continuar com Facebook')
             }
           </span>
         </button>
@@ -191,14 +191,14 @@ export const Step2FacebookConnect: React.FC<Step2FacebookConnectProps> = ({
         <Text fontSize="caption" color="neutral-textLow">
           {t(
             'instagramOnboarding.step2.security',
-            'Solo pedimos los permisos necesarios para mensajería'
+            'Solicitamos apenas as permissões necessárias para mensagens'
           )}
         </Text>
       </Box>
 
       {/* Back link */}
       <Link as="button" appearance="neutral" onClick={onBack}>
-        ← {t('common.back', 'Volver')}
+        ← {t('common.back', 'Voltar')}
       </Link>
     </Box>
   );

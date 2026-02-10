@@ -99,9 +99,9 @@ const ConfigurationsInstances: React.FC = () => {
               <Box display="flex" flexDirection="column" gap="4">
                 <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap="2">
                   <Box display="flex" flexDirection="column" gap="1">
-                    <Title as="h3">Canales de Mensajería</Title>
+                    <Title as="h3">Canais de Mensagens</Title>
                     <Text fontSize="base" color="neutral-textLow">
-                      Conectá y gestioná tus canales de comunicación
+                      Conecte e gerencie seus canais de comunicação
                     </Text>
                   </Box>
                 </Box>
@@ -135,7 +135,7 @@ const ConfigurationsInstances: React.FC = () => {
                         onClick={handlePreOnboarding}
                       >
                         <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
-                        Agregar número
+                        Adicionar número
                       </Button>
                     </Box>
                     
@@ -180,7 +180,7 @@ const ConfigurationsInstances: React.FC = () => {
                         borderRadius="base"
                         backgroundColor="neutral-surface"
                       >
-                        <Text color="neutral-textLow">No hay números conectados</Text>
+                        <Text color="neutral-textLow">Nenhum número conectado</Text>
                       </Box>
                     )}
                     
@@ -222,7 +222,7 @@ const ConfigurationsInstances: React.FC = () => {
                         <Box display="flex" flexDirection="column">
                           <Title as="h4">Instagram</Title>
                           <Text fontSize="caption" color="neutral-textLow">
-                            {instagramInstances.length} cuenta{instagramInstances.length !== 1 ? 's' : ''} conectada{instagramInstances.length !== 1 ? 's' : ''}
+                            {instagramInstances.length} conta{instagramInstances.length !== 1 ? 's' : ''} conectada{instagramInstances.length !== 1 ? 's' : ''}
                           </Text>
                         </Box>
                       </Box>
@@ -232,7 +232,7 @@ const ConfigurationsInstances: React.FC = () => {
                         onClick={() => navigate('/external/channels/instagram/onboarding')}
                       >
                         <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
-                        Agregar cuenta
+                        Adicionar conta
                       </Button>
                     </Box>
                     
@@ -269,7 +269,7 @@ const ConfigurationsInstances: React.FC = () => {
                         borderRadius="base"
                         backgroundColor="neutral-surface"
                       >
-                        <Text color="neutral-textLow">No hay cuentas conectadas</Text>
+                        <Text color="neutral-textLow">Nenhuma conta conectada</Text>
                       </Box>
                     )}
                   </Box>
@@ -304,7 +304,7 @@ const ConfigurationsInstances: React.FC = () => {
                         onClick={() => navigate('/external/channels/facebook/onboarding')}
                       >
                         <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
-                        Agregar página
+                        Adicionar página
                       </Button>
                     </Box>
                     
@@ -341,7 +341,7 @@ const ConfigurationsInstances: React.FC = () => {
                         borderRadius="base"
                         backgroundColor="neutral-surface"
                       >
-                        <Text color="neutral-textLow">No hay páginas conectadas</Text>
+                        <Text color="neutral-textLow">Nenhuma página conectada</Text>
                       </Box>
                     )}
                     
@@ -356,7 +356,7 @@ const ConfigurationsInstances: React.FC = () => {
                         backgroundColor="primary-surface"
                       >
                         <Text fontSize="caption" color="primary-textHigh">
-                          Conectá rápidamente usando tu cuenta de Instagram
+                          Conecte rapidamente usando sua conta do Instagram
                         </Text>
                       </Box>
                     )}

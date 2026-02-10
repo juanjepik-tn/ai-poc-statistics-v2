@@ -97,7 +97,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       {/* Title with emoji */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="2">
         <Title as="h2" textAlign="center">
-          🎉 ¡Facebook Messenger conectado!
+          🎉 Facebook Messenger conectado!
         </Title>
       </Box>
 
@@ -140,14 +140,14 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         <Box display="flex" flexDirection="column" gap="0-5">
           <Text fontWeight="bold" fontSize="highlight">{pageName}</Text>
           <Text fontSize="caption" color="success-textHigh">
-            ✓ Conectado y listo
+            ✓ Conectado e pronto
           </Text>
         </Box>
       </Box>
 
       {/* Description */}
       <Text color="neutral-textLow" textAlign="center" maxWidth="400px">
-        Tu página de Facebook ya está lista para recibir y responder mensajes de Messenger.
+        Sua página do Facebook já está pronta para receber e responder mensagens do Messenger.
       </Text>
 
       {/* Info about AI Agent */}
@@ -173,7 +173,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
           <Text fontSize="highlight">🤖</Text>
         </Box>
         <Text fontSize="base" color="primary-textHigh">
-          El AI Agent que configuraste responderá automáticamente los mensajes de Facebook Messenger.
+          O AI Agent que você configurou responderá automaticamente as mensagens do Facebook Messenger.
         </Text>
       </Box>
 
@@ -189,7 +189,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       >
         <Icon source={<LightbulbIcon size={20} />} color="warning-interactive" />
         <Text fontSize="caption" color="warning-textHigh">
-          Tip: Podés ver de qué canal viene cada mensaje en la lista de conversaciones gracias al ícono de cada plataforma.
+          Dica: Você pode ver de qual canal vem cada mensagem na lista de conversas através do ícone de cada plataforma.
         </Text>
       </Box>
 
@@ -197,13 +197,13 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       <Box display="flex" flexDirection="column" gap="3" width="100%" maxWidth="420px">
         <Button appearance="primary" onClick={onGoToConversations}>
           <Box display="flex" alignItems="center" gap="2">
-            <Text color="currentColor">Ir a Conversaciones</Text>
+            <Text color="currentColor">Ir para Conversas</Text>
             <Icon source={<ChevronRightIcon />} color="currentColor" />
           </Box>
         </Button>
         <Box display="flex" justifyContent="center">
           <Link as="button" appearance="neutral" onClick={onGoToChannels}>
-            Ver configuración de canales
+            Ver configuração de canais
           </Link>
         </Box>
       </Box>

@@ -68,7 +68,7 @@ export default {
       'next-step': 'Próximo passo',
       'previous-step': 'Anterior',
       cancel: 'Cancelar',
-      add: 'Agregar',
+      add: 'Adicionar',
       step: 'Passo {{step}} de {{total}}',
       select: 'Selecione',
       actions: 'Ações',
@@ -76,7 +76,7 @@ export default {
       save: 'Salvar',
       delete: 'Apagar',
       success: 'Configuração atualizada com sucesso',
-      'search-placeholder': 'Procurar contenido',
+      'search-placeholder': 'Procurar conteúdo',
       'more-about':{
         'assistant-personalization': 'Mais sobre personalizar respostas',
         'knowledge-library': 'Mais sobre biblioteca de conhecimento do assistente',
@@ -834,8 +834,8 @@ export default {
       terms:{
         title: "Ao iniciar o teste",
         description: "Você aceita nossos <terms>Termos e Condições</terms> e nossa <privacy>Política de Privacidade.</privacy>",
-        "after-accept": "A IA começará a responder as mensagens no WhatsApp cadastrado.",
-        "suggestion": "Desative a resposta automática do WhatsApp para que o assistente funcione corretamente."
+        "after-accept": "A IA começará a responder as mensagens na conta cadastrada.",
+        "suggestion": "Desative a resposta automática da conta para que o assistente funcione corretamente."
       },
       "start-trial": "Iniciar teste",
       alert:{
@@ -886,9 +886,54 @@ export default {
       error_activate_store: 'Para voltar a usar o Nuvemchat, por favor, pague suas faturas pendentes.',
     },
     whatsappPreOnboarding: {
-      // New redesigned version
-      'hero-title': 'Conectar WhatsApp Business',
+      // Intro
+      'intro-title': 'Vamos preparar tudo',
+      'intro-desc': 'São só alguns passos rápidos antes de conectar. A gente te guia.',
+      'cta-start': 'Começar',
+
+      // Hero (legacy)
+      'hero-title': 'Antes de conectar seu WhatsApp',
       'hero-subtitle': '3 minutos para começar',
+      'hero-subtitle-full': 'Algumas coisas importantes para garantir que a conexão com a Meta funcione corretamente.',
+
+      // Block 1: WhatsApp Business App
+      'block1-title': 'Instale o WhatsApp Business',
+      'block1-desc': 'Você vai precisar dele pra escanear um QR Code no final.',
+      'block1-link': 'Baixar o app',
+
+      // Block 2: Business number requirements
+      'block2-title': 'Use seu número Business',
+      'block2-desc': 'Ele precisa estar vinculado ao portfólio comercial que você vai usar na Meta.',
+
+      // Block 3: Two-step verification
+      'block3-title': 'Desative a verificação em duas etapas',
+      'block3-desc': 'É só por um momento, no WhatsApp Business. Depois você reativa.',
+
+      // Block 4: Admin permissions
+      'block4-title': 'Confira se você é administrador',
+      'block4-desc': 'Você precisa ter acesso de admin no portfólio comercial da Meta.',
+      'block4-link': 'Saiba mais',
+
+      // Block 5: Number already connected
+      'block5-title': 'Número conectado em outro lugar?',
+      'block5-desc': 'Se já usa esse número em outra plataforma, desconecte antes.',
+
+      // Block 6: Portfolio selection
+      'block6-title': 'Selecione o portfólio certo',
+      'block6-desc': 'Se o número já foi usado, escolha o mesmo portfólio de antes.',
+
+      // Confirmation & CTA
+      'confirmation-label': 'Entendi, estou pronto pra conectar',
+      'cta-continue': 'Conectar WhatsApp',
+      'help-link-text': 'Precisa de ajuda?',
+
+      // External links
+      'help-link': 'https://atendimento.nuvemshop.com.br/pt_BR/nuvem-chat',
+      'meta-business-link': 'https://www.facebook.com/business/help/2087193751603668',
+      'whatsapp-business-app-link': 'https://business.whatsapp.com/',
+
+      // Legacy keys (kept for backward compatibility)
+      'reassurance': 'Seu histórico fica seguro no celular',
       'essential-1-title': 'Acesso Admin Meta',
       'essential-1-desc': 'Tenha permissão de administrador no Meta Business Portfolio',
       'essential-2-title': 'WhatsApp Business App',
@@ -896,11 +941,6 @@ export default {
       'essential-3-title': 'Desative 2FA',
       'essential-3-desc': 'Temporariamente desative a verificação em 2 passos',
       'complete-checklist-toggle': 'Ver checklist completo',
-      'cta-continue': 'Iniciar conexão',
-      'reassurance': 'Seu histórico fica seguro no celular',
-      'help-link-text': 'Precisa de ajuda?',
-      
-      // Legacy keys (kept for backward compatibility)
       title: 'Antes de conectar seu WhatsApp Business',
       subtitle: 'Leia as informações abaixo para garantir uma conexão bem-sucedida.',
       'section-a-title': 'O que você precisa saber',
@@ -919,7 +959,6 @@ export default {
       'important-title': 'Importante',
       'important-desc': 'Durante o processo da Meta, certifique-se de selecionar o portfólio de negócios correto. Selecionar o portfólio errado pode causar problemas na conexão.',
       'more-info': 'Mais informações sobre como conectar',
-      'help-link': 'https://atendimento.nuvemshop.com.br/pt_BR/nuvem-chat',
     },
   },
 };

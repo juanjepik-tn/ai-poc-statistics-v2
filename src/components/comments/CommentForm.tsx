@@ -18,7 +18,7 @@ interface CommentFormProps {
 const CommentForm: React.FC<CommentFormProps> = ({
   onSubmit,
   onCancel,
-  placeholder = 'Escribe tu comentario...',
+  placeholder = 'Escreva seu comentário...',
   submitLabel = 'Publicar',
   compact = false,
   autoFocus = false,
@@ -71,7 +71,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
         value={text}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={hasError ? '⚠️ Escribe algo...' : placeholder}
+        placeholder={hasError ? '⚠️ Escreva algo...' : placeholder}
         rows={compact ? 2 : 3}
         appearance={hasError ? 'danger' : undefined}
       />

@@ -13,14 +13,14 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onContinue, onCancel
   const { t } = useTranslation('translations');
 
   const features = [
-    t('instagramOnboarding.step1.feature1', 'Recibí mensajes directos de Instagram'),
-    t('instagramOnboarding.step1.feature2', 'Respondé automáticamente con tu AI Agent'),
-    t('instagramOnboarding.step1.feature3', 'Gestioná todo desde un solo lugar'),
+    t('instagramOnboarding.step1.feature1', 'Receba mensagens diretas do Instagram'),
+    t('instagramOnboarding.step1.feature2', 'Responda automaticamente com seu AI Agent'),
+    t('instagramOnboarding.step1.feature3', 'Gerencie tudo em um só lugar'),
   ];
 
   const requirements = [
-    t('instagramOnboarding.step1.req1', 'Cuenta de Instagram Business o Creator'),
-    t('instagramOnboarding.step1.req2', 'Cuenta vinculada a una Página de Facebook'),
+    t('instagramOnboarding.step1.req1', 'Conta de Instagram Business ou Creator'),
+    t('instagramOnboarding.step1.req2', 'Conta vinculada a uma Página do Facebook'),
   ];
 
   return (
@@ -53,7 +53,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onContinue, onCancel
             </Box>
           </Box>
           <Box position="absolute" style={{ top: '-8px', right: '-24px' }}>
-            <Tag appearance="primary">Nuevo</Tag>
+            <Tag appearance="primary">Novo</Tag>
           </Box>
         </Box>
       </Box>
@@ -61,12 +61,12 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onContinue, onCancel
       {/* Title */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="1">
         <Title as="h2" textAlign="center">
-          {t('instagramOnboarding.step1.title', 'Conectá tu cuenta de Instagram')}
+          {t('instagramOnboarding.step1.title', 'Conecte sua conta do Instagram')}
         </Title>
         <Text color="neutral-textLow" textAlign="center" fontSize="base">
           {t(
             'instagramOnboarding.step1.description',
-            'Atendé a tus clientes de Instagram directamente desde Chat Nube, con el mismo agente de IA que ya tenés configurado.'
+            'Atenda seus clientes do Instagram diretamente pelo Nuvem Chat, com o mesmo agente de IA que você já tem configurado.'
           )}
         </Text>
       </Box>

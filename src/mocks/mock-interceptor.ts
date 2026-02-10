@@ -42,6 +42,10 @@ const MOCK_DELAY_MS = 300;
 const createdRelevantContent: any[] = [];
 let nextContentId = 1000;
 
+// Mutable storage for connected channels (starts empty for onboarding flow)
+// Channels are added when user connects them via signup/creation endpoints
+const connectedChannels: any[] = [];
+
 // Helper to create a delayed promise
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -171,9 +175,9 @@ export const getMockResponse = (
     };
   }
 
-  // Channel list endpoint
+  // Channel list endpoint - returns only channels connected during this session
   if (normalizedUrl.includes('/channels/list') || matchRoute(normalizedUrl, '/channels')) {
-    return { data: mockChannels.map(ch => ({ ...ch, state: { name: 'Active' } })), status: 200 };
+    return { data: connectedChannels.map(ch => ({ ...ch, state: { name: 'Active' } })), status: 200 };
   }
 
   if (normalizedUrl.includes('/stores/conversations/attend/username')) {
@@ -204,7 +208,7 @@ export const getMockResponse = (
 
   // Channels
   if (matchRoute(normalizedUrl, '/channels/store') && normalizedMethod === 'GET') {
-    return { data: mockChannels, status: 200 };
+    return { data: connectedChannels, status: 200 };
   }
 
   if (normalizedUrl.includes('/whatsapps/') && normalizedUrl.includes('/health')) {
@@ -461,11 +465,39 @@ export const getMockResponse = (
 
   // WhatsApp
   if (normalizedUrl.includes('/whatsapps/default/channel') && normalizedMethod === 'POST') {
-    return { data: mockChannels[0], status: 201 };
+    const waChannel = mockChannels[0] || {
+      id: `wa-${Date.now()}`,
+      username: '+54 9 11 1234-5678',
+      channelName: 'WhatsAppBusiness',
+      basePath: '/whatsapps-business',
+      country: 'AR',
+      actualStatus: { id: 1, name: 'Connected' },
+      state: { name: 'Active' },
+      channelType: 'whatsapp',
+      bot_status: 'active',
+    };
+    if (!connectedChannels.some(ch => ch.channelType === 'whatsapp')) {
+      connectedChannels.push({ ...waChannel, actualStatus: { id: 1, name: 'Connected' }, state: { name: 'Active' } });
+    }
+    return { data: waChannel, status: 201 };
   }
 
   if (normalizedUrl.includes('/whatsapps-baileys') && normalizedMethod === 'POST') {
-    return { data: mockChannels[1], status: 201 };
+    const baileysChannel = {
+      id: `baileys-${Date.now()}`,
+      username: '+54 9 11 9876-5432',
+      channelName: 'WhatsappBaileys',
+      basePath: '/whatsapps-baileys',
+      country: 'AR',
+      actualStatus: { id: 1, name: 'Connected' },
+      state: { name: 'Active' },
+      channelType: 'whatsapp',
+      bot_status: 'active',
+    };
+    if (!connectedChannels.some(ch => ch.channelType === 'whatsapp')) {
+      connectedChannels.push(baileysChannel);
+    }
+    return { data: baileysChannel, status: 201 };
   }
 
   if (normalizedUrl.includes('/get/instance/')) {
@@ -489,10 +521,27 @@ export const getMockResponse = (
   }
 
   if (normalizedUrl.includes('/whatsapps-business/signup')) {
-    return { data: { success: true, channel: mockChannels[0] }, status: 200 };
+    const wbChannel = mockChannels[0] || {
+      id: `wb-${Date.now()}`,
+      username: '+54 9 11 1234-5678',
+      channelName: 'WhatsAppBusiness',
+      basePath: '/whatsapps-business',
+      country: 'AR',
+      actualStatus: { id: 1, name: 'Connected' },
+      state: { name: 'Active' },
+      channelType: 'whatsapp',
+      bot_status: 'active',
+    };
+    if (!connectedChannels.some(ch => ch.channelType === 'whatsapp')) {
+      connectedChannels.push({ ...wbChannel, actualStatus: { id: 1, name: 'Connected' }, state: { name: 'Active' } });
+    }
+    return { data: { success: true, channel: wbChannel }, status: 200 };
   }
 
   if (normalizedUrl.includes('/whatsapps-business/') && normalizedUrl.includes('/disconnect')) {
+    // Remove WhatsApp channel from connected channels
+    const waIdx = connectedChannels.findIndex(ch => ch.channelType === 'whatsapp');
+    if (waIdx !== -1) connectedChannels.splice(waIdx, 1);
     return { data: { success: true }, status: 200 };
   }
 
@@ -512,10 +561,46 @@ export const getMockResponse = (
 
   // Cross Company
   if (matchRoute(normalizedUrl, '/cross-company/channels')) {
-    return { data: mockChannels, status: 200 };
+    return { data: connectedChannels, status: 200 };
   }
 
   if (matchRoute(normalizedUrl, '/cross-company/signup')) {
+    // Determine channel type from request data
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    const channelType = reqData.channelType || reqData.channel_type || 'unknown';
+    
+    if (channelType === 'instagram' || normalizedUrl.includes('instagram')) {
+      const igChannel = mockChannels.find(ch => ch.channelType === 'instagram') || {
+        id: `ig-${Date.now()}`,
+        username: '@tienda_moda_ok',
+        channelName: 'Instagram',
+        basePath: '/instagram',
+        country: 'AR',
+        actualStatus: { id: 1, name: 'Connected' },
+        state: { name: 'Active' },
+        channelType: 'instagram',
+        bot_status: 'active',
+      };
+      if (!connectedChannels.some(ch => ch.channelType === 'instagram')) {
+        connectedChannels.push({ ...igChannel, actualStatus: { id: 1, name: 'Connected' }, state: { name: 'Active' } });
+      }
+    } else if (channelType === 'facebook' || normalizedUrl.includes('facebook')) {
+      const fbChannel = mockChannels.find(ch => ch.channelType === 'facebook') || {
+        id: `fb-${Date.now()}`,
+        username: 'Tienda Moda OK',
+        channelName: 'Facebook',
+        basePath: '/facebook',
+        country: 'AR',
+        actualStatus: { id: 1, name: 'Connected' },
+        state: { name: 'Active' },
+        channelType: 'facebook',
+        bot_status: 'active',
+      };
+      if (!connectedChannels.some(ch => ch.channelType === 'facebook')) {
+        connectedChannels.push({ ...fbChannel, actualStatus: { id: 1, name: 'Connected' }, state: { name: 'Active' } });
+      }
+    }
     return { data: { success: true }, status: 200 };
   }
 

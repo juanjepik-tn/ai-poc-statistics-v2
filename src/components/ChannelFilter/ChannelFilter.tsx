@@ -65,7 +65,7 @@ export const ChannelFilter: React.FC<ChannelFilterProps> = ({
       >
         {options.map((opt) => {
           const getDefaultLabel = (val: string) => {
-            if (val === 'all') return 'Todos los canales';
+            if (val === 'all') return 'Todos os canais';
             if (val === 'whatsapp') return 'WhatsApp';
             if (val === 'instagram') return 'Instagram';
             if (val === 'facebook') return 'Facebook Messenger';

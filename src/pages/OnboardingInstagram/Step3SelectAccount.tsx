@@ -110,12 +110,12 @@ export const Step3SelectAccount: React.FC<Step3SelectAccountProps> = ({
       {/* Title */}
       <Box display="flex" flexDirection="column" alignItems="center" gap="2">
         <Title as="h2" textAlign="center">
-          {t('instagramOnboarding.step3.title', 'Seleccioná tu cuenta de Instagram')}
+          {t('instagramOnboarding.step3.title', 'Selecione sua conta do Instagram')}
         </Title>
         <Text color="neutral-textLow" textAlign="center">
           {t(
             'instagramOnboarding.step3.description',
-            'Encontramos estas cuentas vinculadas a tu Facebook:'
+            'Encontramos estas contas vinculadas ao seu Facebook:'
           )}
         </Text>
       </Box>
@@ -220,7 +220,7 @@ export const Step3SelectAccount: React.FC<Step3SelectAccountProps> = ({
       {/* Actions */}
       <Box display="flex" justifyContent="space-between" width="100%" maxWidth="420px" gap="4">
         <Link as="button" appearance="neutral" onClick={onBack}>
-          ← {t('common.back', 'Volver')}
+          ← {t('common.back', 'Voltar')}
         </Link>
         <Button
           appearance="primary"
@@ -228,7 +228,7 @@ export const Step3SelectAccount: React.FC<Step3SelectAccountProps> = ({
           disabled={!selectedAccountId}
         >
           <Box display="flex" alignItems="center" gap="2">
-            <Text color="currentColor">{t('instagramOnboarding.step3.cta', 'Conectar cuenta')}</Text>
+            <Text color="currentColor">{t('instagramOnboarding.step3.cta', 'Conectar conta')}</Text>
           </Box>
         </Button>
       </Box>

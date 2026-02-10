@@ -113,37 +113,6 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
       });
   };
   
-  // SE ESTÁ MOSTRANDO PRÉ-ONBOARDING, RENDERIZA DIRETO
-  if (showPreOnboarding) {
-    return (
-      <>
-        <Page.Header
-          title={t('app.title')}
-          subtitle={t('instances.description')}
-        >
-          <Tag appearance="primary">
-            <Text color="primary-textLow">
-              {t('settings.step', { step: 4, total: 4 })}
-            </Text>
-          </Tag>
-        </Page.Header>
-        <Page.Body>
-          <Layout columns="1">
-            <Layout.Section>
-              <WhatsAppPreOnboarding 
-                onContinue={() => {
-                  setShowPreOnboarding(false);
-                  // Will reconnect after closing pre-onboarding
-                }}
-                onCancel={() => setShowPreOnboarding(false)}
-              />
-            </Layout.Section>
-          </Layout>
-        </Page.Body>
-      </>
-    );
-  }
-  
   return (
     <>
       <Page.Header
@@ -206,9 +175,9 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                         <Box display="flex" flexDirection="column" gap="6">
                           {/* Header section - centralizado com hierarquia clara */}
                           <Box display="flex" flexDirection="column" gap="3" alignItems="center" textAlign="center">
-                            <Title as="h3" color="danger-textHigh">Conectá tus canales de mensajería</Title>
+                            <Title as="h3" color="danger-textHigh">Conecte seus canais de mensagens</Title>
                             <Text color="neutral-textLow" fontSize="base">
-                              Elegí al menos un canal para comenzar a recibir mensajes.
+                              Escolha pelo menos um canal para começar a receber mensagens.
                             </Text>
                           </Box>
 
@@ -221,21 +190,21 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                             {/* WhatsApp */}
                             <ChannelCard
                               channel="whatsapp"
-                              status="disconnected"
+                              status={whatsappConnected ? 'connected' : 'disconnected'}
                               onConnect={handlePreOnboarding}
                             />
 
                             {/* Instagram */}
                             <ChannelCard
                               channel="instagram"
-                              status="disconnected"
+                              status={instagramConnected ? 'connected' : 'disconnected'}
                               onConnect={() => navigate('/external/channels/instagram/onboarding')}
                             />
 
                             {/* Facebook */}
                             <ChannelCard
                               channel="facebook"
-                              status="disconnected"
+                              status={facebookConnected ? 'connected' : 'disconnected'}
                               onConnect={() => navigate('/external/channels/facebook/onboarding')}
                             />
                           </Box>
@@ -261,7 +230,7 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                           {qr && !whatsappConnected && (
                             <Card padding="base">
                               <Box display="flex" flexDirection="column" alignItems="center" gap="4">
-                                <Title as="h4">Escaneá el código QR con WhatsApp</Title>
+                                <Title as="h4">Escaneie o código QR com o WhatsApp</Title>
                                 <InstancesQR
                                   default_whatsapp={{ id: 3, name: "WhatsappBusiness" }}
                                   sholudRedirect={false}
@@ -283,6 +252,19 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                                 onStatusUpdate={statusUpdate}
                                 qr={qr}
                                 default_whatsapp={{ id: 2, name: "WhatsappBaileys" }}
+                              />
+                            </Modal.Body>
+                          </Modal>
+
+                          {/* Modal Pre-Onboarding WhatsApp Business */}
+                          <Modal open={showPreOnboarding} onDismiss={() => setShowPreOnboarding(false)} maxWidth="680px">
+                            <Modal.Body padding="none">
+                              <WhatsAppPreOnboarding
+                                onContinue={() => {
+                                  setShowPreOnboarding(false);
+                                  launchWhatsAppSignup();
+                                }}
+                                onCancel={() => setShowPreOnboarding(false)}
                               />
                             </Modal.Body>
                           </Modal>

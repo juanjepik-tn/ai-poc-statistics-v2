@@ -1,12 +1,13 @@
 import { Responsive } from '@/components';
 import { useFacebookLogin } from '@/hooks/useFacebookLogin';
 import { InstancesChannelDTO } from '@/types/instancesDTO';
-import { Box, Button, Card, Icon, Link, Spinner, Text, Title } from '@nimbus-ds/components';
+import { Box, Button, Card, Icon, Link, Modal, Spinner, Text, Title } from '@nimbus-ds/components';
 import { RedoIcon, CheckCircleIcon } from '@nimbus-ds/icons';
 import { EmptyMessage } from '@nimbus-ds/patterns';
 import QRCodeSVG from 'qrcode.react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import WhatsAppPreOnboarding from '@/pages/OnboardingStepper/components/Channels/WhatsAppPreOnboarding';
 
 type InstancesQRProps = {
   sholudRedirect?: boolean;
@@ -20,6 +21,7 @@ type InstancesQRProps = {
 const InstancesQR: React.FC<InstancesQRProps> = ({ loading, onGenerateQr, qr, onStatusUpdate, default_whatsapp }) => {
   const { t } = useTranslation('translations');  
   const { launchWhatsAppSignup } = useFacebookLogin(onStatusUpdate);
+  const [showPreOnboarding, setShowPreOnboarding] = useState(false);
   
   // Steps para QR WhatsApp - layout melhorado
   const qrSteps = [
@@ -63,10 +65,23 @@ const InstancesQR: React.FC<InstancesQRProps> = ({ loading, onGenerateQr, qr, on
         </Box>
       </Box>
       <Box display="flex" justifyContent="center">
-        <Button appearance="primary" onClick={launchWhatsAppSignup}>
+        <Button appearance="primary" onClick={() => setShowPreOnboarding(true)}>
           {t('instances.connect-whatsapp-business')}
         </Button>
       </Box>
+
+      {/* Modal Pre-Onboarding WhatsApp Business */}
+      <Modal open={showPreOnboarding} onDismiss={() => setShowPreOnboarding(false)} maxWidth="680px">
+        <Modal.Body padding="none">
+          <WhatsAppPreOnboarding
+            onContinue={() => {
+              setShowPreOnboarding(false);
+              launchWhatsAppSignup();
+            }}
+            onCancel={() => setShowPreOnboarding(false)}
+          />
+        </Modal.Body>
+      </Modal>
     </Box>
   );
   const renderWhatsappBaileys = (

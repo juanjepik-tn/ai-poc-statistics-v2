@@ -834,8 +834,8 @@ export default {
       terms:{
         title: "Al iniciar la prueba",
         description: "Aceptas nuestros <terms>Términos y Condiciones </terms> y nuestra <privacy>Política de Privacidad.</privacy>",
-        "after-accept": "La IA comenzará a responder los mensajes en el WhatsApp registrado.",
-        "suggestion": "Desactiva la respuesta automática de WhatsApp para que el asistente funcione correctamente."
+        "after-accept": "La IA comenzará a responder los mensajes en la cuenta registrada.",
+        "suggestion": "Desactiva la respuesta automática de la cuenta para que el asistente funcione correctamente."
       },
       "start-trial": "Iniciar prueba",
       alert:{
@@ -941,9 +941,54 @@ export default {
     // WHATSAPP PRE-ONBOARDING - Checklist
     // =================================================
     whatsappPreOnboarding: {
-      // New redesigned version
-      'hero-title': 'Conectar WhatsApp Business',
+      // Intro
+      'intro-title': 'Vamos a preparar todo',
+      'intro-desc': 'Son solo unos pasos rápidos antes de conectar. Te guiamos.',
+      'cta-start': 'Empezar',
+
+      // Hero (legacy)
+      'hero-title': 'Antes de conectar tu WhatsApp',
       'hero-subtitle': '3 minutos para comenzar',
+      'hero-subtitle-full': 'Algunas cosas importantes para asegurar que la conexión con Meta funcione correctamente.',
+
+      // Block 1: WhatsApp Business App
+      'block1-title': 'Instalá WhatsApp Business',
+      'block1-desc': 'Lo vas a necesitar para escanear un código QR al final.',
+      'block1-link': 'Descargar la app',
+
+      // Block 2: Business number requirements
+      'block2-title': 'Usá tu número Business',
+      'block2-desc': 'Tiene que estar vinculado al portafolio comercial que vas a usar en Meta.',
+
+      // Block 3: Two-step verification
+      'block3-title': 'Desactivá la verificación en dos pasos',
+      'block3-desc': 'Es solo por un momento, en WhatsApp Business. Después la reactivás.',
+
+      // Block 4: Admin permissions
+      'block4-title': 'Verificá que seas administrador',
+      'block4-desc': 'Necesitás tener acceso de admin en el portafolio comercial de Meta.',
+      'block4-link': 'Saber más',
+
+      // Block 5: Number already connected
+      'block5-title': '¿Número conectado en otro lado?',
+      'block5-desc': 'Si ya lo usás en otra plataforma, desconectalo antes.',
+
+      // Block 6: Portfolio selection
+      'block6-title': 'Seleccioná el portafolio correcto',
+      'block6-desc': 'Si el número ya fue usado, elegí el mismo portafolio de antes.',
+
+      // Confirmation & CTA
+      'confirmation-label': 'Entendí, estoy listo para conectar',
+      'cta-continue': 'Conectar WhatsApp',
+      'help-link-text': '¿Necesitás ayuda?',
+
+      // External links
+      'help-link': 'https://ayuda.tiendanube.com/es_AR/nuvem-chat',
+      'meta-business-link': 'https://www.facebook.com/business/help/2087193751603668',
+      'whatsapp-business-app-link': 'https://business.whatsapp.com/',
+
+      // Legacy keys (kept for backward compatibility)
+      'reassurance': 'Tu historial queda seguro en el celular',
       'essential-1-title': 'Acceso Admin Meta',
       'essential-1-desc': 'Tené permiso de administrador en el Meta Business Portfolio',
       'essential-2-title': 'WhatsApp Business App',
@@ -951,11 +996,6 @@ export default {
       'essential-3-title': 'Desactivá 2FA',
       'essential-3-desc': 'Desactivá temporalmente la verificación en 2 pasos',
       'complete-checklist-toggle': 'Ver checklist completo',
-      'cta-continue': 'Iniciar conexión',
-      'reassurance': 'Tu historial queda seguro en el celular',
-      'help-link-text': '¿Necesitás ayuda?',
-      
-      // Legacy keys (kept for backward compatibility)
       title: 'Antes de conectar tu WhatsApp Business',
       subtitle: 'Leé la información a continuación para garantizar una conexión exitosa.',
       'section-a-title': 'Lo que necesitás saber',
@@ -974,7 +1014,6 @@ export default {
       'important-title': 'Importante',
       'important-desc': 'Durante el proceso de Meta, asegurate de seleccionar el portafolio de negocios correcto. Seleccionar el portafolio equivocado puede causar problemas en la conexión.',
       'more-info': 'Más información sobre cómo conectar',
-      'help-link': 'https://ayuda.tiendanube.com/es_AR/nuvem-chat',
     },
   }
 };

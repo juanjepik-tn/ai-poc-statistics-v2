@@ -1,194 +1,364 @@
-import React from 'react';
-import { Box, Button, Card, Icon, Link, Text, Title } from '@nimbus-ds/components';
-import { UserIcon, AppsIcon, LockIcon } from '@nimbus-ds/icons';
+import React, { useState, useCallback } from 'react';
+import { Box, Button, Checkbox, Icon, Link, Text, Title } from '@nimbus-ds/components';
+import { ChevronLeftIcon, ChevronRightIcon, ExternalLinkIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
-import { ExpandableSection } from '@/components';
 
 export interface WhatsAppPreOnboardingProps {
   onContinue: () => void;
   onCancel: () => void;
 }
 
-export const WhatsAppPreOnboarding: React.FC<WhatsAppPreOnboardingProps> = ({ 
-  onContinue, 
-  onCancel 
+/* ─── Step data shape ─── */
+interface StepData {
+  illustration: string;
+  illustrationMaxWidth?: string;
+  titleKey: string;
+  titleFallback: string;
+  descKey: string;
+  descFallback: string;
+  /** Optional secondary lines (block 7 bullets) */
+  extraDescKeys?: Array<{ key: string; fallback: string }>;
+  /** External link */
+  link?: { hrefKey: string; hrefFallback: string; labelKey: string; labelFallback: string };
+  /** Distinct background for warning-type steps */
+  background?: string;
+}
+
+const TOTAL_STEPS = 7;
+
+/**
+ * Visual onboarding stepper for WhatsApp Business connection.
+ * Shows one step at a time with large illustration, title, short text,
+ * navigation arrows and dot indicators — like Airbnb / Notion onboarding.
+ */
+export const WhatsAppPreOnboarding: React.FC<WhatsAppPreOnboardingProps> = ({
+  onContinue,
+  onCancel,
 }) => {
   const { t } = useTranslation('translations');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [confirmed, setConfirmed] = useState(false);
 
-  // 3 essential cards - usando ícones Nimbus disponíveis
-  const essentialItems = [
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmed(e.target.checked);
+  };
+
+  const goNext = useCallback(() => {
+    setCurrentStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+  }, []);
+
+  const goPrev = useCallback(() => {
+    setCurrentStep((s) => Math.max(s - 1, 0));
+  }, []);
+
+  const helpLink = t(
+    'whatsappPreOnboarding.help-link',
+    'https://atendimento.nuvemshop.com.br/pt_BR/nuvem-chat',
+  );
+
+  /* ─── Steps definition ─── */
+  const steps: StepData[] = [
     {
-      icon: <Icon source={<UserIcon size={24} />} color="success-interactive" />,
-      title: t('whatsappPreOnboarding.essential-1-title', 'Admin Meta'),
-      description: t('whatsappPreOnboarding.essential-1-desc', 'Permiso de administrador'),
+      illustration: '/imgs/pre-onboard-flow.svg',
+      illustrationMaxWidth: '320px',
+      titleKey: 'whatsappPreOnboarding.intro-title',
+      titleFallback: 'Vamos preparar tudo',
+      descKey: 'whatsappPreOnboarding.intro-desc',
+      descFallback: 'São só alguns passos rápidos antes de conectar. A gente te guia.',
     },
     {
-      icon: <Icon source={<AppsIcon size={24} />} color="success-interactive" />,
-      title: t('whatsappPreOnboarding.essential-2-title', 'WhatsApp Business'),
-      description: t('whatsappPreOnboarding.essential-2-desc', 'App instalado'),
+      illustration: '/imgs/pre-onboard-app.svg',
+      titleKey: 'whatsappPreOnboarding.block1-title',
+      titleFallback: 'Instale o WhatsApp Business',
+      descKey: 'whatsappPreOnboarding.block1-desc',
+      descFallback: 'Você vai precisar dele pra escanear um QR Code no final.',
+      link: {
+        hrefKey: 'whatsappPreOnboarding.whatsapp-business-app-link',
+        hrefFallback: 'https://business.whatsapp.com/',
+        labelKey: 'whatsappPreOnboarding.block1-link',
+        labelFallback: 'Baixar o app',
+      },
     },
     {
-      icon: <Icon source={<LockIcon size={24} />} color="success-interactive" />,
-      title: t('whatsappPreOnboarding.essential-3-title', '2FA Desactivado'),
-      description: t('whatsappPreOnboarding.essential-3-desc', 'Temporariamente'),
+      illustration: '/imgs/pre-onboard-number.svg',
+      titleKey: 'whatsappPreOnboarding.block2-title',
+      titleFallback: 'Use seu número Business',
+      descKey: 'whatsappPreOnboarding.block2-desc',
+      descFallback: 'Ele precisa estar vinculado ao portfólio comercial que você vai usar na Meta.',
+    },
+    {
+      illustration: '/imgs/pre-onboard-2fa.svg',
+      illustrationMaxWidth: '300px',
+      titleKey: 'whatsappPreOnboarding.block3-title',
+      titleFallback: 'Desative a verificação em duas etapas',
+      descKey: 'whatsappPreOnboarding.block3-desc',
+      descFallback: 'É só por um momento, no WhatsApp Business. Depois você reativa.',
+    },
+    {
+      illustration: '/imgs/pre-onboard-admin.svg',
+      titleKey: 'whatsappPreOnboarding.block4-title',
+      titleFallback: 'Confira se você é administrador',
+      descKey: 'whatsappPreOnboarding.block4-desc',
+      descFallback: 'Você precisa ter acesso de admin no portfólio comercial da Meta.',
+      link: {
+        hrefKey: 'whatsappPreOnboarding.meta-business-link',
+        hrefFallback: 'https://www.facebook.com/business/help/2087193751603668',
+        labelKey: 'whatsappPreOnboarding.block4-link',
+        labelFallback: 'Saiba mais',
+      },
+    },
+    {
+      illustration: '/imgs/pre-onboard-conflict.svg',
+      titleKey: 'whatsappPreOnboarding.block5-title',
+      titleFallback: 'Número conectado em outro lugar?',
+      descKey: 'whatsappPreOnboarding.block5-desc',
+      descFallback: 'Se já usa esse número em outra plataforma, desconecte antes.',
+      background: 'linear-gradient(180deg, #FFF8E6 0%, #FFF1CC 100%)',
+    },
+    {
+      illustration: '/imgs/pre-onboard-portfolio.svg',
+      titleKey: 'whatsappPreOnboarding.block6-title',
+      titleFallback: 'Selecione o portfólio certo',
+      descKey: 'whatsappPreOnboarding.block6-desc',
+      descFallback: 'Se o número já foi usado, escolha o mesmo portfólio de antes.',
     },
   ];
 
-  // Complete checklist (all 7 items for those who want details)
-  const completeChecklistItems = [
-    t('whatsappPreOnboarding.checklist-1', 'Use um computador para fazer este processo'),
-    t('whatsappPreOnboarding.checklist-2', 'Tenha o WhatsApp Business App instalado no seu celular'),
-    t('whatsappPreOnboarding.checklist-3', 'Desative temporariamente a verificação em 2 passos no WhatsApp'),
-    t('whatsappPreOnboarding.checklist-4', 'Verifique se há espaço disponível em "Dispositivos Conectados" no WhatsApp'),
-    t('whatsappPreOnboarding.checklist-5', 'Tenha acesso de administrador ao Meta Business Portfolio da sua empresa'),
-    t('whatsappPreOnboarding.checklist-6', 'Desconecte seu número de outros provedores de API (se aplicável)'),
-    t('whatsappPreOnboarding.checklist-7', 'Selecione o portfólio correto durante o processo da Meta'),
-  ];
-
-  const helpLink = t('whatsappPreOnboarding.help-link', 'https://atendimento.nuvemshop.com.br/pt_BR/nuvem-chat');
+  const step = steps[currentStep];
+  const isIntro = currentStep === 0;
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === TOTAL_STEPS - 1;
 
   return (
-    <Box 
-      display="flex" 
-      flexDirection="column" 
-      alignItems="center" 
-      gap="6" 
-      padding="6" 
-      maxWidth="680px" 
-      margin="0 auto"
+    <Box
+      display="flex"
+      flexDirection="column"
+      maxWidth="540px"
+      marginLeft="auto"
+      marginRight="auto"
+      style={{ minHeight: '480px' }}
     >
-      {/* Hero Visual - ícone WhatsApp maior e mais impactante */}
-      <Box display="flex" flexDirection="column" alignItems="center" gap="4">
+      {/* ── Illustration area ── */}
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        width="100%"
+        padding="6"
+        borderRadius="base"
+        style={{
+          background: step.background || '#F5F8FC',
+          minHeight: '220px',
+          transition: 'background 0.3s ease',
+        }}
+      >
+        <img
+          key={step.illustration}
+          src={step.illustration}
+          alt=""
+          role="presentation"
+          style={{
+            width: '100%',
+            maxWidth: step.illustrationMaxWidth || '260px',
+            height: 'auto',
+            transition: 'opacity 0.25s ease',
+          }}
+        />
+      </Box>
+
+      {/* ── Content area ── */}
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap="3"
+        padding="6"
+        paddingTop="5"
+        style={{ flex: '1 1 auto' }}
+      >
+        <Title as="h3" textAlign="center">
+          {t(step.titleKey, step.titleFallback)}
+        </Title>
+
+        <Box display="flex" flexDirection="column" gap="1" alignItems="center">
+          <Text fontSize="base" color="neutral-textLow" textAlign="center">
+            {t(step.descKey, step.descFallback)}
+          </Text>
+          {step.extraDescKeys?.map((extra) => (
+            <Text key={extra.key} fontSize="base" color="neutral-textLow" textAlign="center">
+              {t(extra.key, extra.fallback)}
+            </Text>
+          ))}
+        </Box>
+
+        {/* Optional link */}
+        {step.link && (
+          <Link
+            as="a"
+            href={t(step.link.hrefKey, step.link.hrefFallback)}
+            target="_blank"
+            appearance="primary"
+          >
+            <Box display="flex" alignItems="center" gap="1">
+              <Text fontSize="caption" color="currentColor">
+                {t(step.link.labelKey, step.link.labelFallback)}
+              </Text>
+              <Icon source={<ExternalLinkIcon size={12} />} color="currentColor" />
+            </Box>
+          </Link>
+        )}
+      </Box>
+
+      {/* ── Navigation: arrows + dots (hidden on intro) ── */}
+      {!isIntro && (
         <Box
           display="flex"
           alignItems="center"
           justifyContent="center"
-          width="96px"
-          height="96px"
-          borderRadius="full"
-          style={{
-            background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-            boxShadow: '0 8px 24px rgba(37, 211, 102, 0.3)',
-          }}
+          gap="4"
+          paddingBottom="4"
+          paddingLeft="6"
+          paddingRight="6"
         >
+          {/* Prev arrow */}
           <Box
+            as="button"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            width="80px"
-            height="80px"
+            width="40px"
+            height="40px"
             borderRadius="full"
-            backgroundColor="neutral-background"
+            style={{
+              border: '1px solid #D1D5DB',
+              background: currentStep <= 1 ? '#F9FAFB' : '#FFFFFF',
+              cursor: currentStep <= 1 ? 'default' : 'pointer',
+              opacity: currentStep <= 1 ? 0.4 : 1,
+              transition: 'opacity 0.2s, background 0.2s',
+              flexShrink: 0,
+            }}
+            onClick={currentStep <= 1 ? undefined : goPrev}
           >
-            <img 
-              src="/imgs/whatsapp-icon.svg" 
-              alt="WhatsApp" 
-              style={{ width: '48px', height: '48px' }} 
-            />
+            <Icon source={<ChevronLeftIcon size={20} />} color="neutral-textLow" />
+          </Box>
+
+          {/* Dots (skip intro dot) */}
+          <Box display="flex" alignItems="center" gap="2">
+            {steps.slice(1).map((_, idx) => (
+              <Box
+                key={idx}
+                as="button"
+                width={idx + 1 === currentStep ? '24px' : '8px'}
+                height="8px"
+                borderRadius="full"
+                style={{
+                  background: idx + 1 === currentStep ? '#0050C3' : '#D1D5DB',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'width 0.3s ease, background 0.3s ease',
+                  padding: 0,
+                  flexShrink: 0,
+                }}
+                onClick={() => setCurrentStep(idx + 1)}
+              />
+            ))}
+          </Box>
+
+          {/* Next arrow */}
+          <Box
+            as="button"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            width="40px"
+            height="40px"
+            borderRadius="full"
+            style={{
+              border: '1px solid #D1D5DB',
+              background: isLastStep ? '#F9FAFB' : '#FFFFFF',
+              cursor: isLastStep ? 'default' : 'pointer',
+              opacity: isLastStep ? 0.4 : 1,
+              transition: 'opacity 0.2s, background 0.2s',
+              flexShrink: 0,
+            }}
+            onClick={isLastStep ? undefined : goNext}
+          >
+            <Icon source={<ChevronRightIcon size={20} />} color="neutral-textLow" />
           </Box>
         </Box>
+      )}
 
-        <Box display="flex" flexDirection="column" alignItems="center" gap="1">
-          <Title as="h2" textAlign="center">
-            {t('whatsappPreOnboarding.hero-title', 'Conectar WhatsApp Business')}
-          </Title>
-          <Text color="neutral-textLow" textAlign="center" fontSize="base">
-            {t('whatsappPreOnboarding.hero-subtitle', '3 minutos para comenzar')}
-          </Text>
+      {/* ── Footer ── */}
+      <Box
+        display="flex"
+        flexDirection="column"
+        gap="3"
+        alignItems="center"
+        padding="6"
+        paddingTop="3"
+        borderRadius="base"
+        style={{
+          borderTop: '1px solid #E5E7EB',
+        }}
+      >
+        {/* Checkbox only on the last step */}
+        {isLastStep && (
+          <Box display="flex" alignItems="center" width="100%">
+            <Checkbox
+              name="pre-onboarding-confirmation"
+              label={t(
+              'whatsappPreOnboarding.confirmation-label',
+              'Entendi, estou pronto pra conectar',
+              )}
+              checked={confirmed}
+              onChange={handleCheckboxChange}
+            />
+          </Box>
+        )}
+
+        <Box display="flex" gap="3" width="100%" justifyContent="center">
+          {isIntro ? (
+            /* Intro: single CTA "Começar" */
+            <Button appearance="primary" onClick={goNext}>
+                {t('whatsappPreOnboarding.cta-start', 'Começar')}
+            </Button>
+          ) : isLastStep ? (
+            /* Last step: Voltar + Continuar */
+            <>
+              <Button appearance="neutral" onClick={onCancel}>
+                {t('common.back', 'Voltar')}
+              </Button>
+              <Button
+                appearance="primary"
+                onClick={onContinue}
+                disabled={!confirmed}
+              >
+                {t('whatsappPreOnboarding.cta-continue', 'Conectar WhatsApp')}
+              </Button>
+            </>
+          ) : (
+            /* Middle steps: Voltar + Próximo */
+            <>
+              <Button appearance="neutral" onClick={onCancel}>
+                {t('common.back', 'Voltar')}
+              </Button>
+              <Button appearance="primary" onClick={goNext}>
+                {t('common.next', 'Próximo')}
+              </Button>
+            </>
+          )}
         </Box>
-      </Box>
 
-      {/* 3 Essential Cards - tamanhos seguindo escala de 8 */}
-      <Box 
-        display="grid" 
-        gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }}
-        gap="4" 
-        width="100%"
-      >
-        {essentialItems.map((item, index) => (
-          <Card key={index} padding="base">
-            <Box display="flex" flexDirection="column" alignItems="center" gap="3" textAlign="center">
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                width="48px"
-                height="48px"
-                borderRadius="base"
-                backgroundColor="success-surface"
-              >
-                {item.icon}
-              </Box>
-              <Box display="flex" flexDirection="column" gap="1">
-                <Text fontWeight="bold" fontSize="base">
-                  {item.title}
-                </Text>
-                <Text fontSize="caption" color="neutral-textLow">
-                  {item.description}
-                </Text>
-              </Box>
-            </Box>
-          </Card>
-        ))}
-      </Box>
-
-      {/* Expandable Complete Checklist */}
-      <ExpandableSection 
-        title={t('whatsappPreOnboarding.complete-checklist-toggle', 'Ver checklist completo')}
-      >
-        <Box display="flex" flexDirection="column" gap="3">
-          {completeChecklistItems.map((item, index) => (
-            <Box key={index} display="flex" alignItems="flex-start" gap="3">
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                minWidth="24px"
-                height="24px"
-                borderRadius="full"
-                backgroundColor="primary-surface"
-                flexShrink="0"
-              >
-                <Text fontSize="caption" fontWeight="bold" color="primary-interactive">
-                  {index + 1}
-                </Text>
-              </Box>
-              <Text fontSize="base" color="neutral-textLow">
-                {item}
+        {!isIntro && (
+          <Link as="a" href={helpLink} target="_blank" appearance="primary">
+            <Box display="flex" alignItems="center" gap="1">
+              <Text fontSize="caption" color="currentColor">
+                {t('whatsappPreOnboarding.help-link-text', 'Precisa de ajuda?')}
               </Text>
+              <Icon source={<ExternalLinkIcon size={12} />} color="currentColor" />
             </Box>
-          ))}
-        </Box>
-      </ExpandableSection>
-
-      {/* Primary CTA - largura consistente */}
-      <Box display="flex" flexDirection="column" gap="2" width="100%" maxWidth="400px" alignItems="center">
-        <Button 
-          appearance="primary" 
-          onClick={onContinue}
-        >
-          {t('whatsappPreOnboarding.cta-continue', 'Iniciar conexión')}
-        </Button>
-      </Box>
-
-      {/* Secondary Actions */}
-      <Box display="flex" flexDirection="column" gap="3" alignItems="center">
-        <Link 
-          as="a" 
-          href={helpLink}
-          target="_blank"
-          appearance="primary"
-        >
-          <Text fontSize="caption" color="currentColor">
-            {t('whatsappPreOnboarding.help-link-text', '¿Necesitas ayuda?')}
-          </Text>
-        </Link>
-        
-        <Link as="button" appearance="neutral" onClick={onCancel}>
-          <Text fontSize="caption">
-            {t('common.back', 'Volver')}
-          </Text>
-        </Link>
+          </Link>
+        )}
       </Box>
     </Box>
   );

@@ -34,7 +34,7 @@ interface TemplateMessage {
     <Button appearance="transparent" onClick={() => navigate('/configurations/3')}>
       <Icon source={<ChevronLeftIcon />} />
       <Text>
-        Volver
+        Voltar
       </Text>
     </Button>
   );
@@ -63,7 +63,7 @@ interface TemplateMessage {
     <AppShell>
     <AppShell.Header leftSlot={backButton} />
     <Page maxWidth="800px">
-      <Page.Header title="Plantillas de mensajes" buttonStack={<Button onClick={toggleOpen} appearance="primary">Agregar</Button>} />
+      <Page.Header title="Modelos de mensagens" buttonStack={<Button onClick={toggleOpen} appearance="primary">Adicionar</Button>} />
       <Page.Body>
         <Layout columns="1">
           <Layout.Section>
@@ -73,7 +73,7 @@ interface TemplateMessage {
                     hasMore={false}
                     fetchingMoreItems={false}
                     containerHeight='450px'
-                    loadingText='Cargando...'
+                    loadingText='Carregando...'
                 >
                     {templateMessages?.map((message, index) => (
                     <DataList.Row key={index}>
@@ -85,9 +85,9 @@ interface TemplateMessage {
                         {message.components.map((component, idx) => (
                           <Box key={idx} display="flex" flexDirection="column" gap="1">
                             <Text>Tipo: {component.type}</Text>
-                            {component.type === 'BODY' && <Text>Contenido: {component.text}</Text>}
-                            {component.type === 'HEADER' && <Text>Encabezado: {component.text}</Text>}
-                            {component.type === 'FOOTER' && <Text>Pie de página: {component.text}</Text>}
+                            {component.type === 'BODY' && <Text>Conteúdo: {component.text}</Text>}
+                            {component.type === 'HEADER' && <Text>Cabeçalho: {component.text}</Text>}
+                            {component.type === 'FOOTER' && <Text>Rodapé: {component.text}</Text>}
                             
                           </Box>
                         ))}

@@ -143,11 +143,11 @@ const CommentFormPopup: React.FC = () => {
         {/* Header */}
         <Box marginBottom="3">
           <Text fontSize="caption" color="neutral-textLow">
-            📍 Comentario en: <Text as="span" fontWeight="medium" color="neutral-textHigh">{currentPageId}</Text>
+            📍 Comentário em: <Text as="span" fontWeight="medium" color="neutral-textHigh">{currentPageId}</Text>
           </Text>
           {pendingCommentPosition && (
             <Text fontSize="caption" color="neutral-textDisabled">
-              Posición: x:{pendingCommentPosition.x}% y:{pendingCommentPosition.y}%
+              Posição: x:{pendingCommentPosition.x}% y:{pendingCommentPosition.y}%
             </Text>
           )}
         </Box>
@@ -160,7 +160,7 @@ const CommentFormPopup: React.FC = () => {
             value={text}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder={hasError ? '⚠️ Escribe algo...' : 'Escribe tu comentario...'}
+            placeholder={hasError ? '⚠️ Escreva algo...' : 'Escreva seu comentário...'}
             rows={3}
             appearance={hasError ? 'danger' : undefined}
           />

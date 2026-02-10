@@ -39,7 +39,7 @@ export default function ConversationNavSearchResults({
       </Typography>
 
       {notFound ? (
-        <p>No hay resultados</p>
+        <p>Nenhum resultado</p>
       ) : (
         <>
           {searchResults.map((result) => (
