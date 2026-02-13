@@ -26,17 +26,17 @@ export const ReconnectBanner: React.FC<ReconnectBannerProps> = ({
           <Text>
             {t('reconnectBanner.message', {
               channel: channelName,
-              defaultValue: `Tu cuenta de ${channelName} necesita reconectarse para seguir recibiendo mensajes.`,
+              defaultValue: `Sua conta do ${channelName} precisa ser reconectada para continuar recebendo mensagens.`,
             })}
           </Text>
         </Box>
         <Box display="flex" gap="2" flexShrink="0">
           <Button appearance="primary" onClick={onReconnect}>
-            {t('reconnectBanner.reconnect', 'Reconectar ahora')}
+            {t('reconnectBanner.reconnect', 'Reconectar agora')}
           </Button>
           {onDismiss && (
             <Button appearance="neutral" onClick={onDismiss}>
-              {t('reconnectBanner.later', 'Después')}
+              {t('reconnectBanner.later', 'Depois')}
             </Button>
           )}
         </Box>

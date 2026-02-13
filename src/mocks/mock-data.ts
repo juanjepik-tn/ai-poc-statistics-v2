@@ -2820,6 +2820,39 @@ export const mockChatStatistics = {
 };
 
 // ============================================
+// CUSTOM TAGS DATA
+// ============================================
+
+export const mockCustomTags = [
+  { id: 1, name: 'VIP', color: '#8B5CF6', createdAt: '2024-01-10T10:00:00Z' },
+  { id: 2, name: 'Urgente', color: '#EF4444', createdAt: '2024-01-11T10:00:00Z' },
+  { id: 3, name: 'Mayorista', color: '#F59E0B', createdAt: '2024-01-12T10:00:00Z' },
+  { id: 4, name: 'Recurrente', color: '#10B981', createdAt: '2024-01-13T10:00:00Z' },
+];
+
+// ============================================
+// STORE USERS DATA (for conversation assignment)
+// ============================================
+
+export const mockStoreUsers = [
+  { id: 1, name: 'Mariana López', email: 'mariana@tienda.com', avatar: 'https://ui-avatars.com/api/?name=Mariana+Lopez&background=c7d2fe&color=4338ca' },
+  { id: 2, name: 'Carlos Ruiz', email: 'carlos@tienda.com', avatar: 'https://ui-avatars.com/api/?name=Carlos+Ruiz&background=fecaca&color=991b1b' },
+  { id: 3, name: 'Ana García', email: 'ana@tienda.com', avatar: 'https://ui-avatars.com/api/?name=Ana+Garcia&background=bbf7d0&color=166534' },
+];
+
+// ============================================
+// QUICK REPLIES DATA
+// ============================================
+
+export const mockQuickReplies = [
+  { id: 1, title: 'Saludo', shortcut: 'hola', content: '¡Hola! Gracias por contactarnos. ¿En qué podemos ayudarte?' },
+  { id: 2, title: 'Envíos', shortcut: 'envio', content: 'Realizamos envíos a todo el país. CABA y GBA: 24-48hs. Interior: 3-5 días hábiles. Envío gratis en compras mayores a $50.000.' },
+  { id: 3, title: 'Horarios', shortcut: 'horario', content: 'Nuestro horario de atención es: Lunes a Viernes de 9:00 a 18:00hs. Sábados de 9:00 a 13:00hs.' },
+  { id: 4, title: 'Devoluciones', shortcut: 'devolucion', content: 'Tenés 30 días para devolver tu compra. El producto debe estar sin uso y con etiquetas originales.' },
+  { id: 5, title: 'Despedida', shortcut: 'chau', content: '¡Gracias por tu consulta! Si necesitás algo más, no dudes en escribirnos. ¡Que tengas un excelente día!' },
+];
+
+// ============================================
 // DEFAULT EXPORT - All mock data
 // ============================================
 
@@ -2851,5 +2884,8 @@ export default {
   announcements: mockAnnouncements,
   whatsappHealth: mockWhatsappHealth,
   chatStatistics: mockChatStatistics,
+  customTags: mockCustomTags,
+  storeUsers: mockStoreUsers,
+  quickReplies: mockQuickReplies,
 };
 

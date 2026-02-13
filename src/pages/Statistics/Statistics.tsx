@@ -392,7 +392,7 @@ const Statistics: React.FC = () => {
         <ConversationFunnel
           title={t('statistics.conversation-funnel')}
           steps={getTranslatedFunnelSteps()}
-          conversionLabel={t('statistics.funnel-conversion-label') || 'conversión'}
+          conversionLabel={t('statistics.funnel-conversion-label') || 'conversão'}
           totalConversionLabel={t('statistics.funnel-total-conversion')}
           totalLossLabel={t('statistics.funnel-total-loss')}
         />

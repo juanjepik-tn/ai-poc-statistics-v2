@@ -1,7 +1,7 @@
 /**
  * Comments System
- * Componente principal que incluye todos los elementos del sistema de comentarios
- * Requiere que el usuario esté autenticado con Google
+ * Componente principal que inclui todos os elementos do sistema de comentários
+ * Requer que o usuário esteja autenticado com Google
  */
 
 import React, { useEffect, useCallback } from 'react';
@@ -13,12 +13,12 @@ import CommentMarkers from './CommentMarkers';
 import { useComments } from './useComments';
 
 /**
- * Renderiza el botón flotante, el panel lateral y popup de comentario
- * Debe usarse dentro de CommentsProvider
- * Requiere autenticación con Google para comentar
+ * Renderiza o botão flutuante, o painel lateral e popup de comentário
+ * Deve ser usado dentro de CommentsProvider
+ * Requer autenticação com Google para comentar
  * 
- * - Doble click: Abre formulario de comentario en esa posición
- * - Click derecho: Comportamiento normal del navegador
+ * - Duplo clique: Abre formulário de comentário nessa posição
+ * - Clique direito: Comportamento normal do navegador
  */
 const CommentsSystem: React.FC = () => {
   const { openCommentFormAtPosition, closeCommentForm, isAuthenticated } = useComments();
@@ -56,7 +56,7 @@ const CommentsSystem: React.FC = () => {
 
       // Check if user is authenticated
       if (!isAuthenticated) {
-        toast.info('Inicia sesión con Google para dejar comentarios');
+        toast.info('Faça login com Google para deixar comentários');
         return;
       }
 

@@ -195,7 +195,7 @@ export default {
         'config-3': {
           title: 'Modo de respuesta predeterminado',
           autopilot: {
-            title: 'Automático',
+            title: 'Asistente',
             description:
               'Responde todos los mensajes automáticamente usando IA',
           },
@@ -578,7 +578,7 @@ export default {
       search: 'Buscar cliente',
       role: {
         user: 'Usuario',
-        assistant: 'Asistente',
+        assistant: 'Asistente de ventas',
         store: 'Tienda',
         'sales-assistant': 'Asistente de ventas',
       },
@@ -673,6 +673,10 @@ export default {
       'ia-use': 'Usar mensaje',
       photo: 'Foto',
       unreads: 'No leído',
+      'mark-as-unread': 'Marcar como no leído',
+      'mark-as-read': 'Marcar como leído',
+      'marked-as-unread': 'Conversación marcada como no leída',
+      'marked-as-read': 'Conversación marcada como leída',
       'The bot did not respond properly': 'El bot no respondió correctamente',
       'Failed to retrieve the suggest response':
         'No se pudo recuperar la sugerencia de IA',
@@ -890,7 +894,9 @@ export default {
       // Intro
       'intro-title': 'Vamos a preparar todo',
       'intro-desc': 'Son solo unos pasos rápidos antes de conectar. Te guiamos.',
+      'cta-skip': 'Saltar',
       'cta-start': 'Empezar',
+      'cta-connect': 'Conectar',
 
       // Hero (legacy)
       'hero-title': 'Antes de conectar tu WhatsApp',
@@ -899,16 +905,18 @@ export default {
 
       // Block 1: WhatsApp Business App
       'block1-title': 'Instala WhatsApp Business',
-      'block1-desc': 'Lo vas a necesitar para escanear un código QR al final.',
+      'block1-desc': 'Lo vas a necesitar en tu celular para escanear un código QR al final.',
       'block1-link': 'Descargar la app',
 
       // Block 2: Business number requirements
       'block2-title': 'Usa tu número Business',
       'block2-desc': 'Tiene que estar vinculado al portafolio comercial que vas a usar en Meta.',
+      'block2-link': 'Saber más',
 
       // Block 3: Two-step verification
       'block3-title': 'Desactiva la verificación en dos pasos',
-      'block3-desc': 'Es solo por un momento, en WhatsApp Business. Después la reactivas.',
+      'block3-desc': 'Es solo por un momento, en WhatsApp Business. Después puedes reactivarla.',
+      'block3-link': 'Saber más',
 
       // Block 4: Admin permissions
       'block4-title': 'Verifica que seas administrador',
@@ -916,16 +924,19 @@ export default {
       'block4-link': 'Saber más',
 
       // Block 5: Number already connected
-      'block5-title': '¿Número conectado en otro lado?',
+      'block5-title': '¿Tu número está conectado en otro lado?',
       'block5-desc': 'Si ya lo usas en otra plataforma, desconéctalo antes.',
+      'block5-link': 'Saber más',
 
       // Block 6: Portfolio selection
       'block6-title': 'Selecciona el portafolio correcto',
       'block6-desc': 'Si el número ya fue usado, elige el mismo portafolio de antes.',
+      'block6-link': 'Saber más',
 
-      // Confirmation & CTA
+      // Legacy CTA keys
       'confirmation-label': 'Entendí, estoy listo para conectar',
-      'cta-continue': 'Conectar WhatsApp',
+      'cta-continue': 'Conectar',
+      'cta-start': 'Empezar',
       'help-link-text': '¿Necesitas ayuda?',
 
       // External links

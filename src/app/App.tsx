@@ -80,7 +80,7 @@ const App: React.FC = () => {
         gap="4"
       >
         <Text fontSize="highlight">🚀 Iniciando POC UI Playground...</Text>
-        <Text color="neutral-textLow">Cargando datos de prueba</Text>
+        <Text color="neutral-textLow">Carregando dados de teste</Text>
       </Box>
     );
   }

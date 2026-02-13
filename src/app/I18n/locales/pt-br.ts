@@ -195,7 +195,7 @@ export default {
         'config-3': {
           title: 'Modo de resposta padrão',
           autopilot: {
-            title: 'Automático',
+            title: 'Assistente',
             description:
               'Responda todas as mensagens automaticamente usando IA',
           },
@@ -568,7 +568,9 @@ export default {
       loading: 'Carregando...',
       filters: 'Filtros',
       error: 'Erro',
-      understood: 'Entendi'
+      understood: 'Entendi',
+      continue: 'Continuar',
+      back: 'Voltar',
     },
     conversations: {
       'default-response-mode': 'Modo de resposta padrão',
@@ -578,7 +580,7 @@ export default {
       search: 'Procurar cliente',
       role: {
         user: 'Usuário',
-        assistant: 'Assistente',
+        assistant: 'Assistente de venda',
         store: 'Loja',
         'sales-assistant': 'Assistente de venda',
       },
@@ -666,6 +668,7 @@ export default {
           unknown: 'Outros',
         }
       },
+      'copy-code': 'Copiar código',
       'ia-generated': 'Sugestão gerada com IA',
       'ia-generating': 'Gerando sugestão com IA',
       'ia-generating-answer': 'Gerando resposta com IA',
@@ -674,6 +677,10 @@ export default {
       'ia-use': 'Usar mensagem',
       photo: 'Foto',
       unreads: 'Não lido',
+      'mark-as-unread': 'Marcar como não lido',
+      'mark-as-read': 'Marcar como lido',
+      'marked-as-unread': 'Conversa marcada como não lida',
+      'marked-as-read': 'Conversa marcada como lida',
       'The bot did not respond properly': 'O bot não respondeu corretamente',
       'Failed to retrieve the suggest response':
         'Não foi possível recuperar a sugestão de IA',
@@ -694,6 +701,10 @@ export default {
       'message-not-delivered': 'Mensagem não entregue', 
       'view-cart': 'Ver Carrinho',
       'failed-message-alert': 'Você não pode enviar mensagens no momento, pois sua conta está com problemas na <Meta>Meta</Meta>.'
+    },
+    templatePicker: {
+      send: 'Enviar',
+      empty: 'Nenhum template aprovado disponível',
     },
     notifications: {
       'new-messages': 'Você recebeu uma nova mensagem',
@@ -891,7 +902,9 @@ export default {
       // Intro
       'intro-title': 'Vamos preparar tudo',
       'intro-desc': 'São só alguns passos rápidos antes de conectar. A gente te guia.',
+      'cta-skip': 'Pular',
       'cta-start': 'Começar',
+      'cta-connect': 'Conectar',
 
       // Hero (legacy)
       'hero-title': 'Antes de conectar seu WhatsApp',
@@ -900,16 +913,18 @@ export default {
 
       // Block 1: WhatsApp Business App
       'block1-title': 'Instale o WhatsApp Business',
-      'block1-desc': 'Você vai precisar dele pra escanear um QR Code no final.',
+      'block1-desc': 'Você vai precisar ter ele em seu celular para escanear o QR Code no final.',
       'block1-link': 'Baixar o app',
 
       // Block 2: Business number requirements
       'block2-title': 'Use seu número Business',
       'block2-desc': 'Ele precisa estar vinculado ao portfólio comercial que você vai usar na Meta.',
+      'block2-link': 'Saiba mais',
 
       // Block 3: Two-step verification
       'block3-title': 'Desative a verificação em duas etapas',
-      'block3-desc': 'É só por um momento, no WhatsApp Business. Depois você reativa.',
+      'block3-desc': 'É só por um momento, no WhatsApp Business. Depois você pode reativar.',
+      'block3-link': 'Saiba mais',
 
       // Block 4: Admin permissions
       'block4-title': 'Confira se você é administrador',
@@ -917,16 +932,19 @@ export default {
       'block4-link': 'Saiba mais',
 
       // Block 5: Number already connected
-      'block5-title': 'Número conectado em outro lugar?',
-      'block5-desc': 'Se já usa esse número em outra plataforma, desconecte antes.',
+      'block5-title': 'Seu número está conectado em outro lugar?',
+      'block5-desc': 'Se já usa esse número em outra plataforma, desconectar antes.',
+      'block5-link': 'Saiba mais',
 
       // Block 6: Portfolio selection
       'block6-title': 'Selecione o portfólio certo',
       'block6-desc': 'Se o número já foi usado, escolha o mesmo portfólio de antes.',
+      'block6-link': 'Saiba mais',
 
-      // Confirmation & CTA
+      // Legacy CTA keys
       'confirmation-label': 'Entendi, estou pronto pra conectar',
-      'cta-continue': 'Conectar WhatsApp',
+      'cta-continue': 'Conectar',
+      'cta-start': 'Começar',
       'help-link-text': 'Precisa de ajuda?',
 
       // External links
@@ -961,6 +979,20 @@ export default {
       'important-title': 'Importante',
       'important-desc': 'Durante o processo da Meta, certifique-se de selecionar o portfólio de negócios correto. Selecionar o portfólio errado pode causar problemas na conexão.',
       'more-info': 'Mais informações sobre como conectar',
+    },
+    newConversation: {
+      error: 'Erro ao criar a conversa',
+      step1Title: 'Nova conversa',
+      step2Title: 'Selecionar template',
+      step1Description: 'Insira o número de telefone do cliente com código do país.',
+      phonePlaceholder: '11 98765-4321',
+      phoneLabel: 'Telefone:',
+      noChannel: 'Nenhum canal de WhatsApp conectado',
+    },
+    reconnectBanner: {
+      message: 'Sua conta do {{channel}} precisa ser reconectada para continuar recebendo mensagens.',
+      reconnect: 'Reconectar agora',
+      later: 'Depois',
     },
   },
 };

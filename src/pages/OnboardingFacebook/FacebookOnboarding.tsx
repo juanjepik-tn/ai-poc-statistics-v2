@@ -165,7 +165,7 @@ const FacebookOnboarding: React.FC = () => {
       case 4:
         return (
           <Step4Confirmation
-            pageName={selectedPage?.name || 'Tu página'}
+            pageName={selectedPage?.name || 'Sua página'}
             onGoToConversations={handleGoToConversations}
             onGoToChannels={handleGoToChannels}
           />

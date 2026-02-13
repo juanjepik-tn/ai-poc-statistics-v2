@@ -32,5 +32,8 @@ coverage/
 *.local
 
 
+# Cursor MCP config (contains API tokens)
+.cursor/mcp.json
+
 # Snyk Security Extension - AI Rules (auto-generated)
 .cursor/rules/snyk_rules.mdc

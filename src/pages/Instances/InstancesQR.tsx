@@ -71,7 +71,7 @@ const InstancesQR: React.FC<InstancesQRProps> = ({ loading, onGenerateQr, qr, on
       </Box>
 
       {/* Modal Pre-Onboarding WhatsApp Business */}
-      <Modal open={showPreOnboarding} onDismiss={() => setShowPreOnboarding(false)} maxWidth="680px">
+      <Modal open={showPreOnboarding} onDismiss={() => setShowPreOnboarding(false)} maxWidth="400px">
         <Modal.Body padding="none">
           <WhatsAppPreOnboarding
             onContinue={() => {

@@ -1,6 +1,6 @@
 /**
  * Comment Form Popup Component
- * Popup flotante para agregar comentarios desde doble click
+ * Popup flutuante para adicionar comentários com duplo clique
  */
 
 import React, { useEffect, useRef, useState } from 'react';

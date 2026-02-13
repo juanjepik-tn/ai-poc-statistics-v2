@@ -1,15 +1,16 @@
 // @mui
 // types
 // components
-import { Box, Icon, IconButton, Popover, Text } from '@nimbus-ds/components';
-import { ChevronDownIcon, ChevronLeftIcon, UserCircleIcon } from '@nimbus-ds/icons';
-import { InteractiveList } from '@nimbus-ds/patterns';
+import { Box, Icon, IconButton, Text } from '@nimbus-ds/components';
+import { CheckIcon, ChevronLeftIcon, CloseIcon, PencilIcon, UserCircleIcon } from '@nimbus-ds/icons';
 import { ChatNavItemSkeleton } from './chat-skeleton';
 import ConversationAvatar from './conversation-avatar';
-import { ChannelIcon } from '@/components';
-import { ChannelType } from '@/types/conversation';
+import { ChannelIcon, ChannelType } from '@/components';
+import { IAssignee } from '@/types/conversation';
 import { useTranslation } from 'react-i18next';
 import { useModeCustomer } from './providers/ModeCustomerDataProvider';
+import AssigneeSelector from './AssigneeSelector';
+import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -21,19 +22,21 @@ type Props = {
   onViewOrder?: VoidFunction;
   onParentEvent?: VoidFunction;
   pausedUser: any;
+  onAssign?: (conversationId: string, assignee: IAssignee | null) => void;
+  onUpdateCustomerName?: (customerId: number, name: string) => void;
 };
 
 export default function ConversationHeaderCompose({
   currentConversation,
   onParentEvent,
+  onAssign,
+  onUpdateCustomerName,
 }: Props) {
   const { t } = useTranslation('translations');
   const modeContext = useModeCustomer();
-  
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-header-compose.tsx:30',message:'Header render',data:{hasConversation:!!currentConversation,hasModeContext:!!modeContext,conversationId:currentConversation?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H4'})}).catch(()=>{});
-  // #endregion
-  
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+
   // Safe defaults if provider is not available
   const selectedModeCustomer = modeContext?.selectedModeCustomer;
   const modeOptions = modeContext?.modeOptions || [];
@@ -47,12 +50,40 @@ export default function ConversationHeaderCompose({
   // Formatear el identificador según el canal
   const getChannelIdentifier = () => {
     if (isInstagram) {
-      // Para Instagram: mostrar @username
       const username = currentConversation?.customer?.username;
       return username ? (username.startsWith('@') ? username : `@${username}`) : '';
     } else {
-      // Para WhatsApp: mostrar número de teléfono
       return currentConversation?.customer?.username || currentConversation?.customer?.phone || '';
+    }
+  };
+
+  const handleStartEdit = () => {
+    setEditedName(currentConversation?.customer?.name || '');
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    if (editedName.trim() && onUpdateCustomerName && currentConversation?.customer?.id) {
+      onUpdateCustomerName(currentConversation.customer.id, editedName.trim());
+    }
+    setIsEditingName(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false);
+    setEditedName('');
+  };
+
+  const handleAssign = (assignee: IAssignee | null) => {
+    if (onAssign && currentConversation?.id) {
+      onAssign(currentConversation.id, assignee);
+    }
+    // When assigning to a person, switch to Manual mode
+    if (assignee && isCustomerActive()) {
+      const manualOption = modeOptions.find((o: any) => o.number === 3);
+      if (manualOption) {
+        handleCustomerRadioChange(manualOption.customerName, manualOption.number);
+      }
     }
   };
 
@@ -68,7 +99,7 @@ export default function ConversationHeaderCompose({
             alignItems="center"
             justifyContent="space-between"
           >
-            <Box display="flex" flexDirection="row" gap="2" alignItems="center">
+            <Box display="flex" flexDirection="row" gap="2" alignItems="center" flexGrow="1">
               {onParentEvent && (
                 <IconButton onClick={onParentEvent} source={<ChevronLeftIcon size="small" />} borderColor='transparent' backgroundColor='transparent' />         
               )}
@@ -112,80 +143,75 @@ export default function ConversationHeaderCompose({
                 )}
               </div>
               <Box display='flex' flexDirection='column' gap="0-5" justifyContent='flex-start'>
-                <Text as="span" fontWeight="medium">
-                  {currentConversation?.customer?.name}
-                </Text>
+                {/* Editable name (Feature 7) */}
+                {isEditingName ? (
+                  <Box display="flex" flexDirection="row" gap="1" alignItems="center">
+                    <input
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveName();
+                        if (e.key === 'Escape') handleCancelEdit();
+                      }}
+                      autoFocus
+                      style={{
+                        border: '1px solid #0059d5',
+                        borderRadius: 4,
+                        padding: '2px 6px',
+                        fontSize: 14,
+                        fontFamily: "'Geist', sans-serif",
+                        fontWeight: 500,
+                        outline: 'none',
+                        width: 160,
+                      }}
+                    />
+                    <IconButton
+                      onClick={handleSaveName}
+                      source={<CheckIcon size="small" />}
+                      size="1.5rem"
+                      borderColor="transparent"
+                      backgroundColor="transparent"
+                    />
+                    <IconButton
+                      onClick={handleCancelEdit}
+                      source={<CloseIcon size="small" />}
+                      size="1.5rem"
+                      borderColor="transparent"
+                      backgroundColor="transparent"
+                    />
+                  </Box>
+                ) : (
+                  <Box display="flex" flexDirection="row" gap="1" alignItems="center">
+                    <Text as="span" fontWeight="medium">
+                      {currentConversation?.customer?.name}
+                    </Text>
+                    {onUpdateCustomerName && (
+                      <Box cursor="pointer" onClick={handleStartEdit}>
+                        <Icon source={<PencilIcon size="small" />} color="neutral-textDisabled" />
+                      </Box>
+                    )}
+                  </Box>
+                )}
                 <Text as="span" color='neutral-textDisabled' fontSize="caption">
                   {getChannelIdentifier()}
                 </Text>
               </Box>
             </Box>
-            
-            {/* Mode selector - right side */}
-            {modeOptions.length > 0 ? (
-              <Popover
-                padding="none"
-                position="bottom-end"
-                content={
-                  <Box>
-                    <Box padding="2">
-                      <Text fontWeight="bold">
-                        {t('conversations.client-response-mode')}
-                      </Text>
-                    </Box>
-                    <InteractiveList>
-                      {modeOptions.map((option: any) => (
-                        <InteractiveList.RadioItem
-                          key={option.number}
-                          title={option.title}
-                          description={option.description}
-                          radio={{
-                            name: 'radio-element-header',
-                            checked: selectedModeCustomer?.customerName === option.customerName,
-                            onChange: () => handleCustomerRadioChange(option.customerName, option.number),
-                          }}
-                        />
-                      ))}
-                    </InteractiveList>
-                  </Box>
+
+            {/* Unified assignee + mode selector */}
+            <AssigneeSelector
+              currentAssignee={currentConversation?.assignee}
+              onAssign={handleAssign}
+              isAIActive={isCustomerActive()}
+              onSelectAI={() => {
+                // Set mode to Automatic
+                const autoOption = modeOptions.find((o: any) => o.number === 1);
+                if (autoOption) {
+                  handleCustomerRadioChange(autoOption.customerName, autoOption.number);
                 }
-              >
-                <Box
-                  display="flex"
-                  flexDirection="row"
-                  gap="1"
-                  cursor="pointer"
-                  alignItems="center"
-                  padding="2"
-                  borderRadius="2"
-                  backgroundColor="transparent"
-                >
-                  {isCustomerActive() ? (
-                    <img src="/imgs/ia-icon.svg" alt="AI Icon" width={16} />
-                  ) : (
-                    <img src="/imgs/ia-icon-paused.svg" alt="AI Icon Paused" width={16} />
-                  )}
-                  <Text color="primary-interactive" fontSize="base">
-                    {selectedModeCustomer?.title || t('conversations.mode.automatic')}
-                  </Text>
-                  <Icon source={<ChevronDownIcon size="small" />} color="primary-interactive" />
-                </Box>
-              </Popover>
-            ) : (
-              <Box
-                display="flex"
-                flexDirection="row"
-                gap="1"
-                alignItems="center"
-                padding="2"
-              >
-                <img src="/imgs/ia-icon.svg" alt="AI Icon" width={16} />
-                <Text color="primary-interactive" fontSize="base">
-                  {t('conversations.mode.automatic') || 'Automático'}
-                </Text>
-                <Icon source={<ChevronDownIcon size="small" />} color="primary-interactive" />
-              </Box>
-            )}
+              }}
+              aiLabel={t('settings.step3.config-3.autopilot.title') || 'Agente IA'}
+            />
           </Box>
         </>
       ) : (

@@ -21,13 +21,11 @@ import {
   Icon,
   IconButton as IconButtonNimbus,
   Link,
-  Popover,
   Spinner,
   Text,
   useToast
 } from '@nimbus-ds/components';
 import {
-  CameraIcon,
   CheckCircleIcon,
   CloseIcon,
   MagicWandIcon,
@@ -36,7 +34,6 @@ import {
   StopIcon,
   TrashIcon
 } from '@nimbus-ds/icons';
-import { InteractiveList } from '@nimbus-ds/patterns';
 import { AudioPlayer } from 'react-audio-play';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,7 +42,11 @@ import MicIcon from '../MicButton/MicButton';
 import { useModeCustomer } from './providers/ModeCustomerDataProvider';
 import { ModeContext } from './providers/ModeDataProvider';
 import { BillingDTO } from '@/types/billingDTO';
+import { IQuickReply } from '@/types/conversation';
+import QuickReplyList from './QuickReplyList';
+import TemplateMessagePicker from './TemplateMessagePicker';
 import './styles.css';
+
 type Props = {
   recipients: any;
   onSendCompose: any;
@@ -58,7 +59,24 @@ type Props = {
   markAsResolved?: boolean;
   newTag?: any;
   onSendImage: any;
+  onSendFile?: (file: File) => void;
+  onSendTemplate?: (templateId: string, templateName: string) => void;
 };
+
+// Check if 24h window has expired since last customer message
+function is24hExpired(conversation: any): boolean {
+  if (!conversation?.messagesPanel?.length) return false;
+  // Find the last customer message
+  const customerMessages = conversation.messagesPanel.filter(
+    (m: any) => m.role === 'customer' || m.role === 'user'
+  );
+  if (customerMessages.length === 0) return true; // No customer messages = can't send
+  const lastCustomerMsg = customerMessages[customerMessages.length - 1];
+  const lastTimestamp = new Date(lastCustomerMsg.created_at).getTime();
+  const now = Date.now();
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+  return (now - lastTimestamp) > twentyFourHours;
+}
 
 export default function ConversationMessageInput({
   recipients,
@@ -69,27 +87,56 @@ export default function ConversationMessageInput({
   isLoadingInitialMessages,
   lastMessage,
   newTag,
-  onSendImage
+  onSendImage,
+  onSendFile,
+  onSendTemplate,
 }: Props) {
 
-  // const [setImgUrl] = useState<string | null>(null);
   const [width] = useState<number>(window.innerWidth);
-  // const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const { t } = useTranslation('translations');
 
   const isMobile = width <= 768;
 
-  // const [selectedMode, setSelectedMode] = useState('');
   const { request } = useFetch();
   const { addToast } = useToast();
   const [suggestResponse, setSuggestResponse] = useState<string>('');
   const [selectedSuggestResponse, setSelectedSuggestResponse] =
     useState<string>('');
-  const [showOperationMode, setShowOperationMode] = useState<boolean>(true);
+  const [, setShowOperationMode] = useState<boolean>(true);
   const [generatingResponse, setGeneratingResponse] = useState<Boolean>(false);
   const [idConversationResponse, setIdConversationResponse] = useState<String>('');  
   const notification = useSelector((state: any) => state.notification);
   const billingData: BillingDTO = useSelector((state: any) => state.billing?.billingData);
+
+  // Feature 2: 24h check
+  const expired24h = is24hExpired(currentConversation);
+  const isWhatsApp = currentConversation?.channel?.channelType === 'whatsapp';
+  const show24hBlock = expired24h && isWhatsApp;
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+
+  // Feature 4: Emoji/Sticker picker
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Feature 6: File attachment menu
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+
+  // Feature 9: Quick replies
+  const [quickReplies, setQuickReplies] = useState<IQuickReply[]>([]);
+  const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const [quickReplyQuery, setQuickReplyQuery] = useState('');
+
+  // Load quick replies
+  useEffect(() => {
+    request<any>({
+      url: API_ENDPOINTS.quickReplies.list,
+      method: 'GET',
+    })
+      .then(({ content }: any) => {
+        const replies = Array.isArray(content) ? content : [];
+        setQuickReplies(replies);
+      })
+      .catch(() => {}); // Silent fail for quick replies
+  }, []);
 
   const {
     mediaRecorder,
@@ -101,7 +148,7 @@ export default function ConversationMessageInput({
     inputRef,
     message,
     setMessage,
-    handleChange,
+    handleChange: originalHandleChange,
     handleKeyDown,
     setCurrentConversation,
     sendImage,
@@ -111,22 +158,42 @@ export default function ConversationMessageInput({
     onSendMessage, onSendCompose, onSendAudio, onSendImage, sendMessageOptions: {
       trimMessage: true,
       validateSend: (_message) => !!currentConversation.id,
-      onBeforeSend: (message) => {
+      onBeforeSend: (msg) => {
         if (selectedSuggestResponse) {
-          const similarity = similarityPercentage(message, selectedSuggestResponse);
+          const similarity = similarityPercentage(msg, selectedSuggestResponse);
           if (similarity > 70) {
             trackingMessageSent(currentConversation.id);
           }
         }
       },
       onAfterSend: () => {
-        console.log('onAfterSend', isCustomerActive());
         if (isCustomerActive()) {
           setUserToTemporaryManualMode();
         }
       }
     }
   });
+
+  // Wrap handleChange to detect "/" for quick replies (Feature 9)
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    originalHandleChange(event);
+    const value = event.target.value;
+    if (value.startsWith('/')) {
+      setShowQuickReplies(true);
+      setQuickReplyQuery(value.substring(1));
+    } else {
+      setShowQuickReplies(false);
+      setQuickReplyQuery('');
+    }
+  }, [originalHandleChange]);
+
+  const handleQuickReplySelect = useCallback((content: string) => {
+    setMessage(content);
+    setShowQuickReplies(false);
+    setQuickReplyQuery('');
+    inputRef.current?.focus();
+  }, [setMessage, inputRef]);
+
   useEffect(() => {
     setCurrentConversation(currentConversation);
   }, [currentConversation]);
@@ -136,7 +203,6 @@ export default function ConversationMessageInput({
     selectedModeCustomer,
     setSelectedModeCustomer,
     modeOptions,
-    handleCustomerRadioChange,
     isCustomerActive,
     setUserToTemporaryManualMode,
   } = useModeCustomer();
@@ -179,15 +245,11 @@ export default function ConversationMessageInput({
 
 
   useEffect(() => {
-    // solo se hace para desktop
     if (inputRef.current && !isMobile) {
       inputRef.current.focus();
     }
   }, [isMobile]);
 
-  // const fileRef = useRef<HTMLInputElement>(null);
-
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const dispatch = useDispatch();
   const [canGenerateSuggest, setCanGenerateSuggest] = useState<boolean>(false);
 
@@ -195,13 +257,6 @@ export default function ConversationMessageInput({
     setMessage((prevInput) => prevInput + event.native);
     setShowEmojiPicker(false);
   };
-
-  // const handleAttach = useCallback(() => {
-  //   if (fileRef.current) {
-  //     fileRef.current.click();
-  //   }
-  // }, []);
-
 
   const handleRedoSuggestion = (ev: any) => {
     ev.preventDefault();
@@ -240,27 +295,14 @@ export default function ConversationMessageInput({
     return matrix[a.length][b.length];
   };
 
-  // Función para calcular el porcentaje de similitud
   const similarityPercentage = (a: string, b: string): number => {
     const distance = levenshteinDistance(a, b);
     const maxLength = Math.max(a.length, b.length);
     return ((maxLength - distance) / maxLength) * 100;
   };
-  //TODO validar si se puede eliminar
+
   useEffect(() => {
-    // if (notification.conversationUpdate?.conversation_id) {
-    //const conversationUpdate = notification.conversationUpdate;
-    /*if (conversationUpdate && (conversationUpdate.conversation_id == currentConversation.id) && [selectedModeCustomer.number, selectedMode.number].includes(2) && lastMessage?.role === 'user') {
-      setGeneratingResponse(true);
-      generateSuggestResponse();
-    }*/
-    // if (conversationUpdate && (conversationUpdate.conversation_id == currentConversation.id) && (selectedMode == 'Manual' || storeSelectedMode.number === 2) && lastMessage?.role === 'user') {
-    //   setGeneratingResponse(true);
-    //   generateSuggestResponse();
-    // }
-    // }
     if (notification.operationMode.conversation_id) {
-      console.log('notification.operationMode', notification.operationMode);
       const operationMode = notification.operationMode;
       if (
         operationMode &&
@@ -271,6 +313,7 @@ export default function ConversationMessageInput({
     }
     dispatch(setNotificationOperationMode(false));
   }, [notification, generateSuggestResponse]);
+
   useEffect(() => {
     setSuggestResponse('');
     setIdConversationResponse('');
@@ -292,6 +335,7 @@ export default function ConversationMessageInput({
       );
     }
   }, [newTag, currentConversation?.customer?.undoneTags]);
+
   useEffect(() => {
     setCanGenerateSuggest(
       !generatingResponse &&
@@ -307,9 +351,86 @@ export default function ConversationMessageInput({
     selectedMode,
   ]);
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-message-input.tsx:310',message:'Input render',data:{hasConversation:!!currentConversation,conversationId:currentConversation?.id,hasBillingData:!!billingData},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-  // #endregion
+  // Feature 6: File upload handler
+  const handleFileUpload = useCallback((acceptTypes: string) => {
+    setShowAttachMenu(false);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = acceptTypes;
+    input.onchange = (event: any) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (file.type.startsWith('image/')) {
+        sendImage(file);
+      } else if (onSendFile) {
+        onSendFile(file);
+      }
+    };
+    input.click();
+  }, [sendImage, onSendFile]);
+
+  // Feature 2: 24h block - show template picker
+  if (show24hBlock) {
+    return (
+      <BoxNimbus padding="4">
+        {showTemplatePicker ? (
+          <BoxNimbus display="flex" flexDirection="column" gap="2">
+            <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center">
+              <Text fontWeight="bold" fontSize="base">
+                {t('conversations.select-template', { defaultValue: 'Selecionar template' })}
+              </Text>
+              <IconButtonNimbus
+                onClick={() => setShowTemplatePicker(false)}
+                source={<CloseIcon size="small" />}
+                borderColor="transparent"
+                backgroundColor="transparent"
+              />
+            </BoxNimbus>
+            <TemplateMessagePicker
+              channelId={currentConversation?.channel?.id || ''}
+              conversationId={currentConversation?.id}
+              onSendTemplate={(templateId, templateName) => {
+                onSendTemplate?.(templateId, templateName);
+                setShowTemplatePicker(false);
+              }}
+            />
+          </BoxNimbus>
+        ) : (
+          <BoxNimbus
+            display="flex"
+            flexDirection="column"
+            gap="2"
+            alignItems="center"
+            padding="4"
+            borderRadius="4"
+            backgroundColor="warning-surface"
+          >
+            <Text fontSize="base" textAlign="center" color="warning-textLow">
+              {t('conversations.24h-expired', {
+                defaultValue: 'A janela de 24h expirou. Só é possível enviar templates de mensagem.',
+              })}
+            </Text>
+            <button
+              onClick={() => setShowTemplatePicker(true)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: 'none',
+                backgroundColor: '#0059d5',
+                color: '#ffffff',
+                fontWeight: 600,
+                fontSize: 14,
+                cursor: 'pointer',
+                fontFamily: "'Geist', sans-serif",
+              }}
+            >
+              {t('conversations.send-template', { defaultValue: 'Enviar template de mensagem' })}
+            </button>
+          </BoxNimbus>
+        )}
+      </BoxNimbus>
+    );
+  }
 
   return (
     <>
@@ -333,138 +454,225 @@ export default function ConversationMessageInput({
               />
             </BoxNimbus>
           )}
-          {/* Chat Input Container - Figma style */}
-          <Box
-            sx={{
-              backgroundColor: 'white',
-              border: '1px solid #b0b0b0',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              mx: 1,
-              mb: 1,
-            }}
-          >
-            {/* Input field - top section */}
-            <InputBase
-              multiline
-              minRows={1}
-              maxRows={5}
-              inputRef={inputRef}
-              value={message}
-              onKeyDown={handleKeyDown}
-              onChange={handleChange}
-              placeholder={t('settings.step4.write')}
-              disabled={!billingData?.activeStatus || (recipients.length > 0 && !id && message.length > 0)}
-              sx={{
-                px: 1,
-                py: 0.5,
-                width: '100%',
-                backgroundColor: 'transparent',
-                fontFamily: "'Geist', sans-serif",
-                '& .MuiInputBase-input': {
-                  fontSize: '14px',
-                  lineHeight: '20px',
-                  fontFamily: "'Geist', sans-serif",
-                  padding: '4px',
-                  backgroundColor: 'transparent',
-                  '&::placeholder': {
-                    color: '#6d6d6d',
-                    opacity: 1,
-                  },
-                },
-              }}
+
+          {/* Chat Input Container */}
+          <div style={{ position: 'relative' }}>
+            {/* Quick Reply List (Feature 9) */}
+            <QuickReplyList
+              query={quickReplyQuery}
+              replies={quickReplies}
+              onSelect={handleQuickReplySelect}
+              onClose={() => { setShowQuickReplies(false); setQuickReplyQuery(''); }}
+              visible={showQuickReplies}
             />
 
-            {/* Actions bar - bottom section */}
-            <BoxNimbus 
-              display="flex" 
-              flexDirection="row" 
-              alignItems="center" 
-              justifyContent="space-between"
-              paddingX="2"
-              paddingBottom="2"
+            <Box
+              sx={{
+                backgroundColor: 'white',
+                border: '1px solid #b0b0b0',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                mx: 1,
+                mb: 1,
+              }}
             >
-              {/* Plus button on the left */}
-              <IconButton
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  if (!billingData?.activeStatus) {
-                    return;
-                  }
-                  const input = document.getElementById('selectImage');
-                  if (input) {
-                    input.onchange = function (event: any) {
-                      sendImage(event.target.files[0]);
-                    };
-                    input?.click();
-                  }
-                }}
-                disabled={!billingData?.activeStatus}
-                sx={{ p: 1 }}
-              >
-                <Icon source={<PlusIcon size={16} />} color="neutral-textHigh" />
-              </IconButton>
-
-              {/* Right side actions */}
-              <BoxNimbus display="flex" alignItems="center" gap="2">
-                {/* Magic wand / AI suggest button */}
-                <IconButton
-                  disabled={!canGenerateSuggest || !billingData?.activeStatus}
-                  onClick={() => {
-                    setGeneratingResponse(true);
-                    generateSuggestResponse();
-                    setSelectedSuggestResponse('');
-                    trackingCopilotRequested(currentConversation.id);
-                  }}
-                  sx={{ p: 1 }}
-                >
-                  <Icon
-                    source={<MagicWandIcon size={16} />}
-                    color={canGenerateSuggest ? 'neutral-textHigh' : 'neutral-textDisabled'}
-                  />
-                </IconButton>
-
-                {/* Send button - Figma style with gray background */}
-                <IconButton
-                  onClick={handleSend}
-                  disabled={!message || !billingData?.activeStatus}
-                  sx={{
-                    backgroundColor: '#e7e7e7',
-                    border: '1px solid #d1d1d1',
-                    borderRadius: '8px',
-                    width: 32,
-                    height: 32,
-                    minWidth: 32,
-                    p: 0,
-                    '&:hover': {
-                      backgroundColor: '#d1d1d1',
+              {/* Input field */}
+              <InputBase
+                multiline
+                minRows={1}
+                maxRows={5}
+                inputRef={inputRef}
+                value={message}
+                onKeyDown={handleKeyDown}
+                onChange={handleChange}
+                placeholder={t('settings.step4.write')}
+                disabled={!billingData?.activeStatus || (recipients.length > 0 && !id && message.length > 0)}
+                sx={{
+                  px: 1,
+                  py: 0.5,
+                  width: '100%',
+                  backgroundColor: 'transparent',
+                  fontFamily: "'Geist', sans-serif",
+                  '& .MuiInputBase-input': {
+                    fontSize: '14px',
+                    lineHeight: '20px',
+                    fontFamily: "'Geist', sans-serif",
+                    padding: '4px',
+                    backgroundColor: 'transparent',
+                    '&::placeholder': {
+                      color: '#6d6d6d',
+                      opacity: 1,
                     },
-                    '&.Mui-disabled': {
+                  },
+                }}
+              />
+
+              {/* Actions bar */}
+              <BoxNimbus 
+                display="flex" 
+                flexDirection="row" 
+                alignItems="center" 
+                justifyContent="space-between"
+                paddingX="2"
+                paddingBottom="2"
+              >
+                {/* Left side actions */}
+                <BoxNimbus display="flex" alignItems="center" gap="1">
+                  {/* Attachment menu (Feature 6) */}
+                  <div style={{ position: 'relative' }}>
+                    <IconButton
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        if (!billingData?.activeStatus) return;
+                        setShowAttachMenu(!showAttachMenu);
+                      }}
+                      disabled={!billingData?.activeStatus}
+                      sx={{ p: 1 }}
+                    >
+                      <Icon source={<PlusIcon size={16} />} color="neutral-textHigh" />
+                    </IconButton>
+                    {showAttachMenu && (
+                      <>
+                        <div
+                          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }}
+                          onClick={() => setShowAttachMenu(false)}
+                        />
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: '100%',
+                            left: 0,
+                            marginBottom: 4,
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: 8,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                            zIndex: 11,
+                            padding: '4px 0',
+                            minWidth: 180,
+                          }}
+                        >
+                          <div
+                            onClick={() => handleFileUpload('image/jpeg,image/png,image/gif,image/webp')}
+                            style={{
+                              padding: '8px 16px',
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              fontFamily: "'Geist', sans-serif",
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <Iconify icon="ic:baseline-photo" width={18} />
+                            {t('conversations.attach-image', { defaultValue: 'Imagem' })}
+                          </div>
+                          <div
+                            onClick={() => handleFileUpload('.pdf,.xlsx,.xls,.doc,.docx,.csv,.txt,.zip')}
+                            style={{
+                              padding: '8px 16px',
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              fontFamily: "'Geist', sans-serif",
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <Iconify icon="ic:baseline-insert-drive-file" width={18} />
+                            {t('conversations.attach-document', { defaultValue: 'Documento' })}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Emoji button (Feature 4) */}
+                  <IconButton
+                    onClick={() => {
+                      if (!billingData?.activeStatus) return;
+                      setShowEmojiPicker(!showEmojiPicker);
+                    }}
+                    disabled={!billingData?.activeStatus}
+                    sx={{ p: 1 }}
+                  >
+                    <Iconify icon="ic:outline-emoji-emotions" width={18} color="#404040" />
+                  </IconButton>
+
+                  {/* Mic button */}
+                  <IconButton
+                    onClick={handleRecordClick}
+                    disabled={!billingData?.activeStatus}
+                    sx={{ p: 1 }}
+                  >
+                    <MicIcon />
+                  </IconButton>
+                </BoxNimbus>
+
+                {/* Right side actions */}
+                <BoxNimbus display="flex" alignItems="center" gap="2">
+                  {/* AI suggest button */}
+                  <IconButton
+                    disabled={!canGenerateSuggest || !billingData?.activeStatus}
+                    onClick={() => {
+                      setGeneratingResponse(true);
+                      generateSuggestResponse();
+                      setSelectedSuggestResponse('');
+                      trackingCopilotRequested(currentConversation.id);
+                    }}
+                    sx={{ p: 1 }}
+                  >
+                    <Icon
+                      source={<MagicWandIcon size={16} />}
+                      color={canGenerateSuggest ? 'neutral-textHigh' : 'neutral-textDisabled'}
+                    />
+                  </IconButton>
+
+                  {/* Send button */}
+                  <IconButton
+                    onClick={handleSend}
+                    disabled={!message || !billingData?.activeStatus}
+                    sx={{
                       backgroundColor: '#e7e7e7',
                       border: '1px solid #d1d1d1',
-                    },
-                  }}
-                >
-                  <Iconify
-                    width={16}
-                    icon="mdi:arrow-up"
-                    color="#0a0a0a"
-                  />
-                </IconButton>
+                      borderRadius: '8px',
+                      width: 32,
+                      height: 32,
+                      minWidth: 32,
+                      p: 0,
+                      '&:hover': {
+                        backgroundColor: '#d1d1d1',
+                      },
+                      '&.Mui-disabled': {
+                        backgroundColor: '#e7e7e7',
+                        border: '1px solid #d1d1d1',
+                      },
+                    }}
+                  >
+                    <Iconify
+                      width={16}
+                      icon="mdi:arrow-up"
+                      color="#0a0a0a"
+                    />
+                  </IconButton>
+                </BoxNimbus>
               </BoxNimbus>
 
-            </BoxNimbus>
-
-            <Box sx={{ display: 'none' }}>
-              <input type="file" accept="*.*" required id="selectFile" />
-              <input
-                type="file"
-                accept="image/jpeg, image/png"
-                required
-                id="selectImage"
-              />
+              <Box sx={{ display: 'none' }}>
+                <input type="file" accept="*.*" required id="selectFile" />
+                <input
+                  type="file"
+                  accept="image/jpeg, image/png"
+                  required
+                  id="selectImage"
+                />
+              </Box>
             </Box>
-          </Box>
+          </div>
 
           {generatingResponse && suggestResponse === '' && (
               <BoxNimbus display="flex" alignItems="center" gap="1" mt="2">

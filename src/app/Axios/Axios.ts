@@ -126,17 +126,24 @@ export const API_ENDPOINTS = {
     sendMessage: (id: string) => `conversations/${id}/send/message`,
     sendAudio: (id: string) => `conversations/${id}/send/audio`,
     sendImage: (id: string) => `conversations/${id}/send/image`,
+    sendFile: (id: string) => `conversations/${id}/send/file`,
+    sendTemplate: (id: string) => `conversations/${id}/send/template`,
+    sendSticker: (id: string) => `conversations/${id}/send/sticker`,
     details: (id: string) => `conversations/${id}`,
     suggestResponse: (id: string) => `conversations/${id}/suggest/response`,
     getConversationByUsername: (username:string, start: number = 0) => `whatsapps/conversations/username/${username}?page=${start}&length=5`,
     unread: 'stores/conversations/attend/username',
     markAsRead: (id: string) => `conversations/${id}/mark/read`,
+    markAsUnread: (id: string) => `conversations/${id}/mark/unread`,
+    assign: (id: string) => `conversations/${id}/assign`,
+    createNew: 'conversations/new',
   },
   customer: {
     updateState: (id: number, state: number) => `customers/${id}/state/${state}`,
     details: (id: number) =>   `customers/${id}`,
     resolveAttention: (id: number, tag: number) => `customers/${id}/human/attention/${tag}/done`,
-    resolveAllAttention: (id: number, conversation:number) => `customers/${id}/human/attention/done/${conversation}`
+    resolveAllAttention: (id: number, conversation:number) => `customers/${id}/human/attention/done/${conversation}`,
+    updateName: (id: number) => `customers/${id}/name`,
   },
   message: {
     markAsSeen: (id: number) => `messages/${id}`,
@@ -175,6 +182,21 @@ export const API_ENDPOINTS = {
     disableMarketingAutomation: (id: number) => `/cross-company/disable-marketing-automation/${id}`,
     enableChat: (id: number) => `/cross-company/enable-chat/${id}`,
     disableChat: (id: number) => `/cross-company/disable-chat/${id}`,
+  },
+  customTags: {
+    list: 'custom-tags/store',
+    create: 'custom-tags/store',
+    update: (id: number) => `custom-tags/store/${id}`,
+    delete: (id: number) => `custom-tags/store/${id}`,
+  },
+  storeUsers: {
+    list: 'store-users',
+  },
+  quickReplies: {
+    list: 'quick-replies/store',
+    create: 'quick-replies/store',
+    update: (id: number) => `quick-replies/store/${id}`,
+    delete: (id: number) => `quick-replies/store/${id}`,
   },
   announcements: {
     unread: '/announcements/unread',

@@ -106,7 +106,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
         toggleOpen();
         addToast({
           type: 'success',
-          text: 'Plantilla creada correctamente',
+          text: 'Template criado com sucesso',
           duration: 4000,
           id: 'success-create-template'
         });
@@ -171,7 +171,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                       <Box display="flex" flexDirection="row" gap="4">
                         <Box display="grid" gridTemplateColumns="6fr 2fr" gap="4" width="100%">
                           <FormField.Input
-                            label="Nombre de la plantilla"
+                            label="Nome do template"
                             id="select-id-title"
                             name="name"
                             //@ts-ignore
@@ -185,6 +185,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                           ></FormField.Input>
                           <FormField.Select
                             label="Idioma"
+
                             id="select-id-language"
                             name="language"
                             //@ts-ignore
@@ -192,15 +193,15 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                             value={formValues.language}
                             onChange={handleChange}
                           >
-                            <option value="es">Español</option>
-                            <option value="en">Inglés</option>
+                            <option value="es">Espanhol</option>
+                            <option value="en">Inglês</option>
                           </FormField.Select>
                         </Box>
                       </Box>
                     </Box>
                     <Box>
                       <FormField.Select
-                        label="Categoría"
+                        label="Categoria"
                         id="select-id-category"
                         name="category"
                         //@ts-ignore
@@ -221,7 +222,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                       <FormField.Select
                         label={<>
                           <Box display="flex" flexDirection="row" gap="2" alignItems="center">
-                            Encabezado
+                            Cabeçalho
                           </Box>
                         </>}
                         id="select-id-header"
@@ -233,15 +234,15 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                       >
                         <option value="none">
                           <Icon source={<ExclamationCircleIcon />} />
-                          Ninguno
+                          Nenhum
                         </option>
                         <option value="text">
                           <Icon source={<InfoCircleIcon />} />
-                          Mensaje de texto
+                          Mensagem de texto
                         </option>
                         <option value="image">
                           <Icon source={<InfoCircleIcon />} />
-                          Imagen
+                          Imagem
                         </option>
                         <option value="video">
                           <Icon source={<InfoCircleIcon />} />
@@ -253,7 +254,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                         </option>
                         <option value="location">
                           <Icon source={<InfoCircleIcon />} />
-                          Ubicación
+                          Localização
                         </option>
                       </FormField.Select>
                     </Box>
@@ -261,7 +262,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                       <FormField.Textarea
                         label={<>
                           <Box display="flex" flexDirection="row" gap="2" alignItems="center">
-                            Cuerpo
+                            Corpo
                           </Box>
                         </>}
                         id="select-id-body"
@@ -281,7 +282,7 @@ const TemplateMessagesForm: React.FC<TemplateMessageFormProps> = ({ open, toggle
                     <FormField.Textarea
                       label={<>
                         <Box display="flex" flexDirection="row" gap="2" alignItems="center">
-                          Pie de página
+                          Rodapé
                         </Box>
                       </>}
                       id="select-id-footer"

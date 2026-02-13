@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -7,8 +7,8 @@ import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 
 import { IConversation } from '@/types/conversation';
-import { Box as BoxNimbus, IconButton as IconButtonNimbus, Input, Spinner, Text, Title } from '@nimbus-ds/components';
-import { CogIcon, InfoCircleIcon, SearchIcon } from '@nimbus-ds/icons';
+import { Box as BoxNimbus, Button, Icon, IconButton as IconButtonNimbus, Input, Popover, Spinner, Text, Title } from '@nimbus-ds/components';
+import { ChatDotsIcon, CogIcon, EllipsisIcon, GenerativeStarsIcon, InfoCircleIcon, SearchIcon, TagIcon, ToolsIcon } from '@nimbus-ds/icons';
 import { EmptyMessage } from '@nimbus-ds/patterns';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,8 @@ import {
   selectChannelsNeedingReconnection,
   type ChannelFilterValue 
 } from '@/redux/slices/channels';
+import NewConversationModal from './NewConversationModal';
+import { ModeContext } from './providers/ModeDataProvider';
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +56,13 @@ type Props = {
   markAsResolved: boolean;
   storeSelectedMode: any;
   unreadMessagesCount: number;
+  onMarkAsUnread?: (conversationId: string) => void;
+  onMarkAsRead?: (conversationId: string) => void;
+  onConversationCreated?: () => void;
+  handleSegmentFilterChange?: (value: string) => void;
+  activeSegmentFilter?: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 };
 
 export default function ConversationNav({
@@ -71,6 +80,13 @@ export default function ConversationNav({
   markAsResolved,
   storeSelectedMode,
   unreadMessagesCount,
+  onMarkAsUnread,
+  onMarkAsRead,
+  onConversationCreated,
+  handleSegmentFilterChange,
+  activeSegmentFilter,
+  onRefresh,
+  isRefreshing,
 }: Props) {
   const theme = useTheme();
   const mdUp = useResponsive('up', 'md');
@@ -85,8 +101,11 @@ export default function ConversationNav({
   } = useCollapseNav();
 
   const [searchQuery, setSearchQuery] = useState('');
-
   const [searchResults] = useState<any[]>([]);
+  const [showNewConvModal, setShowNewConvModal] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+
+  const { handleRadioChange, modeOptions } = useContext(ModeContext);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { t } = useTranslation('translations');
@@ -237,6 +256,8 @@ export default function ConversationNav({
             selected={conversation.id === currentConversationId}
             markAsResolved={markAsResolved}
             storeSelectedMode={storeSelectedMode}
+            onMarkAsUnread={onMarkAsUnread}
+            onMarkAsRead={onMarkAsRead}
           />
         ) : (
           <ChatNavItemSkeleton key={index} />
@@ -310,7 +331,21 @@ export default function ConversationNav({
       <BoxNimbus p="4" gap="1">
         <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" py="2">
           <Title as="h3">Chat</Title>
-          <BoxNimbus display="flex" justifyContent="flex-end" gap="2">
+          <BoxNimbus display="flex" justifyContent="flex-end" gap="2" alignItems="center">
+            <IconButtonNimbus
+              source={
+                <Iconify
+                  icon="mdi:sync"
+                  width={20}
+                  style={{
+                    animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+                  }}
+                />
+              }
+              size="2rem"
+              onClick={() => onRefresh?.()}
+              disabled={isRefreshing}
+            />
             <IconButtonNimbus
               source={<SearchIcon />}
               size="2rem"
@@ -322,13 +357,98 @@ export default function ConversationNav({
               size="2rem"
               onClick={() => navigate('/configurations')}
             />
+            <Popover
+              visible={moreMenuOpen}
+              onVisibility={setMoreMenuOpen}
+              enabledClick
+              enabledDismiss
+              arrow={false}
+              position="bottom-end"
+              padding="none"
+              offset={-16}
+              content={
+                <BoxNimbus display="flex" flexDirection="column" paddingY="1" minWidth="220px">
+                  <BoxNimbus
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="3"
+                    paddingX="4"
+                    paddingY="2-5"
+                    cursor="pointer"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setShowNewConvModal(true);
+                    }}
+                  >
+                    <Icon source={<ChatDotsIcon />} color="neutral-textLow" />
+                    <Text fontSize="base" color="neutral-textHigh">Nova conversa</Text>
+                  </BoxNimbus>
+                  <BoxNimbus
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="3"
+                    paddingX="4"
+                    paddingY="2-5"
+                    cursor="pointer"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      // TODO: implement create tag logic
+                    }}
+                  >
+                    <Icon source={<TagIcon />} color="neutral-textLow" />
+                    <Text fontSize="base" color="neutral-textHigh">Criar etiqueta</Text>
+                  </BoxNimbus>
+                  <BoxNimbus
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="3"
+                    paddingX="4"
+                    paddingY="2-5"
+                    cursor="pointer"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      const autoMode = modeOptions?.find((o: any) => o.number === 1);
+                      if (autoMode) handleRadioChange(autoMode);
+                    }}
+                  >
+                    <Icon source={<GenerativeStarsIcon />} color="neutral-textLow" />
+                    <Text fontSize="base" color="neutral-textHigh">Automático todas conversas</Text>
+                  </BoxNimbus>
+                  <BoxNimbus
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="3"
+                    paddingX="4"
+                    paddingY="2-5"
+                    cursor="pointer"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      const manualMode = modeOptions?.find((o: any) => o.number === 3);
+                      if (manualMode) handleRadioChange(manualMode);
+                    }}
+                  >
+                    <Icon source={<ToolsIcon />} color="neutral-textLow" />
+                    <Text fontSize="base" color="neutral-textHigh">Manual todas conversas</Text>
+                  </BoxNimbus>
+                </BoxNimbus>
+              }
+            >
+              <IconButtonNimbus
+                source={<EllipsisIcon />}
+                size="2rem"
+              />
+            </Popover>
           </BoxNimbus>
         </BoxNimbus>
-        
+
         {/* Segmented Control + Filter Button */}
         <ConversationTabs
-          selectedFilter={selectedFilter}
-          handleFilterChange={handleFilterChange}
+          selectedFilter={activeSegmentFilter || selectedFilter}
+          handleFilterChange={handleSegmentFilterChange || handleFilterChange}
           unreadMessagesCount={unreadMessagesCount}
           onFilterClick={() => setShowFilters(!showFilters)}
           filtersActive={showFilters}
@@ -412,6 +532,7 @@ export default function ConversationNav({
 
   return (
     <>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {!mdUp && renderMobileBtn}
 
       {mdUp ? (
@@ -446,6 +567,15 @@ export default function ConversationNav({
         </Drawer>
       )}
 
+      {/* New Conversation Modal (Feature 8) */}
+      <NewConversationModal
+        open={showNewConvModal}
+        onClose={() => setShowNewConvModal(false)}
+        onConversationCreated={() => {
+          setShowNewConvModal(false);
+          onConversationCreated?.();
+        }}
+      />
     </>
   );
 }

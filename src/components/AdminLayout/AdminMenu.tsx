@@ -3,11 +3,10 @@
  * Basado en la documentación oficial del patrón Menu
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu } from '@nimbus-ds/patterns';
-import { Badge, Box, Icon, IconButton, Tag, Text, Tooltip } from '@nimbus-ds/components';
+import { Badge, Icon, Tag } from '@nimbus-ds/components';
 import {
-  TiendanubeIcon,
   ExternalLinkIcon,
   HomeIcon,
   StatsIcon,
@@ -15,7 +14,6 @@ import {
   TagIcon,
   UserIcon,
   DiscountCircleIcon,
-  ToolsIcon,
   AppsIcon,
   EcosystemIcon,
   CogIcon,
@@ -23,9 +21,10 @@ import {
   OnlineStoreIcon,
   CreditCardIcon,
   MarketingIcon,
-  SidebarIcon,
 } from '@nimbus-ds/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useFetch } from '@/hooks';
+import { API_ENDPOINTS } from '@/app/Axios/Axios';
 
 interface AdminMenuProps {
   menuExpanded?: boolean;
@@ -35,6 +34,30 @@ interface AdminMenuProps {
 const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu }) => {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
+  const { request } = useFetch();
+  const [unreadConversationsCount, setUnreadConversationsCount] = useState<number>(0);
+
+  // Fetch unread conversations count
+  useEffect(() => {
+    const fetchUnreadCount = () => {
+      request<{ count: number }>({
+        url: API_ENDPOINTS.conversation.unread,
+        method: 'GET',
+      })
+        .then(({ content }) => {
+          setUnreadConversationsCount((content as { count: number }).count ?? 0);
+        })
+        .catch(() => {
+          setUnreadConversationsCount(0);
+        });
+    };
+
+    fetchUnreadCount();
+
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [request]);
 
   // Determinar qué sección de chat está activa
   const isChatSection = pathname === '/admin' || pathname.startsWith('/admin/chat');
@@ -45,37 +68,7 @@ const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu
 
   return (
     <Menu expanded={menuExpanded} popoverPosition="right">
-      <Menu.Header>
-        <Box display="flex" gap="2" alignItems="center" width="100%">
-          <Icon
-            color="neutral-textHigh"
-            source={<TiendanubeIcon size="medium" />}
-          />
-          <Box display="inline-flex" flex="1">
-            <Text fontSize="base" color="neutral-textHigh" fontWeight="bold">
-              next
-            </Text>
-          </Box>
-          <Tooltip content={menuExpanded ? "Fechar menu lateral" : "Abrir menu lateral"} position={menuExpanded ? "bottom" : "right"}>
-            <button
-              type="button"
-              onClick={onToggleMenu}
-              style={{ 
-                cursor: 'pointer',
-                background: 'transparent',
-                border: 'none',
-                padding: '8px',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Icon source={<SidebarIcon />} color="neutral-textHigh" />
-            </button>
-          </Tooltip>
-        </Box>
-      </Menu.Header>
+      {/* Header removed - cloud logo */}
       <Menu.Body>
         {/* Sección principal */}
         <Menu.Section>
@@ -108,7 +101,11 @@ const AdminMenu: React.FC<AdminMenuProps> = ({ menuExpanded = true, onToggleMenu
               label="Conversas" 
               active={isChatSection && isConversations}
               onClick={() => navigate('/admin/chat#/conversations')}
-            />
+            >
+              {unreadConversationsCount > 0 && (
+                <Badge appearance="primary" count={String(unreadConversationsCount)} />
+              )}
+            </Menu.Button>
             <Menu.Button 
               label="Estatísticas" 
               active={isChatSection && isStatistics}

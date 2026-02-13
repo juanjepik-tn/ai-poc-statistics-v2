@@ -620,6 +620,49 @@ export default function ConversationMessageItem({ message, store, channelType = 
 
   
   const renderMessageContent = useMemo(() => {
+    // Feature 6: Document/file message rendering
+    if (classMessage === 'message-storefile' || classMessage === 'message-customerfile') {
+      const fileName = message.extra_data || message.content || 'Document';
+      const fileExt = fileName.split('.').pop()?.toUpperCase() || 'FILE';
+      return (
+        <BoxNimbus display="flex" flexDirection="row" alignItems="center" gap="2" padding="2">
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: 8,
+            backgroundColor: '#e0e7ff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#4338ca',
+            fontFamily: "'Geist', sans-serif",
+          }}>
+            {fileExt}
+          </div>
+          <BoxNimbus display="flex" flexDirection="column" gap="0-5">
+            <Text fontSize="base" fontWeight="medium">{fileName}</Text>
+            <Text fontSize="caption" color="neutral-textDisabled">{message.mimetype || 'Document'}</Text>
+          </BoxNimbus>
+        </BoxNimbus>
+      );
+    }
+
+    // Feature 2: Template message rendering
+    if (classMessage === 'message-template') {
+      return (
+        <BoxNimbus display="flex" flexDirection="row" alignItems="center" gap="2" padding="1">
+          <div style={{ width: 4, height: '100%', minHeight: 20, backgroundColor: '#0059d5', borderRadius: 2 }} />
+          <BoxNimbus display="flex" flexDirection="column" gap="0-5">
+            <Text fontSize="caption" color="primary-textLow" fontWeight="medium">Template</Text>
+            <Text fontSize="base">{message.content}</Text>
+          </BoxNimbus>
+        </BoxNimbus>
+      );
+    }
+
     if (message.mimetype?.startsWith('application/')) {
       return renderPDF;
     }
@@ -703,16 +746,16 @@ export default function ConversationMessageItem({ message, store, channelType = 
       </Text>
       {(classMessage === 'message-bot' || classMessage === 'message-api' || isPaymentMessage(classMessage) || classMessage === 'message-order-status') && (
         <div style={{
-          width: '24px',
-          height: '24px',
-          borderRadius: '24px',
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '6px',
+          flexShrink: 0,
           backgroundImage: 'linear-gradient(72deg, rgba(0, 80, 195, 0.03) 16%, rgba(71, 54, 180, 0.03) 42%, rgba(216, 68, 110, 0.03) 83%)',
         }}>
-          <img src="/imgs/ia-icon.svg" alt="ia-icon" width={12} height={12} />
+          <img src="/imgs/ia-icon.svg" alt="ia-icon" width={16} height={16} />
         </div>
       )}
       {classMessage.includes('store') &&
@@ -793,6 +836,7 @@ export default function ConversationMessageItem({ message, store, channelType = 
             content={
               <BoxNimbus padding="2" cursor="pointer" onClick={handleCopyMessage}>
                 <Text fontSize="base">{t('conversations.copy-code') || 'Copiar código'}</Text>
+
               </BoxNimbus>
             }
             visible={moreOptionsOpen}

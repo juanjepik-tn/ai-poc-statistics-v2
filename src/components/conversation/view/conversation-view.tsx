@@ -155,7 +155,6 @@ export default function ConversationView({
         console.log(error);
         setIsChannelConnected(false);
       });
-    setIsChannelConnected(isChannelConnected);
   }, []);
 
   const [conversationsQuantity, setConversationsQuantity] = useState<number>(0);
@@ -203,11 +202,33 @@ export default function ConversationView({
     }
   }
 
+  const [activeSegmentFilter, setActiveSegmentFilter] = useState<string>('all');
+
   const toggleAttention = () => {
     setPage(0);
     setConversations([]);
     setNeedAttention((prev) => !prev);
     getUnreadConversations();
+  };
+
+  const handleSegmentFilterChange = (value: string) => {
+    setActiveSegmentFilter(value);
+    if (value === 'priority') {
+      if (!neeedAttention) {
+        toggleAttention();
+      }
+    } else if (value === 'all') {
+      if (neeedAttention) {
+        toggleAttention();
+      }
+    } else {
+      // Custom tag filter - reset attention and apply tag
+      if (neeedAttention) {
+        setNeedAttention(false);
+      }
+      // Custom tag filters don't go through the existing tag API filter
+      // They filter client-side via conversation.customTags
+    }
   };
 
   useEffect(() => {
@@ -284,7 +305,6 @@ export default function ConversationView({
       method: 'GET',
     })
       .then(({ content }: any) => {
-         console.log('content', content.rows);
         if (_resetPage) {
           setConversations(content.rows);
         } else {
@@ -295,20 +315,6 @@ export default function ConversationView({
             return [...prevConversations, ...newConversations];
           });
         }
-        setLoadingConversations(false);
-        setLoadingMoreConversations(false);
-        setTotalConversations(content.total);
-      })
-      .then(({ content }: any) => {
-        setConversations((prevConversations) => {
-          const newConversations = content.rows.filter(
-            (newConv: any) =>
-              !prevConversations.some(
-                (prevConv: any) => prevConv.id === newConv.id,
-              ),
-          );
-          return [...prevConversations, ...newConversations];
-        });
         setLoadingConversations(false);
         setLoadingMoreConversations(false);
         setTotalConversations(content.total);
@@ -740,6 +746,66 @@ export default function ConversationView({
     [currentConversation?.id]
   );
 
+  // Feature 6: Send file (document)
+  const onSendFile = useCallback(
+    async (file: File) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = (e.target?.result as string)?.split(',')[1] || '';
+        const tempMsg = {
+          id: 'temporal-file',
+          content: file.name,
+          role: 'store',
+          created_at: new Date().toISOString(),
+          class: 'message-storefile',
+          extra_data: file.name,
+          mimetype: file.type || 'application/octet-stream',
+        };
+        setChatMessages((prev: any) => [...prev, tempMsg]);
+        try {
+          const { content } = await request<any>({
+            url: API_ENDPOINTS.conversation.sendFile(currentConversation.id),
+            method: 'POST',
+            data: { message: base64, fileName: file.name, mimeType: file.type },
+          });
+          setChatMessages((prev: any) =>
+            prev.map((m: any) => (m.id === 'temporal-file' ? content : m))
+          );
+        } catch {
+          setChatMessages((prev: any) =>
+            prev.filter((m: any) => m.id !== 'temporal-file')
+          );
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    [currentConversation?.id]
+  );
+
+  // Feature 2: Send template message
+  const onSendTemplate = useCallback(
+    async (templateId: string, templateName: string) => {
+      try {
+        const { content } = await request<any>({
+          url: API_ENDPOINTS.conversation.sendTemplate(currentConversation.id),
+          method: 'POST',
+          data: { templateId, templateName },
+        });
+        const templateMsg = {
+          id: content?.id || Date.now(),
+          content: `Template: ${templateName}`,
+          role: 'store',
+          created_at: new Date().toISOString(),
+          class: 'message-template',
+        };
+        setChatMessages((prev: any) => [...prev, templateMsg]);
+      } catch (error) {
+        console.error('Error sending template:', error);
+      }
+    },
+    [currentConversation?.id]
+  );
+
   const sendImage = async () => {
     if (!imgUrl) {
       // enqueueSnackbar('Ha ocurrido un error al cargar la imagen', {
@@ -968,6 +1034,125 @@ export default function ConversationView({
       //   });
     }
   };
+  // Handler for marking conversation as unread (Feature 3)
+  const handleMarkAsUnread = useCallback((conversationId: string) => {
+    request<any>({
+      url: API_ENDPOINTS.conversation.markAsUnread(conversationId),
+      method: 'PUT',
+    }).then(() => {
+      setConversations((prev) =>
+        prev.map((conv: any) =>
+          conv.id === conversationId
+            ? { ...conv, unreadMessages: Math.max(conv.unreadMessages, 1) }
+            : conv
+        )
+      );
+      // Deselect current conversation so the unread badge appears
+      if (currentConversation?.id === conversationId) {
+        setCurrentConversation(undefined);
+        setChatMessages([]);
+      }
+      getUnreadConversations();
+    }).catch((err) => console.error('Error marking as unread:', err));
+  }, [currentConversation?.id]);
+
+  // Handler for marking conversation as read
+  const handleMarkAsRead = useCallback((conversationId: string) => {
+    request<any>({
+      url: API_ENDPOINTS.conversation.markAsRead(conversationId),
+      method: 'PUT',
+    }).then(() => {
+      setConversations((prev) =>
+        prev.map((conv: any) =>
+          conv.id === conversationId
+            ? { ...conv, unreadMessages: 0 }
+            : conv
+        )
+      );
+      getUnreadConversations();
+    }).catch((err) => console.error('Error marking as read:', err));
+  }, []);
+
+  // Handler for assigning conversation (Feature 5)
+  const handleAssignConversation = useCallback((conversationId: string, assignee: any) => {
+    request<any>({
+      url: API_ENDPOINTS.conversation.assign(conversationId),
+      method: 'PUT',
+      data: { assignee },
+    }).then(() => {
+      setConversations((prev) =>
+        prev.map((conv: any) =>
+          conv.id === conversationId
+            ? { ...conv, assignee }
+            : conv
+        )
+      );
+      if (currentConversation?.id === conversationId) {
+        setCurrentConversation((prev: any) => ({ ...prev, assignee }));
+      }
+    }).catch((err) => console.error('Error assigning conversation:', err));
+  }, [currentConversation?.id]);
+
+  // Handler for updating customer name (Feature 7)
+  const handleUpdateCustomerName = useCallback((customerId: number, newName: string) => {
+    request<any>({
+      url: API_ENDPOINTS.customer.updateName(customerId),
+      method: 'PUT',
+      data: { name: newName },
+    }).then(() => {
+      setConversations((prev) =>
+        prev.map((conv: any) =>
+          conv.customer?.id === customerId
+            ? { ...conv, customer: { ...conv.customer, name: newName } }
+            : conv
+        )
+      );
+      if (currentConversation?.customer?.id === customerId) {
+        setCurrentConversation((prev: any) => ({
+          ...prev,
+          customer: { ...prev.customer, name: newName },
+        }));
+      }
+    }).catch((err) => console.error('Error updating customer name:', err));
+  }, [currentConversation?.customer?.id]);
+
+  // Handler for new conversation created (Feature 8)
+  const handleConversationCreated = useCallback(() => {
+    setPage(0);
+    getConversations(true, neeedAttention, searchQuery, selectedTagFilter);
+  }, [neeedAttention, searchQuery, selectedTagFilter]);
+
+  // Handler for manual sync/refresh of conversations
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    setPage(0);
+    setConversations([]);
+    setLoadingConversations(true);
+    
+    const queryParts = [`attention=${neeedAttention}`, `length=20`];
+    if (searchQuery) queryParts.push(`search=${searchQuery}`);
+    if (selectedTagFilter !== 'all') queryParts.push(`tagName=${selectedTagFilter}`);
+    const query = queryParts.join('&');
+
+    request<any[]>({
+      url: API_ENDPOINTS.conversation.byStoreGrouped('0', query),
+      method: 'GET',
+    })
+      .then(({ content }: any) => {
+        setConversations(content.rows);
+        setTotalConversations(content.total);
+        setLoadingConversations(false);
+        setIsRefreshing(false);
+      })
+      .catch(() => {
+        setLoadingConversations(false);
+        setIsRefreshing(false);
+      });
+    
+    getUnreadConversations();
+  }, [neeedAttention, searchQuery, selectedTagFilter]);
+
   const renderHead = (
     <Stack>
       <ConversationHeaderCompose
@@ -982,6 +1167,8 @@ export default function ConversationView({
           // setShowOrder(true);
           // setOrderTrigger((prev) => prev + 1);
         }}
+        onAssign={handleAssignConversation}
+        onUpdateCustomerName={handleUpdateCustomerName}
       />
     </Stack>
   );
@@ -1009,6 +1196,13 @@ export default function ConversationView({
       markAsResolved={markAsResolved}
       storeSelectedMode={selectedMode}
       unreadMessagesCount={unreadMessagesCount}
+      onMarkAsUnread={handleMarkAsUnread}
+      onMarkAsRead={handleMarkAsRead}
+      onConversationCreated={handleConversationCreated}
+      handleSegmentFilterChange={handleSegmentFilterChange}
+      activeSegmentFilter={activeSegmentFilter}
+      onRefresh={handleRefresh}
+      isRefreshing={isRefreshing}
     />
   );
 
@@ -1126,6 +1320,8 @@ export default function ConversationView({
                   onShowImagePreview={onShowImagePreview}
                   onSendAudio={onSendAudio}
                   onSendImage={onSendImage}
+                  onSendFile={onSendFile}
+                  onSendTemplate={onSendTemplate}
                   currentConversation={currentConversation}
                   isLoadingInitialMessages={loadingInitialMessages}
                   lastMessage={lastMessage}
@@ -1195,6 +1391,10 @@ export default function ConversationView({
           setSelectedTagFilter(tag);
         }}
         availableReferenceIds={availableReferenceIds}
+        onMarkAsUnread={handleMarkAsUnread}
+        onMarkAsRead={handleMarkAsRead}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
       />
     </Box>
   );
