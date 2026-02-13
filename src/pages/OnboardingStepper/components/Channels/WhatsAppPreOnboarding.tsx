@@ -165,8 +165,6 @@ export const WhatsAppPreOnboarding: React.FC<WhatsAppPreOnboardingProps> = ({
       {/* ── Body ── */}
       <Modal.Body padding="none">
         <Box
-          padding="4"
-          paddingTop="none"
           display="flex"
           flexDirection="column"
           gap="4"

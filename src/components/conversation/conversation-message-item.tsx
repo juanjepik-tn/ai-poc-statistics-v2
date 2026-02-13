@@ -17,7 +17,7 @@ import Modal from '@mui/material/Modal';
 // import useHasRoles from 'src/hooks/use-has-roles';
 import { API_ENDPOINTS } from '@/app/Axios/Axios';
 import { useFetch } from '@/hooks';
-import { IConversationMessage } from '@/types/conversation';
+import { IAssignee, IConversationMessage } from '@/types/conversation';
 import {
   Box as BoxNimbus,
   IconButton as NimbusIconButton,
@@ -50,9 +50,10 @@ type Props = {
   onOpenLightbox: (value: string) => void;
   store: string;
   channelType?: ChannelType;
+  assignee?: IAssignee | null;
 };
 
-export default function ConversationMessageItem({ message, store, channelType = 'whatsapp' }: Props) {
+export default function ConversationMessageItem({ message, store, channelType = 'whatsapp', assignee }: Props) {
   const messageRef = useRef<HTMLDivElement>(null);
 
   const [me, setme] = useState(false);
@@ -737,12 +738,11 @@ export default function ConversationMessageItem({ message, store, channelType = 
           t('conversations.role.sales-assistant')}
         {me &&
           classMessage.includes('store') &&
-          fromApp &&
-          t(`conversations.source.whatsapp`)}
-        {me &&
-          classMessage.includes('store') &&
-          !fromApp &&
-          t(`conversations.source.tiendanube`)}
+          (assignee?.name
+            ? assignee.name
+            : fromApp
+              ? t(`conversations.source.whatsapp`)
+              : t(`conversations.source.tiendanube`))}
       </Text>
       {(classMessage === 'message-bot' || classMessage === 'message-api' || isPaymentMessage(classMessage) || classMessage === 'message-order-status') && (
         <div style={{

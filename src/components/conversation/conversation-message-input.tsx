@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 // @mui
 import { API_ENDPOINTS } from '@/app/Axios/Axios';
 import { useFetch } from '@/hooks';
@@ -12,7 +12,7 @@ import {
 import data from '@emoji-mart/data';
 import i18n from '@emoji-mart/data/i18n/es.json';
 import Picker from '@emoji-mart/react';
-import { Box, Grow } from '@mui/material';
+import { Box, Grow, Popover } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import Stack from '@mui/material/Stack';
@@ -119,6 +119,7 @@ export default function ConversationMessageInput({
 
   // Feature 6: File attachment menu
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
 
   // Feature 9: Quick replies
   const [quickReplies, setQuickReplies] = useState<IQuickReply[]>([]);
@@ -456,7 +457,7 @@ export default function ConversationMessageInput({
           )}
 
           {/* Chat Input Container */}
-          <div style={{ position: 'relative' }}>
+          <div ref={inputContainerRef} style={{ position: 'relative' }}>
             {/* Quick Reply List (Feature 9) */}
             <QuickReplyList
               query={quickReplyQuery}
@@ -471,7 +472,6 @@ export default function ConversationMessageInput({
                 backgroundColor: 'white',
                 border: '1px solid #b0b0b0',
                 borderRadius: '8px',
-                overflow: 'hidden',
                 mx: 1,
                 mb: 1,
               }}
@@ -519,7 +519,7 @@ export default function ConversationMessageInput({
                 {/* Left side actions */}
                 <BoxNimbus display="flex" alignItems="center" gap="1">
                   {/* Attachment menu (Feature 6) */}
-                  <div style={{ position: 'relative' }}>
+                  <div>
                     <IconButton
                       onClick={(ev) => {
                         ev.stopPropagation();
@@ -531,64 +531,60 @@ export default function ConversationMessageInput({
                     >
                       <Icon source={<PlusIcon size={16} />} color="neutral-textHigh" />
                     </IconButton>
-                    {showAttachMenu && (
-                      <>
-                        <div
-                          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }}
-                          onClick={() => setShowAttachMenu(false)}
-                        />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            bottom: '100%',
-                            left: 0,
-                            marginBottom: 4,
-                            backgroundColor: '#ffffff',
-                            border: '1px solid #e0e0e0',
-                            borderRadius: 8,
+                    <Popover
+                      open={showAttachMenu}
+                      anchorEl={inputContainerRef.current}
+                      onClose={() => setShowAttachMenu(false)}
+                      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                      transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                      slotProps={{
+                        paper: {
+                          sx: {
+                            borderRadius: '8px',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                            zIndex: 11,
-                            padding: '4px 0',
+                            border: '1px solid #e0e0e0',
                             minWidth: 180,
-                          }}
-                        >
-                          <div
-                            onClick={() => handleFileUpload('image/jpeg,image/png,image/gif,image/webp')}
-                            style={{
-                              padding: '8px 16px',
-                              cursor: 'pointer',
-                              fontSize: 14,
-                              fontFamily: "'Geist', sans-serif",
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 8,
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                          >
-                            <Iconify icon="ic:baseline-photo" width={18} />
-                            {t('conversations.attach-image', { defaultValue: 'Imagem' })}
-                          </div>
-                          <div
-                            onClick={() => handleFileUpload('.pdf,.xlsx,.xls,.doc,.docx,.csv,.txt,.zip')}
-                            style={{
-                              padding: '8px 16px',
-                              cursor: 'pointer',
-                              fontSize: 14,
-                              fontFamily: "'Geist', sans-serif",
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 8,
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                          >
-                            <Iconify icon="ic:baseline-insert-drive-file" width={18} />
-                            {t('conversations.attach-document', { defaultValue: 'Documento' })}
-                          </div>
-                        </div>
-                      </>
-                    )}
+                            py: 0.5,
+                            mb: 0.5,
+                          },
+                        },
+                      }}
+                    >
+                      <div
+                        onClick={() => handleFileUpload('image/jpeg,image/png,image/gif,image/webp')}
+                        style={{
+                          padding: '8px 16px',
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          fontFamily: "'Geist', sans-serif",
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      >
+                        <Iconify icon="ic:baseline-photo" width={18} />
+                        {t('conversations.attach-image', { defaultValue: 'Imagem' })}
+                      </div>
+                      <div
+                        onClick={() => handleFileUpload('.pdf,.xlsx,.xls,.doc,.docx,.csv,.txt,.zip')}
+                        style={{
+                          padding: '8px 16px',
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          fontFamily: "'Geist', sans-serif",
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      >
+                        <Iconify icon="ic:baseline-insert-drive-file" width={18} />
+                        {t('conversations.attach-document', { defaultValue: 'Documento' })}
+                      </div>
+                    </Popover>
                   </div>
 
                   {/* Emoji button (Feature 4) */}
