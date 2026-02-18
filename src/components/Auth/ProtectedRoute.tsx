@@ -13,8 +13,8 @@ const ACCESS_CODE = 'chatnube2026';
 const STORAGE_KEY = 'poc_access_granted';
 
 /**
- * Componente que protege rutas requiriendo autenticación.
- * En modo POC, usa un código de acceso simple.
+ * Componente que protege rotas requerendo autenticação.
+ * Em modo POC, usa um código de acesso simples.
  */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -44,7 +44,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       setHasAccess(true);
       setError('');
     } else {
-      setError('Código incorrecto');
+      setError('Código incorreto');
     }
   };
 
@@ -91,13 +91,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
                   NuvemChat POC
                 </Text>
                 <Text color="neutral-textLow" textAlign="center">
-                  Ingresá el código de acceso para continuar
+                  Digite o código de acesso para continuar
                 </Text>
                 <form onSubmit={handleSubmit} style={{ width: '100%' }}>
                   <Box display="flex" flexDirection="column" gap="4" width="100%">
                     <Input
                       type="password"
-                      placeholder="Código de acceso"
+                      placeholder="Código de acesso"
                       value={codeInput}
                       onChange={(e) => {
                         setCodeInput(e.target.value);
@@ -110,7 +110,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
                       </Text>
                     )}
                     <Button type="submit" appearance="primary">
-                      Ingresar
+                      Entrar
                     </Button>
                   </Box>
                 </form>
@@ -137,7 +137,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         backgroundColor="neutral-background"
       >
         <Spinner size="large" />
-        <Text color="neutral-textLow">Verificando acceso...</Text>
+        <Text color="neutral-textLow">Verificando acesso...</Text>
       </Box>
     );
   }

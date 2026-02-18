@@ -41,6 +41,27 @@ export type IConversationMessage = {
 
 
 
+export type IAssignee = {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string;
+};
+
+export type ICustomTag = {
+    id: number;
+    name: string;
+    color: string;
+    createdAt: string;
+};
+
+export type IQuickReply = {
+    id: number;
+    title: string;
+    shortcut: string;
+    content: string;
+};
+
 export type IConversation = {
     id: string;
     chat_summary: string;
@@ -61,6 +82,8 @@ export type IConversation = {
     isPaused: boolean;
     messagesPanel: IConversationMessage[];
     lastMessage: IConversationMessage;
+    assignee?: IAssignee | null;
+    customTags?: string[];
 };
 
 

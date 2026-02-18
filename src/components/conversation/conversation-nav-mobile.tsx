@@ -9,12 +9,14 @@ import { ButtonStack } from '@/pages/Conversations/Conversations';
 import {
   Box as BoxNimbus,
   Icon,
+  IconButton as IconButtonNimbus,
   Input,
   Spinner,
   Text,
   Title
 } from '@nimbus-ds/components';
 import { InfoCircleIcon, SearchIcon } from '@nimbus-ds/icons';
+import Iconify from '../iconify/iconify';
 import { DataList, EmptyMessage } from '@nimbus-ds/patterns';
 import { useTranslation } from 'react-i18next';
 import { ChatNavItemSkeleton } from './chat-skeleton';
@@ -47,6 +49,10 @@ type Props = {
   onUpdateTags: (conversationId: number) => void;
   handleTagFilter: (value: string) => void;
   availableReferenceIds: string[];
+  onMarkAsUnread?: (conversationId: string) => void;
+  onMarkAsRead?: (conversationId: string) => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 };
 
 export default function ConversationNavMobile({
@@ -67,6 +73,10 @@ export default function ConversationNavMobile({
   onUpdateTags,
   handleTagFilter,
   availableReferenceIds,
+  onMarkAsUnread,
+  onMarkAsRead,
+  onRefresh,
+  isRefreshing,
 }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -205,6 +215,8 @@ export default function ConversationNavMobile({
                     selected={conversation.id === currentConversationId}
                     markAsResolved={markAsResolved}
                     storeSelectedMode={storeSelectedMode}
+                    onMarkAsUnread={onMarkAsUnread}
+                    onMarkAsRead={onMarkAsRead}
                   />
                 </DataList.Row>
               ) : (
@@ -246,7 +258,23 @@ export default function ConversationNavMobile({
           alignItems="center"
         >
           <Title as="h3">{t('app.title')}</Title>
-          <ButtonStack />
+          <BoxNimbus display="flex" gap="2" alignItems="center">
+            <IconButtonNimbus
+              source={
+                <Iconify
+                  icon="mdi:sync"
+                  width={20}
+                  style={{
+                    animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+                  }}
+                />
+              }
+              size="2rem"
+              onClick={() => onRefresh?.()}
+              disabled={isRefreshing}
+            />
+            <ButtonStack />
+          </BoxNimbus>
         </BoxNimbus>
         <BoxNimbus paddingX="4" pb="2" gap="1">
           <Input
@@ -307,6 +335,7 @@ export default function ConversationNavMobile({
   };
   return (
     <>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {renderContent}
 
       {selectedConversation?.id && (

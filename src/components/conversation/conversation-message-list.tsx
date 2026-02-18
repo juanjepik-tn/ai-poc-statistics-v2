@@ -257,6 +257,7 @@ export default function ConversationMessageList({
                   onOpenLightbox={() => {}}
                   store={store}
                   channelType={conversation?.channel?.channelType}
+                  assignee={conversation?.assignee}
                 />
               </div>
             </Grow>            

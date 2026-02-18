@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Obtener la ruta de origen para redirigir después del login
+  // Obter a rota de origem para redirecionar após o login
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
   useEffect(() => {
@@ -83,14 +83,14 @@ const LoginPage: React.FC = () => {
                 POC UI Playground
               </Title>
               <Text color="neutral-textLow" textAlign="center">
-                Inicia sesión para continuar
+                Faça login para continuar
               </Text>
             </Box>
 
             {/* Error Alert */}
             {error && (
               <Box width="100%">
-                <Alert appearance="danger" title="Error de autenticación">
+                <Alert appearance="danger" title="Erro de autenticação">
                   {error}
                 </Alert>
               </Box>
@@ -100,7 +100,7 @@ const LoginPage: React.FC = () => {
             {isLoading ? (
               <Box display="flex" flexDirection="column" alignItems="center" gap="4" padding="4">
                 <Spinner size="large" />
-                <Text color="neutral-textLow">Verificando acceso...</Text>
+                <Text color="neutral-textLow">Verificando acesso...</Text>
               </Box>
             ) : (
               <>
@@ -109,7 +109,7 @@ const LoginPage: React.FC = () => {
                   <Box display="flex" alignItems="center" gap="2">
                     <GoogleIcon />
                     <Text color="neutral-background" fontWeight="medium">
-                      Iniciar sesión con Google
+                      Entrar com Google
                     </Text>
                   </Box>
                 </Button>
@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
                   width="100%"
                 >
                   <Text fontSize="caption" color="neutral-textLow" textAlign="center">
-                    Solo emails{' '}
+                    Somente emails{' '}
                     {ALLOWED_DOMAINS.map((domain, index) => (
                       <React.Fragment key={domain}>
                         <Text
@@ -133,7 +133,7 @@ const LoginPage: React.FC = () => {
                         >
                           @{domain}
                         </Text>
-                        {index < ALLOWED_DOMAINS.length - 1 && ' y '}
+                        {index < ALLOWED_DOMAINS.length - 1 && ' e '}
                       </React.Fragment>
                     ))}
                   </Text>

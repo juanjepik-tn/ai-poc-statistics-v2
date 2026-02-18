@@ -160,7 +160,7 @@ export default function PlaygroundMessageItem({
             link.click();
           })
           .catch((error) => {
-            enqueueSnackbar('Se ha producido un error al descargar el Menú', {
+            enqueueSnackbar('Ocorreu um erro ao baixar o Menu', {
               variant: 'error',
             });
           });
@@ -172,7 +172,7 @@ export default function PlaygroundMessageItem({
       return renderIcon();
     }
     if (message.extra_data) {
-      return <img src={message.extra_data} alt="Imagen" />;
+      return <img src={message.extra_data} alt="Imagem" />;
     }
     return null;
   }; 
@@ -191,7 +191,7 @@ export default function PlaygroundMessageItem({
         />
 
         <Typography variant="body1" component="span">
-          Menú
+          Menu
         </Typography>
       </>
     );

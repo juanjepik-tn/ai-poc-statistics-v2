@@ -33,6 +33,9 @@ import {
   mockWhatsappHealth,
   mockSessionData,
   mockChatStatistics,
+  mockCustomTags,
+  mockStoreUsers,
+  mockQuickReplies,
 } from './mock-data';
 
 // Simulate network delay
@@ -42,9 +45,22 @@ const MOCK_DELAY_MS = 300;
 const createdRelevantContent: any[] = [];
 let nextContentId = 1000;
 
-// Mutable storage for connected channels (starts empty for onboarding flow)
-// Channels are added when user connects them via signup/creation endpoints
-const connectedChannels: any[] = [];
+// Mutable storage for connected channels (initialized with mock channels)
+const connectedChannels: any[] = [...mockChannels];
+
+// Mutable storage for custom tags
+const customTagsStore: any[] = [...mockCustomTags];
+let nextCustomTagId = 100;
+
+// Mutable storage for quick replies
+const quickRepliesStore: any[] = [...mockQuickReplies];
+let nextQuickReplyId = 100;
+
+// Mutable storage for conversation assignments
+const conversationAssignments: Record<string, any> = {};
+
+// Mutable storage for conversation unread state overrides
+const conversationUnreadOverrides: Record<string, number> = {};
 
 // Helper to create a delayed promise
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -149,8 +165,12 @@ export const getMockResponse = (
   }
 
   // Unread conversations count
-  if (normalizedUrl.includes('/conversations/unread')) {
-    const unreadCount = mockConversations.reduce((acc, conv) => acc + conv.unreadMessages, 0);
+  if (normalizedUrl.includes('/conversations/unread') || normalizedUrl.includes('/conversations/attend/username')) {
+    const unreadCount = mockConversations.filter(conv => {
+      const override = conversationUnreadOverrides[conv.id];
+      if (override !== undefined) return override > 0;
+      return conv.unreadMessages > 0;
+    }).length;
     return { data: { count: unreadCount }, status: 200 };
   }
 
@@ -185,7 +205,165 @@ export const getMockResponse = (
   }
 
   if (normalizedUrl.includes('/mark/read') && normalizedMethod === 'PUT') {
+    const idMatch = normalizedUrl.match(/\/conversations\/([^/]+)\/mark\/read/);
+    const convId = idMatch ? idMatch[1] : null;
+    if (convId) {
+      conversationUnreadOverrides[convId] = 0;
+    }
     return { data: { success: true }, status: 200 };
+  }
+
+  // Mark as unread
+  if (normalizedUrl.includes('/mark/unread') && normalizedMethod === 'PUT') {
+    const idMatch = normalizedUrl.match(/\/conversations\/([^/]+)\/mark\/unread/);
+    const convId = idMatch ? idMatch[1] : null;
+    if (convId) {
+      conversationUnreadOverrides[convId] = 1;
+    }
+    return { data: { success: true }, status: 200 };
+  }
+
+  // Assign conversation
+  if (normalizedUrl.includes('/assign') && normalizedMethod === 'PUT') {
+    const idMatch = normalizedUrl.match(/\/conversations\/([^/]+)\/assign/);
+    const convId = idMatch ? idMatch[1] : null;
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    if (convId) {
+      conversationAssignments[convId] = reqData.assignee || null;
+    }
+    return { data: { success: true, assignee: reqData.assignee }, status: 200 };
+  }
+
+  // Create new conversation
+  if (normalizedUrl.includes('/conversations/new') && normalizedMethod === 'POST') {
+    return {
+      data: {
+        id: `new-${Date.now()}`,
+        success: true,
+        message: 'Conversation created with template',
+      },
+      status: 201,
+    };
+  }
+
+  // Send template
+  if (normalizedUrl.includes('/send/template') && normalizedMethod === 'POST') {
+    return {
+      data: {
+        id: Date.now(),
+        content: 'Template message sent',
+        created_at: new Date().toISOString(),
+        role: 'store',
+        class: 'message-template',
+      },
+      status: 200,
+    };
+  }
+
+  // Send file (document)
+  if (normalizedUrl.includes('/send/file') && normalizedMethod === 'POST') {
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    return {
+      data: {
+        id: Date.now(),
+        content: reqData.fileName || 'document',
+        created_at: new Date().toISOString(),
+        role: 'store',
+        class: 'message-storefile',
+        mimetype: reqData.mimeType || 'application/octet-stream',
+        extra_data: reqData.fileName || 'document',
+      },
+      status: 200,
+    };
+  }
+
+  // Send sticker
+  if (normalizedUrl.includes('/send/sticker') && normalizedMethod === 'POST') {
+    return {
+      data: {
+        id: Date.now(),
+        content: '',
+        created_at: new Date().toISOString(),
+        role: 'store',
+        class: 'message-storesticker',
+        mimetype: 'image/webp',
+      },
+      status: 200,
+    };
+  }
+
+  // Custom Tags CRUD
+  if (normalizedUrl.includes('custom-tags/store') && normalizedMethod === 'GET') {
+    return { data: customTagsStore, status: 200 };
+  }
+  if (normalizedUrl.includes('custom-tags/store') && normalizedMethod === 'POST') {
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    const newTag = { id: nextCustomTagId++, name: reqData.name, color: reqData.color, createdAt: new Date().toISOString() };
+    customTagsStore.push(newTag);
+    return { data: newTag, status: 201 };
+  }
+  if (normalizedUrl.match(/custom-tags\/store\/\d+/) && normalizedMethod === 'PUT') {
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    const idMatch = normalizedUrl.match(/custom-tags\/store\/(\d+)/);
+    const tagId = idMatch ? parseInt(idMatch[1], 10) : null;
+    const idx = customTagsStore.findIndex((t: any) => t.id === tagId);
+    if (idx !== -1) {
+      customTagsStore[idx] = { ...customTagsStore[idx], ...reqData };
+    }
+    return { data: customTagsStore[idx] || reqData, status: 200 };
+  }
+  if (normalizedUrl.match(/custom-tags\/store\/\d+/) && normalizedMethod === 'DELETE') {
+    const idMatch = normalizedUrl.match(/custom-tags\/store\/(\d+)/);
+    const tagId = idMatch ? parseInt(idMatch[1], 10) : null;
+    const idx = customTagsStore.findIndex((t: any) => t.id === tagId);
+    if (idx !== -1) customTagsStore.splice(idx, 1);
+    return { data: { success: true }, status: 200 };
+  }
+
+  // Store Users
+  if (normalizedUrl.includes('store-users') && normalizedMethod === 'GET') {
+    return { data: mockStoreUsers, status: 200 };
+  }
+
+  // Quick Replies CRUD
+  if (normalizedUrl.includes('quick-replies/store') && normalizedMethod === 'GET') {
+    return { data: quickRepliesStore, status: 200 };
+  }
+  if (normalizedUrl.includes('quick-replies/store') && normalizedMethod === 'POST') {
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    const newReply = { id: nextQuickReplyId++, ...reqData };
+    quickRepliesStore.push(newReply);
+    return { data: newReply, status: 201 };
+  }
+  if (normalizedUrl.match(/quick-replies\/store\/\d+/) && normalizedMethod === 'PUT') {
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    const idMatch = normalizedUrl.match(/quick-replies\/store\/(\d+)/);
+    const replyId = idMatch ? parseInt(idMatch[1], 10) : null;
+    const idx = quickRepliesStore.findIndex((r: any) => r.id === replyId);
+    if (idx !== -1) {
+      quickRepliesStore[idx] = { ...quickRepliesStore[idx], ...reqData };
+    }
+    return { data: quickRepliesStore[idx] || reqData, status: 200 };
+  }
+  if (normalizedUrl.match(/quick-replies\/store\/\d+/) && normalizedMethod === 'DELETE') {
+    const idMatch = normalizedUrl.match(/quick-replies\/store\/(\d+)/);
+    const replyId = idMatch ? parseInt(idMatch[1], 10) : null;
+    const idx = quickRepliesStore.findIndex((r: any) => r.id === replyId);
+    if (idx !== -1) quickRepliesStore.splice(idx, 1);
+    return { data: { success: true }, status: 200 };
+  }
+
+  // Customer update name
+  if (normalizedUrl.match(/\/customers\/\d+\/name/) && normalizedMethod === 'PUT') {
+    // @ts-ignore
+    const reqData = typeof config?.data === 'string' ? JSON.parse(config.data) : config?.data || {};
+    return { data: { success: true, name: reqData.name }, status: 200 };
   }
 
   // Customers

@@ -26,8 +26,8 @@ const ConversationFunnel: React.FC<ConversationFunnelProps> = ({
   steps,
   currencySymbol = '$',
   showCurrency = false,
-  totalConversionLabel = 'Conversión Total',
-  totalLossLabel = 'Pérdida en Embudo',
+  totalConversionLabel = 'Conversão Total',
+  totalLossLabel = 'Perda no Funil',
 }) => {
   const maxValue = steps.length > 0 ? steps[0].value : 1;
 

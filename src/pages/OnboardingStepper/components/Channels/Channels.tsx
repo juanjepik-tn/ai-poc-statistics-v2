@@ -257,16 +257,19 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                           </Modal>
 
                           {/* Modal Pre-Onboarding WhatsApp Business */}
-                          <Modal open={showPreOnboarding} onDismiss={() => setShowPreOnboarding(false)} maxWidth="680px">
-                            <Modal.Body padding="none">
-                              <WhatsAppPreOnboarding
-                                onContinue={() => {
-                                  setShowPreOnboarding(false);
-                                  launchWhatsAppSignup();
-                                }}
-                                onCancel={() => setShowPreOnboarding(false)}
-                              />
-                            </Modal.Body>
+                          <Modal
+                            open={showPreOnboarding}
+                            onDismiss={() => setShowPreOnboarding(false)}
+                            maxWidth="400px"
+                            padding="base"
+                          >
+                            <WhatsAppPreOnboarding
+                              onContinue={() => {
+                                setShowPreOnboarding(false);
+                                launchWhatsAppSignup();
+                              }}
+                              onCancel={() => setShowPreOnboarding(false)}
+                            />
                           </Modal>
 
                         </Box>

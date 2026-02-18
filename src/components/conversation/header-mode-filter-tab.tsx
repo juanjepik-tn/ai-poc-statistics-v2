@@ -2,7 +2,7 @@ import React from 'react';
 import { Box as BoxNimbus, Button, SegmentedControl } from '@nimbus-ds/components';
 import { SlidersIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from '@/redux/store';
+import { useSelector } from 'react-redux';
 import { BillingDTO } from '@/types/billingDTO';
 
 type ConversationTabsProps = {
@@ -24,9 +24,14 @@ const ConversationTabs: React.FC<ConversationTabsProps> = ({
   const billingData: BillingDTO = useSelector((state: any) => state.billing?.billingData);
   
   const handleSegmentChange = (segments: string[]) => {
-    if (segments.length > 0) {
-      handleFilterChange(segments[0]);
-    }
+    if (segments.length === 0) return;
+    // SegmentedControl uses toggle behavior: clicking a new segment adds it 
+    // to the array alongside the old one. We need to find the newly clicked 
+    // segment by picking the one that differs from the current selection.
+    const newSegment = segments.length === 1
+      ? segments[0]
+      : segments.find(s => s !== selectedFilter) || segments[segments.length - 1];
+    handleFilterChange(newSegment);
   };
 
   return (

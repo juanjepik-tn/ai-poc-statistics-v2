@@ -36,14 +36,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
   }, []);
 
-  // Validar dominio del usuario y hacer sign out si no es permitido
+  // Validar domínio do usuário e fazer sign out se não for permitido
   const validateUserDomain = useCallback(async (currentUser: User | null) => {
     if (!currentUser?.email) return false;
 
     if (!isAllowedDomain(currentUser.email)) {
       await supabase.auth.signOut();
       setError(
-        `Solo se permiten emails @${ALLOWED_DOMAINS.join(' y @')}. Tu email (${currentUser.email}) no tiene acceso.`
+        `Somente emails @${ALLOWED_DOMAINS.join(' e @')} são permitidos. Seu email (${currentUser.email}) não tem acesso.`
       );
       setUser(null);
       setSession(null);
@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return true;
   }, []);
 
-  // Escuchar cambios de autenticación
+  // Escutar mudanças de autenticação
   useEffect(() => {
     // If Supabase is not configured, skip auth initialization
     if (!isSupabaseConfigured) {
@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    // Obtener sesión inicial
+    // Obter sessão inicial
     const getInitialSession = async () => {
       try {
         const {
@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     getInitialSession();
 
-    // Suscribirse a cambios de auth
+    // Assinar mudanças de auth
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signInWithGoogle = useCallback(async () => {
     if (!isSupabaseConfigured) {
       console.warn('[POC Mode] Supabase not configured - sign in disabled');
-      setError('Autenticación no disponible en modo POC');
+      setError('Autenticação não disponível em modo POC');
       return;
     }
 
@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (err) {
       const authError = err as AuthError;
-      setError(authError.message || 'Error al iniciar sesión con Google');
+      setError(authError.message || 'Erro ao entrar com Google');
       setIsLoading(false);
     }
   }, []);
@@ -162,7 +162,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(null);
     } catch (err) {
       const authError = err as AuthError;
-      setError(authError.message || 'Error al cerrar sesión');
+      setError(authError.message || 'Erro ao encerrar sessão');
     } finally {
       setIsLoading(false);
     }

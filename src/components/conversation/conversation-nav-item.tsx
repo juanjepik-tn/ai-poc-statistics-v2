@@ -3,14 +3,14 @@
 
 // types
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 // import { IConversation } from 'src/types/conversation';
 
 //import { useLocales } from 'src/locales';
 // import { Link } from 'react-router-dom';
 // import { paths } from 'src/routes/paths';
 // import useHasRoles from 'src/hooks/use-has-roles';
-import { Badge, Box, Icon, Tag, Text, Tooltip } from '@nimbus-ds/components';
+import { Badge, Box, Icon, Tag, Text, Tooltip, Box as BoxNimbus } from '@nimbus-ds/components';
 import { UserCircleIcon, CreditCardIcon, MarketingIcon, ExclamationCircleIcon, ShoppingCartIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
 import Iconify from '../iconify';
@@ -32,13 +32,63 @@ type Props = {
   conversation: any;
   markAsResolved: any;
   storeSelectedMode: any;
+  onMarkAsUnread?: (conversationId: string) => void;
+  onMarkAsRead?: (conversationId: string) => void;
 };
 
 export default function ConversationNavItem({
   selected,
   conversation,
-  onClickConversation
+  onClickConversation,
+  onMarkAsUnread,
+  onMarkAsRead,
 }: Props) {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const chevronRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        chevronRef.current && !chevronRef.current.contains(e.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
+
+  const handleChevronClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDropdown((prev) => !prev);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsHovered(true);
+    setShowDropdown(true);
+  };
+
+  const handleMarkAsUnread = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDropdown(false);
+    if (onMarkAsUnread) {
+      onMarkAsUnread(conversation.id);
+    }
+  };
+
+  const handleMarkAsRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDropdown(false);
+    if (onMarkAsRead) {
+      onMarkAsRead(conversation.id);
+    }
+  };
   const { storeDetails } = useStoreDetails();
   const isBrazilianStore = storeDetails?.country === 'BR';
 
@@ -64,7 +114,6 @@ export default function ConversationNavItem({
 
   const handleClick = () => {
     setUnreadMessagesCount(0);
-
     onClickConversation();
   };
 
@@ -72,15 +121,6 @@ export default function ConversationNavItem({
     setUndoneHumanAttentionTags(conversation?.customer?.undoneHumanAttentionTags);
     setUndoneTaggedTags(filterPaymentTags(conversation?.customer?.undoneTaggedTags || []));
   }, [conversation?.customer?.undoneHumanAttentionTags, conversation?.customer?.undoneTaggedTags, isBrazilianStore]);
-
-  // useEffect(() => {
-  //   console.log('markAsResolved', markAsResolved);
-
-  //   if (markAsResolved && undoneTags.length > 0) {
-  //     setUndoneTags([]);
-  //   }
-
-  // }, [markAsResolved]);
 
   useEffect(() => {
     setUnreadMessagesCount(conversation.unreadMessages);
@@ -120,9 +160,7 @@ export default function ConversationNavItem({
           <Text fontSize="caption" lineClamp={1}>{t('conversations.tags.view_once')}</Text>
         </Box>
       )
-      
     }
-    // Función para renderizar mensajes del sistema
     const renderSystemMessage = (lastMessage: any) => {
       if (!isMarketingMessage(lastMessage?.class) && !isPaymentMessage(lastMessage?.class)) return null;
 
@@ -171,7 +209,6 @@ export default function ConversationNavItem({
     )
   };
 
-  // Solo mostrar tags de atención humana (remover badges de status, carrinho, etc.)
   const renderTags = () => (
     <Box display="flex" gap="2" cursor="pointer" flexDirection="row" alignItems="flex-end">
       {undoneHumanAttentionTags.length > 0 && (
@@ -184,29 +221,35 @@ export default function ConversationNavItem({
     </Box>
   );
 
-// Solo mostrar +N para tags de atención humana
-const renderMoreTags = () => {
-  const totalTagsCount = undoneHumanAttentionTags?.length || 0;
-  const tooltipContent = undoneHumanAttentionTags?.slice(1).map((tag: any) => getTagTranslation(t, tag.name)).join(', ');
+  const renderMoreTags = () => {
+    const totalTagsCount = undoneHumanAttentionTags?.length || 0;
+    const tooltipContent = undoneHumanAttentionTags?.slice(1).map((tag: any) => getTagTranslation(t, tag.name)).join(', ');
 
-  if (totalTagsCount > 1) {
-    return (
-      <Tooltip position='top' content={tooltipContent}>
-        <Tag key="more" appearance="warning">
-          <Text color="warning-textLow" fontSize="caption" lineClamp={1}>
-            {`+${totalTagsCount - 1}`}
-          </Text>
-        </Tag>
-      </Tooltip>
-    );
-  }
-  return null;
-}
+    if (totalTagsCount > 1) {
+      return (
+        <Tooltip position='top' content={tooltipContent}>
+          <Tag key="more" appearance="warning">
+            <Text color="warning-textLow" fontSize="caption" lineClamp={1}>
+              {`+${totalTagsCount - 1}`}
+            </Text>
+          </Tag>
+        </Tooltip>
+      );
+    }
+    return null;
+  };
 
   return (
-    <>
+    <div
+      style={{ position: 'relative' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsHovered(false); setShowDropdown(false); }}
+    >
       <Box display="flex" flexDirection="column"
-        gap="none" padding="2" borderColor='neutral-surface' backgroundColor={selected ? 'primary-surface' : 'neutral-background'} borderTopWidth='1' borderStyle='solid' cursor='pointer' onClick={handleClick}
+        gap="none" padding="2" borderColor='neutral-surface'
+        backgroundColor={selected ? 'primary-surface' : isHovered ? 'neutral-surface' : 'neutral-background'}
+        borderTopWidth='1' borderStyle='solid' cursor='pointer' onClick={handleClick}
+        onContextMenu={handleContextMenu as any}
       >
         <Box display="flex" flexDirection="row"
           gap="5" padding="2"
@@ -243,7 +286,6 @@ const renderMoreTags = () => {
                 <Icon color="neutral-textHigh" source={<UserCircleIcon />} />
               </Box>
             )}
-            {/* Channel Badge - positioned at bottom-right of avatar */}
             {conversation?.channel?.channelType && (
               <div style={{ position: 'absolute', bottom: '-2px', right: '-3px' }}>
                 <ChannelIcon 
@@ -275,16 +317,22 @@ const renderMoreTags = () => {
                 </Text>
               </div>
             </Box>
-
           </Box>
 
           <Box
             display="flex"
             flexDirection="column"
             gap="1"
+            alignItems="flex-end"
+            flexShrink="0"
           >
-
-            <Text as="span" color="neutral-textDisabled" fontSize="caption">
+            {/* Row 1: Date – blue + medium weight when unread */}
+            <Text
+              as="span"
+              color={!selected && unreadMessagesCount > 0 ? 'primary-textLow' : 'neutral-textDisabled'}
+              fontWeight={!selected && unreadMessagesCount > 0 ? 'medium' : 'regular'}
+              fontSize="caption"
+            >
               {lastMessage
                 ? new Date(lastMessage.created_at).toLocaleDateString() ===
                   new Date().toLocaleDateString()
@@ -296,21 +344,86 @@ const renderMoreTags = () => {
                   : new Date(lastMessage.created_at).toLocaleDateString()
                 : ''}
             </Text>
-            <Box
-              display="flex"
-              justifyContent="flex-end"
-              alignItems="center"
-              marginRight="1"
-            >
-              {/* Volver a esto cuando pongamos el modo Copilot /*}
-              {/* {(!selected && (conversation.customer.state.name == 'Paused' || (conversation.customer.state.name == 'Copilot' || storeSelectedMode.number === 2)) && unreadMessagesCount > 0) && (
-                <Badge appearance="primary" count={unreadMessagesCount} />
-              )} */}
-
+            {/* Row 2: Badge + Chevron */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
               {!selected && unreadMessagesCount > 0 && (
                 <Badge appearance="primary" count={unreadMessagesCount} />
               )}
-            </Box>
+              {/* Chevron trigger - collapses to 0 width when hidden */}
+              <div
+                ref={chevronRef}
+                style={{ position: 'relative' }}
+              >
+                <div
+                  onClick={handleChevronClick}
+                  style={{
+                    opacity: isHovered || showDropdown ? 1 : 0,
+                    width: isHovered || showDropdown ? 18 : 0,
+                    overflow: 'hidden',
+                    pointerEvents: isHovered || showDropdown ? 'auto' : 'none',
+                    transition: 'opacity 150ms ease, width 150ms ease',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 18,
+                    flexShrink: 0,
+                  }}
+                >
+                  <Iconify icon="mdi:chevron-down" width={16} color="#8696a0" />
+                </div>
+
+                {/* Dropdown menu – Nimbus style (same as header "..." menu) */}
+                {showDropdown && (
+                  <div
+                    ref={dropdownRef}
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      marginTop: 4,
+                      zIndex: 9999,
+                      backgroundColor: '#fff',
+                      borderRadius: 8,
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <BoxNimbus display="flex" flexDirection="column" paddingY="1" minWidth="220px">
+                      {unreadMessagesCount > 0 ? (
+                        <BoxNimbus
+                          display="flex"
+                          flexDirection="row"
+                          alignItems="center"
+                          gap="3"
+                          paddingX="4"
+                          paddingY="2-5"
+                          cursor="pointer"
+                          onClick={handleMarkAsRead}
+                        >
+                          <Iconify icon="mdi:email-open-outline" width={18} color="#8696a0" style={{ flexShrink: 0 }} />
+                          <Text fontSize="base" color="neutral-textHigh">{t('conversations.mark-as-read')}</Text>
+                        </BoxNimbus>
+                      ) : (
+                        <BoxNimbus
+                          display="flex"
+                          flexDirection="row"
+                          alignItems="center"
+                          gap="3"
+                          paddingX="4"
+                          paddingY="2-5"
+                          cursor="pointer"
+                          onClick={handleMarkAsUnread}
+                        >
+                          <Iconify icon="mdi:email-mark-as-unread" width={18} color="#8696a0" style={{ flexShrink: 0 }} />
+                          <Text fontSize="base" color="neutral-textHigh">{t('conversations.mark-as-unread')}</Text>
+                        </BoxNimbus>
+                      )}
+                    </BoxNimbus>
+                  </div>
+                )}
+              </div>
+            </div>
           </Box>
 
         </Box>
@@ -318,14 +431,22 @@ const renderMoreTags = () => {
           <Box display="flex" flexDirection="column" pl="2">
           </Box>
           <Box display="flex" flexDirection="column" pl="2" flexGrow="1">
-            {renderTags()}
+            <Box display="flex" gap="1" flexDirection="row" alignItems="center" flexWrap="wrap">
+              {renderTags()}
+              {conversation?.assignee && (
+                <Tag appearance="neutral">
+                  <Text fontSize="caption" lineClamp={1}>
+                    {conversation.assignee.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                  </Text>
+                </Tag>
+              )}
+            </Box>
           </Box>
           <Box display="flex" flexDirection="column" justifyContent="flex-end" marginRight="1">
             {renderMoreTags()}
           </Box>
         </Box>
       </Box>
-
-    </>
+    </div>
   );
 }
