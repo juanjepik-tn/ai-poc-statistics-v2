@@ -8,7 +8,8 @@ import { useTheme } from '@mui/material/styles';
 
 import { IConversation } from '@/types/conversation';
 import { Box as BoxNimbus, Button, Icon, IconButton as IconButtonNimbus, Input, Popover, Spinner, Text, Title } from '@nimbus-ds/components';
-import { ChatDotsIcon, CogIcon, EllipsisIcon, GenerativeStarsIcon, InfoCircleIcon, SearchIcon, TagIcon, ToolsIcon } from '@nimbus-ds/icons';
+import { ChatDotsIcon, CogIcon, EllipsisIcon, GenerativeStarsIcon, InfoCircleIcon, RocketIcon, SearchIcon, TagIcon, ToolsIcon } from '@nimbus-ds/icons';
+import { useDirectSendMode } from './providers/DirectSendModeProvider';
 import { EmptyMessage } from '@nimbus-ds/patterns';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -97,6 +98,75 @@ const BsuidToggleInNav: React.FC = () => {
             position: 'absolute',
             top: 2,
             left: isBsuidMode ? 18 : 2,
+            transition: 'left 0.2s ease',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+          }}
+        />
+      </div>
+    </BoxNimbus>
+  );
+};
+
+const DirectSendToggleInNav: React.FC = () => {
+  const { isDirectSendMode, toggleDirectSendMode } = useDirectSendMode();
+  return (
+    <BoxNimbus
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      padding="2"
+      borderRadius="base"
+      style={{
+        background: isDirectSendMode
+          ? 'linear-gradient(135deg, rgba(0, 89, 213, 0.1) 0%, rgba(0, 60, 150, 0.1) 100%)'
+          : 'var(--color-neutral-surface)',
+        border: isDirectSendMode ? '1px solid rgba(0, 89, 213, 0.3)' : '1px solid transparent',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+      }}
+      onClick={toggleDirectSendMode}
+    >
+      <BoxNimbus display="flex" alignItems="center" gap="2">
+        <BoxNimbus
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          width="24px"
+          height="24px"
+          borderRadius="base"
+          style={{
+            background: isDirectSendMode ? 'rgba(0, 89, 213, 0.2)' : 'rgba(0,0,0,0.05)',
+            fontSize: '14px',
+          }}
+        >
+          <Icon source={<RocketIcon size={14} />} color={isDirectSendMode ? 'primary-interactive' : 'neutral-textDisabled'} />
+        </BoxNimbus>
+        <BoxNimbus display="flex" flexDirection="column">
+          <Text fontSize="caption" fontWeight="bold" color={isDirectSendMode ? 'primary-textHigh' : 'neutral-textHigh'}>
+            Direct Send
+          </Text>
+        </BoxNimbus>
+      </BoxNimbus>
+      <div
+        style={{
+          width: 36,
+          height: 20,
+          borderRadius: 10,
+          background: isDirectSendMode ? '#0059d5' : '#D1D5DB',
+          position: 'relative',
+          transition: 'background 0.2s ease',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: '50%',
+            background: '#fff',
+            position: 'absolute',
+            top: 2,
+            left: isDirectSendMode ? 18 : 2,
             transition: 'left 0.2s ease',
             boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
@@ -515,8 +585,9 @@ export default function ConversationNav({
           </BoxNimbus>
         </BoxNimbus>
 
-        {/* BSUID Mode Toggle */}
+        {/* Feature Toggles */}
         <BsuidToggleInNav />
+        <DirectSendToggleInNav />
 
         {/* Segmented Control + Filter Button */}
         <ConversationTabs
