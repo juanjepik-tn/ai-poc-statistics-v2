@@ -365,12 +365,16 @@ const mockCustomers = [
   },
 ];
 
+// WhatsApp conversations: timestamps shifted >24h to demonstrate Direct Send / 24h expired window
+const WA_OFFSET = 60000 * 60 * 26; // 26 hours in ms
+const waTime = (minutesAgo: number) => new Date(Date.now() - WA_OFFSET - 60000 * minutesAgo).toISOString();
+
 // Conversación 1: Cliente con solicitud de atención humana (Human Request)
 const messagesConv1 = [
   {
     id: 101,
     content: 'Hola! Necesito ayuda urgente con mi pedido',
-    created_at: new Date(Date.now() - 60000 * 30).toISOString(),
+    created_at: waTime(30),
     saw: true,
     mimetype: null,
     username: '+5491145678901',
@@ -384,7 +388,7 @@ const messagesConv1 = [
   {
     id: 102,
     content: '¡Hola Luciana! 👋 Bienvenida a nuestra tienda. Veo que necesitás ayuda con tu pedido. ¿Me podés contar qué pasó para poder asistirte?',
-    created_at: new Date(Date.now() - 60000 * 29).toISOString(),
+    created_at: waTime(29),
     saw: true,
     mimetype: null,
     username: null,
@@ -398,7 +402,7 @@ const messagesConv1 = [
   {
     id: 103,
     content: 'Mi pedido #45678 llegó incompleto, falta una remera que pagué',
-    created_at: new Date(Date.now() - 60000 * 28).toISOString(),
+    created_at: waTime(28),
     saw: true,
     mimetype: null,
     username: '+5491145678901',
@@ -412,7 +416,7 @@ const messagesConv1 = [
   {
     id: 104,
     content: 'Lamento mucho escuchar eso, Luciana. Entiendo tu frustración. Voy a verificar tu pedido #45678 para ayudarte a resolver esto. ¿Me podés confirmar cuál era la remera que faltaba?',
-    created_at: new Date(Date.now() - 60000 * 27).toISOString(),
+    created_at: waTime(27),
     saw: true,
     mimetype: null,
     username: null,
@@ -426,7 +430,7 @@ const messagesConv1 = [
   {
     id: 105,
     content: 'La remera negra talle M, la básica de algodón',
-    created_at: new Date(Date.now() - 60000 * 25).toISOString(),
+    created_at: waTime(25),
     saw: true,
     mimetype: null,
     username: '+5491145678901',
@@ -440,7 +444,7 @@ const messagesConv1 = [
   {
     id: 106,
     content: 'Necesito hablar con una persona real, por favor. Esto ya me pasó antes y no quiero que me vuelva a pasar',
-    created_at: new Date(Date.now() - 60000 * 10).toISOString(),
+    created_at: waTime(10),
     saw: true,
     mimetype: null,
     username: '+5491145678901',
@@ -561,7 +565,7 @@ const messagesConv3 = [
   {
     id: 301,
     content: 'Hola, quiero saber dónde está mi pedido',
-    created_at: new Date(Date.now() - 60000 * 180).toISOString(),
+    created_at: waTime(180),
     saw: true,
     mimetype: null,
     username: '+5491167890123',
@@ -575,7 +579,7 @@ const messagesConv3 = [
   {
     id: 302,
     content: '¡Hola Camila! 📦 Con gusto te ayudo a rastrear tu pedido. ¿Me podés pasar el número de pedido o el código de seguimiento?',
-    created_at: new Date(Date.now() - 60000 * 179).toISOString(),
+    created_at: waTime(179),
     saw: true,
     mimetype: null,
     username: null,
@@ -589,7 +593,7 @@ const messagesConv3 = [
   {
     id: 303,
     content: 'El número es #78432',
-    created_at: new Date(Date.now() - 60000 * 175).toISOString(),
+    created_at: waTime(175),
     saw: true,
     mimetype: null,
     username: '+5491167890123',
@@ -603,7 +607,7 @@ const messagesConv3 = [
   {
     id: 304,
     content: 'Perfecto, encontré tu pedido #78432. 🚚 Tu paquete salió hoy del centro de distribución y está en camino. El código de seguimiento de Andreani es: AND789456123. Estimamos que llegue mañana entre las 9 y 18hs.',
-    created_at: new Date(Date.now() - 60000 * 174).toISOString(),
+    created_at: waTime(174),
     saw: true,
     mimetype: null,
     username: null,
@@ -617,7 +621,7 @@ const messagesConv3 = [
   {
     id: 305,
     content: 'Genial, gracias! Puedo pedir que lo dejen en la puerta?',
-    created_at: new Date(Date.now() - 60000 * 170).toISOString(),
+    created_at: waTime(170),
     saw: true,
     mimetype: null,
     username: '+5491167890123',
@@ -631,7 +635,7 @@ const messagesConv3 = [
   {
     id: 306,
     content: 'Entiendo, Camila. Para instrucciones especiales de entrega, te recomiendo contactar directamente a Andreani al 0800-122-1112 o desde su web con tu código de seguimiento. Ellos pueden coordinar dejar el paquete en la puerta si es posible en tu zona. 📞',
-    created_at: new Date(Date.now() - 60000 * 169).toISOString(),
+    created_at: waTime(169),
     saw: true,
     mimetype: null,
     username: null,
@@ -727,7 +731,7 @@ const messagesConv5 = [
   {
     id: 501,
     content: 'Hola! Vi en Instagram que tienen nuevas zapatillas 👟',
-    created_at: new Date(Date.now() - 60000 * 240).toISOString(),
+    created_at: waTime(240),
     saw: true,
     mimetype: null,
     username: '+5491189012345',
@@ -741,7 +745,7 @@ const messagesConv5 = [
   {
     id: 502,
     content: '¡Hola Valentina! 👋 Sí, llegaron las nuevas zapatillas Running Pro. Tenemos varios modelos y colores. ¿Buscás algo para correr o más casuales?',
-    created_at: new Date(Date.now() - 60000 * 239).toISOString(),
+    created_at: waTime(239),
     saw: true,
     mimetype: null,
     username: null,
@@ -755,7 +759,7 @@ const messagesConv5 = [
   {
     id: 503,
     content: 'Para correr! Uso talle 38',
-    created_at: new Date(Date.now() - 60000 * 235).toISOString(),
+    created_at: waTime(235),
     saw: true,
     mimetype: null,
     username: '+5491189012345',
@@ -769,7 +773,7 @@ const messagesConv5 = [
   {
     id: 504,
     content: '¡Genial! 🏃‍♀️ En talle 38 tenemos:\n\n1. Running Pro Air - Blanca/Rosa - $45.990\n2. Running Pro Max - Negra/Verde - $52.990\n3. Running Pro Lite - Gris/Naranja - $39.990\n\nTodas tienen amortiguación premium y son ideales para distancias largas. ¿Querés ver fotos de alguna?',
-    created_at: new Date(Date.now() - 60000 * 234).toISOString(),
+    created_at: waTime(234),
     saw: true,
     mimetype: null,
     username: null,
@@ -783,7 +787,7 @@ const messagesConv5 = [
   {
     id: 505,
     content: 'La blanca y rosa por favor!',
-    created_at: new Date(Date.now() - 60000 * 230).toISOString(),
+    created_at: waTime(230),
     saw: true,
     mimetype: null,
     username: '+5491189012345',
@@ -797,7 +801,7 @@ const messagesConv5 = [
   {
     id: 506,
     content: null,
-    created_at: new Date(Date.now() - 60000 * 229).toISOString(),
+    created_at: waTime(229),
     saw: true,
     mimetype: 'image/jpeg',
     username: null,
@@ -812,7 +816,7 @@ const messagesConv5 = [
   {
     id: 507,
     content: 'Acá tenés la Running Pro Air! 💕 Tiene malla transpirable, suela de goma antideslizante y plantilla memory foam. Es la favorita de nuestras clientas runners.',
-    created_at: new Date(Date.now() - 60000 * 228).toISOString(),
+    created_at: waTime(228),
     saw: true,
     mimetype: null,
     username: null,
@@ -826,7 +830,7 @@ const messagesConv5 = [
   {
     id: 508,
     content: 'Me encantan! Las quiero 😍',
-    created_at: new Date(Date.now() - 60000 * 225).toISOString(),
+    created_at: waTime(225),
     saw: true,
     mimetype: null,
     username: '+5491189012345',
@@ -840,7 +844,7 @@ const messagesConv5 = [
   {
     id: 509,
     content: '🛒 Carrito generado',
-    created_at: new Date(Date.now() - 60000 * 224).toISOString(),
+    created_at: waTime(224),
     saw: true,
     mimetype: null,
     username: null,
@@ -867,7 +871,7 @@ const messagesConv5 = [
   {
     id: 510,
     content: 'Listo, ya pagué! Gracias por la atención 🙏',
-    created_at: new Date(Date.now() - 60000 * 220).toISOString(),
+    created_at: waTime(220),
     saw: true,
     mimetype: null,
     username: '+5491189012345',
@@ -881,7 +885,7 @@ const messagesConv5 = [
   {
     id: 511,
     content: '¡Excelente Valentina! 🎉 Tu pedido #98765 fue confirmado. Te va a llegar en 2-3 días hábiles. Te enviamos el código de seguimiento por mail. ¡Gracias por tu compra y que disfrutes tus nuevas zapatillas!',
-    created_at: new Date(Date.now() - 60000 * 219).toISOString(),
+    created_at: waTime(219),
     saw: true,
     mimetype: null,
     username: null,
@@ -973,7 +977,7 @@ const messagesConv7 = [
   {
     id: 701,
     content: 'Hola! Quiero comprar el vestido floral que vi',
-    created_at: new Date(Date.now() - 60000 * 60).toISOString(),
+    created_at: waTime(60),
     saw: true,
     mimetype: null,
     username: '+5491101234567',
@@ -987,7 +991,7 @@ const messagesConv7 = [
   {
     id: 702,
     content: '¡Hola Florencia! 🌸 El Vestido Floral Primavera es hermoso. Tenemos talles S, M y L. ¿Cuál necesitás?',
-    created_at: new Date(Date.now() - 60000 * 59).toISOString(),
+    created_at: waTime(59),
     saw: true,
     mimetype: null,
     username: null,
@@ -1001,7 +1005,7 @@ const messagesConv7 = [
   {
     id: 703,
     content: 'Talle M!',
-    created_at: new Date(Date.now() - 60000 * 55).toISOString(),
+    created_at: waTime(55),
     saw: true,
     mimetype: null,
     username: '+5491101234567',
@@ -1015,7 +1019,7 @@ const messagesConv7 = [
   {
     id: 704,
     content: 'Perfecto! El Vestido Floral Primavera talle M está $28.990. Tenés envío gratis porque superás los $25.000. ¿Te genero el link de pago rápido?',
-    created_at: new Date(Date.now() - 60000 * 54).toISOString(),
+    created_at: waTime(54),
     saw: true,
     mimetype: null,
     username: null,
@@ -1029,7 +1033,7 @@ const messagesConv7 = [
   {
     id: 705,
     content: 'Dale!',
-    created_at: new Date(Date.now() - 60000 * 50).toISOString(),
+    created_at: waTime(50),
     saw: true,
     mimetype: null,
     username: '+5491101234567',
@@ -1043,7 +1047,7 @@ const messagesConv7 = [
   {
     id: 706,
     content: '💳 Link de pago generado',
-    created_at: new Date(Date.now() - 60000 * 49).toISOString(),
+    created_at: waTime(49),
     saw: true,
     mimetype: null,
     username: null,
@@ -1074,7 +1078,7 @@ const messagesConv8 = [
   {
     id: 801,
     content: 'Hola! Acabo de hacer un pedido pero quiero agregar algo más',
-    created_at: new Date(Date.now() - 60000 * 45).toISOString(),
+    created_at: waTime(45),
     saw: true,
     mimetype: null,
     username: '+5491112345678',
@@ -1088,7 +1092,7 @@ const messagesConv8 = [
   {
     id: 802,
     content: '¡Hola Nicolás! 📝 Si tu pedido todavía no fue despachado, podemos modificarlo. ¿Me pasás el número de pedido?',
-    created_at: new Date(Date.now() - 60000 * 44).toISOString(),
+    created_at: waTime(44),
     saw: true,
     mimetype: null,
     username: null,
@@ -1102,7 +1106,7 @@ const messagesConv8 = [
   {
     id: 803,
     content: null,
-    created_at: new Date(Date.now() - 60000 * 40).toISOString(),
+    created_at: waTime(40),
     saw: true,
     mimetype: 'audio/ogg',
     username: '+5491112345678',
@@ -1117,7 +1121,7 @@ const messagesConv8 = [
   {
     id: 804,
     content: 'Escuché tu audio, Nicolás. Entendí que tu pedido es el #45123 y querés agregar un cinturón negro talle 85. Deja que lo verifico... ✅ Sí, el pedido está en preparación todavía. El cinturón de cuero negro talle 85 está $12.990. ¿Lo agrego?',
-    created_at: new Date(Date.now() - 60000 * 39).toISOString(),
+    created_at: waTime(39),
     saw: true,
     mimetype: null,
     username: null,
@@ -1131,7 +1135,7 @@ const messagesConv8 = [
   {
     id: 805,
     content: 'Sí, agregalo por favor',
-    created_at: new Date(Date.now() - 60000 * 35).toISOString(),
+    created_at: waTime(35),
     saw: true,
     mimetype: null,
     username: '+5491112345678',
@@ -1209,7 +1213,7 @@ const messagesConv10 = [
   {
     id: 1001,
     content: 'Hola, hacen estampados personalizados?',
-    created_at: new Date(Date.now() - 60000 * 150).toISOString(),
+    created_at: waTime(150),
     saw: true,
     mimetype: null,
     username: '+5491134567890',
@@ -1223,7 +1227,7 @@ const messagesConv10 = [
   {
     id: 1002,
     content: '¡Hola Agustín! 🎨 Sí, hacemos estampados personalizados en remeras, buzos y gorras. El mínimo es de 12 unidades por diseño. ¿Qué tenés en mente?',
-    created_at: new Date(Date.now() - 60000 * 149).toISOString(),
+    created_at: waTime(149),
     saw: true,
     mimetype: null,
     username: null,
@@ -1237,7 +1241,7 @@ const messagesConv10 = [
   {
     id: 1003,
     content: 'Quiero hacer remeras para el equipo de fútbol de mi empresa, somos 20. Tienen el logo de la empresa',
-    created_at: new Date(Date.now() - 60000 * 145).toISOString(),
+    created_at: waTime(145),
     saw: true,
     mimetype: null,
     username: '+5491134567890',
@@ -1251,7 +1255,7 @@ const messagesConv10 = [
   {
     id: 1004,
     content: null,
-    created_at: new Date(Date.now() - 60000 * 144).toISOString(),
+    created_at: waTime(144),
     saw: true,
     mimetype: 'image/jpeg',
     username: '+5491134567890',
@@ -1266,7 +1270,7 @@ const messagesConv10 = [
   {
     id: 1005,
     content: '¡Qué buen logo! ⚽ Para 20 remeras deportivas con estampado personalizado, el precio es:\n\n• Remera Deportiva + Estampado: $11.500 c/u\n• Total: $230.000\n• Tiempo de producción: 5-7 días hábiles\n\n¿Querés que te haga un mockup con tu logo?',
-    created_at: new Date(Date.now() - 60000 * 143).toISOString(),
+    created_at: waTime(143),
     saw: true,
     mimetype: null,
     username: null,
@@ -1280,7 +1284,7 @@ const messagesConv10 = [
   {
     id: 1006,
     content: 'Sí! Y pregunta: se puede poner el número de cada jugador atrás?',
-    created_at: new Date(Date.now() - 60000 * 140).toISOString(),
+    created_at: waTime(140),
     saw: true,
     mimetype: null,
     username: '+5491134567890',
@@ -1294,7 +1298,7 @@ const messagesConv10 = [
   {
     id: 1007,
     content: 'Hola Agustín! Soy Mariana del equipo de personalización. Sí, podemos agregar números en la espalda. Tiene un costo adicional de $1.500 por remera. Te preparo el mockup con el logo adelante y un ejemplo de número atrás. Te lo mando por acá en unas horas.',
-    created_at: new Date(Date.now() - 60000 * 130).toISOString(),
+    created_at: waTime(130),
     saw: true,
     mimetype: null,
     username: null,
@@ -1386,7 +1390,7 @@ const messagesConv12 = [
   {
     id: 1201,
     content: '📢 Promoción especial para vos',
-    created_at: new Date(Date.now() - 60000 * 480).toISOString(),
+    created_at: waTime(480),
     saw: true,
     mimetype: null,
     username: null,
@@ -1400,7 +1404,7 @@ const messagesConv12 = [
   {
     id: 1202,
     content: 'Hola! Vi el mensaje de la promo, qué descuentos tienen?',
-    created_at: new Date(Date.now() - 60000 * 400).toISOString(),
+    created_at: waTime(400),
     saw: true,
     mimetype: null,
     username: '+5491156789013',
@@ -1414,7 +1418,7 @@ const messagesConv12 = [
   {
     id: 1203,
     content: '¡Hola Mateo! 🔥 Esta semana tenemos:\n\n• 30% OFF en toda la línea de verano\n• 2x1 en remeras básicas\n• Envío gratis en compras +$30.000\n• 6 cuotas sin interés con todas las tarjetas\n\n¿Te interesa algo en particular?',
-    created_at: new Date(Date.now() - 60000 * 399).toISOString(),
+    created_at: waTime(399),
     saw: true,
     mimetype: null,
     username: null,
@@ -1428,7 +1432,7 @@ const messagesConv12 = [
   {
     id: 1204,
     content: 'El 2x1 en remeras! Qué colores tienen?',
-    created_at: new Date(Date.now() - 60000 * 395).toISOString(),
+    created_at: waTime(395),
     saw: true,
     mimetype: null,
     username: '+5491156789013',
@@ -1442,7 +1446,7 @@ const messagesConv12 = [
   {
     id: 1205,
     content: '👕 En la promo 2x1 tenemos remeras básicas en:\n\n• Negro\n• Blanco\n• Gris\n• Azul marino\n• Bordeaux\n• Verde militar\n\nTalles disponibles: S, M, L, XL. Cada remera está $12.990, con el 2x1 te llevas 2 por ese precio. ¿Cuáles te gustan?',
-    created_at: new Date(Date.now() - 60000 * 394).toISOString(),
+    created_at: waTime(394),
     saw: true,
     mimetype: null,
     username: null,
@@ -1764,7 +1768,7 @@ export const mockConversations = [
     id: '1',
     chat_summary: 'Cliente con pedido incompleto solicita hablar con humano',
     conversation_summary: 1,
-    created_at: new Date(Date.now() - 60000 * 30).toISOString(),
+    created_at: waTime(30),
     messages: messagesConv1,
     channel: mockChannelWhatsApp,
     name: mockCustomers[0].name,
@@ -1931,7 +1935,7 @@ export const mockConversations = [
     id: '3',
     chat_summary: 'Consulta sobre seguimiento de envío',
     conversation_summary: 3,
-    created_at: new Date(Date.now() - 60000 * 180).toISOString(),
+    created_at: waTime(180),
     messages: messagesConv3,
     channel: mockChannelWhatsApp,
     name: mockCustomers[2].name,
@@ -1975,7 +1979,7 @@ export const mockConversations = [
     id: '5',
     chat_summary: 'Venta completada de zapatillas running',
     conversation_summary: 5,
-    created_at: new Date(Date.now() - 60000 * 240).toISOString(),
+    created_at: waTime(240),
     messages: messagesConv5,
     channel: mockChannelWhatsApp,
     name: mockCustomers[4].name,
@@ -2019,7 +2023,7 @@ export const mockConversations = [
     id: '7',
     chat_summary: 'Compra rápida vestido floral',
     conversation_summary: 7,
-    created_at: new Date(Date.now() - 60000 * 60).toISOString(),
+    created_at: waTime(60),
     messages: messagesConv7,
     channel: mockChannelWhatsApp,
     name: mockCustomers[6].name,
@@ -2041,7 +2045,7 @@ export const mockConversations = [
     id: '8',
     chat_summary: 'Modificación de pedido en curso',
     conversation_summary: 8,
-    created_at: new Date(Date.now() - 60000 * 45).toISOString(),
+    created_at: waTime(45),
     messages: messagesConv8,
     channel: mockChannelWhatsApp,
     name: mockCustomers[7].name,
@@ -2085,7 +2089,7 @@ export const mockConversations = [
     id: '10',
     chat_summary: 'Remeras personalizadas para equipo de fútbol',
     conversation_summary: 10,
-    created_at: new Date(Date.now() - 60000 * 150).toISOString(),
+    created_at: waTime(150),
     messages: messagesConv10,
     channel: mockChannelWhatsApp,
     name: mockCustomers[9].name,
@@ -2129,7 +2133,7 @@ export const mockConversations = [
     id: '12',
     chat_summary: 'Cliente interesado en promoción 2x1',
     conversation_summary: 12,
-    created_at: new Date(Date.now() - 60000 * 480).toISOString(),
+    created_at: waTime(480),
     messages: messagesConv12,
     channel: mockChannelWhatsApp,
     name: mockCustomers[11].name,

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useFetch } from '@/hooks';
 import { API_ENDPOINTS } from '@/app/Axios/Axios';
 import TemplateMessagePicker from './TemplateMessagePicker';
+import { useDirectSendMode } from './providers/DirectSendModeProvider';
 
 export interface NewConversationModalProps {
   open: boolean;
@@ -19,8 +20,11 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
   const { t } = useTranslation('translations');
   const { addToast } = useToast();
   const { request } = useFetch();
+  const { isDirectSendMode } = useDirectSendMode();
   const [step, setStep] = useState<1 | 2>(1);
   const [phone, setPhone] = useState('');
+  const [directMessage, setDirectMessage] = useState('');
+  const [sendMode, setSendMode] = useState<'direct' | 'template'>('direct');
   const [sending, setSending] = useState(false);
   const [channelId, setChannelId] = useState<string>('');
 
@@ -36,9 +40,14 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
       .catch(() => setChannelId(''));
   }, [open, request]);
 
+  useEffect(() => {
+    setSendMode(isDirectSendMode ? 'direct' : 'template');
+  }, [isDirectSendMode]);
+
   const handleClose = () => {
     setStep(1);
     setPhone('');
+    setDirectMessage('');
     setSending(false);
     onClose();
   };
@@ -73,6 +82,21 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
     }
   };
 
+  const handleSendDirect = () => {
+    if (!directMessage.trim()) return;
+    setSending(true);
+    setTimeout(() => {
+      addToast({
+        type: 'success',
+        text: 'Mensagem enviada via Direct Send (mock)',
+        duration: 4000,
+        id: 'direct-send-success',
+      });
+      onConversationCreated();
+      handleClose();
+    }, 800);
+  };
+
   const handleStep1Next = () => {
     if (phone.trim()) setStep(2);
   };
@@ -85,7 +109,9 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
         title={
           step === 1
             ? t('newConversation.step1Title', 'Nova conversa')
-            : t('newConversation.step2Title', 'Selecionar template')
+            : sendMode === 'direct'
+              ? 'Direct Send (utility)'
+              : t('newConversation.step2Title', 'Selecionar template')
         }
       />
       <Modal.Body padding="none">
@@ -125,19 +151,97 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
                   {phone.startsWith('+') ? phone : `+55 ${phone}`}
                 </Text>
               </Box>
-              {channelId ? (
-                <TemplateMessagePicker
-                  channelId={channelId}
-                  onSendTemplate={handleSendTemplate}
-                  onClose={undefined}
-                />
-              ) : (
-                <Box padding="4">
-                  <Text color="neutral-textLow" textAlign="center">
-                    {t('newConversation.noChannel', 'Nenhum canal de WhatsApp conectado')}
-                  </Text>
+
+              {isDirectSendMode && (
+                <Box display="flex" gap="2" paddingBottom="2">
+                  <button
+                    onClick={() => setSendMode('direct')}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: sendMode === 'direct' ? '2px solid #0059d5' : '1px solid #d1d1d1',
+                      backgroundColor: sendMode === 'direct' ? '#eef5ff' : '#fff',
+                      cursor: 'pointer',
+                      fontFamily: "'Geist', sans-serif",
+                      fontSize: 13,
+                      fontWeight: sendMode === 'direct' ? 600 : 400,
+                      color: sendMode === 'direct' ? '#0059d5' : '#404040',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    Direct Send (utility)
+                  </button>
+                  <button
+                    onClick={() => setSendMode('template')}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: sendMode === 'template' ? '2px solid #0059d5' : '1px solid #d1d1d1',
+                      backgroundColor: sendMode === 'template' ? '#eef5ff' : '#fff',
+                      cursor: 'pointer',
+                      fontFamily: "'Geist', sans-serif",
+                      fontSize: 13,
+                      fontWeight: sendMode === 'template' ? 600 : 400,
+                      color: sendMode === 'template' ? '#0059d5' : '#404040',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    Template
+                  </button>
                 </Box>
               )}
+
+              {sendMode === 'direct' && isDirectSendMode ? (
+                <Box display="flex" flexDirection="column" gap="3">
+                  <Box
+                    padding="2"
+                    borderRadius="2"
+                    backgroundColor="primary-surface"
+                  >
+                    <Text fontSize="caption" color="primary-textLow">
+                      A mensagem será enviada como Direct Send (utility). Meta gera o template automaticamente.
+                    </Text>
+                  </Box>
+                  <textarea
+                    value={directMessage}
+                    onChange={(e) => setDirectMessage(e.target.value)}
+                    placeholder="Escreva sua mensagem..."
+                    rows={4}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #d1d1d1',
+                      fontFamily: "'Geist', sans-serif",
+                      fontSize: 14,
+                      resize: 'vertical',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = '#0059d5')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = '#d1d1d1')}
+                  />
+                </Box>
+              ) : (
+                <>
+                  {channelId ? (
+                    <TemplateMessagePicker
+                      channelId={channelId}
+                      onSendTemplate={handleSendTemplate}
+                      onClose={undefined}
+                    />
+                  ) : (
+                    <Box padding="4">
+                      <Text color="neutral-textLow" textAlign="center">
+                        {t('newConversation.noChannel', 'Nenhum canal de WhatsApp conectado')}
+                      </Text>
+                    </Box>
+                  )}
+                </>
+              )}
+
               {sending && (
                 <Box display="flex" justifyContent="center" padding="4">
                   <Spinner size="small" />
@@ -159,13 +263,23 @@ const NewConversationModal: React.FC<NewConversationModalProps> = ({
               disabled={!phone.trim()}
             >
               {t('common.continue', 'Continuar')}
-
             </Button>
           </>
         ) : (
-          <Button appearance="neutral" onClick={handleBack}>
-            {t('common.back', 'Voltar')}
-          </Button>
+          <Box display="flex" gap="2" width="100%" justifyContent="space-between">
+            <Button appearance="neutral" onClick={handleBack}>
+              {t('common.back', 'Voltar')}
+            </Button>
+            {sendMode === 'direct' && isDirectSendMode && (
+              <Button
+                appearance="primary"
+                onClick={handleSendDirect}
+                disabled={!directMessage.trim() || sending}
+              >
+                Enviar Direct Send
+              </Button>
+            )}
+          </Box>
         )}
       </Modal.Footer>
     </Modal>
