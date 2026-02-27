@@ -39,6 +39,7 @@ import { toast } from 'sonner';
 import { useIsMessageFailed } from './hooks/use-is-message-failed';
 import { ChannelIcon } from '@/components';
 import { ChannelType } from '@/types/conversation';
+import { useDirectSendMode } from './providers/DirectSendModeProvider';
 
 //
 
@@ -55,6 +56,7 @@ type Props = {
 
 export default function ConversationMessageItem({ message, store, channelType = 'whatsapp', assignee }: Props) {
   const messageRef = useRef<HTMLDivElement>(null);
+  const { isDirectSendMode } = useDirectSendMode();
 
   const [me, setme] = useState(false);
   // fromApp will be true if the message was sent from the app, not from the website
@@ -854,10 +856,40 @@ export default function ConversationMessageItem({ message, store, channelType = 
         </BoxNimbus>
       )}
       
-      {/* Timestamp */}
-      <span style={{ color: '#5d5d5d', fontSize: '12px', lineHeight: '16px', fontFamily: "'Geist', sans-serif" }}>
-        {renderTimestamp}
-      </span>
+      {/* Timestamp + Direct Send tag */}
+      <BoxNimbus display="flex" flexDirection="row" alignItems="center" gap="1">
+        {isDirectSendMode && classMessage !== 'message-template' && me && (
+          <span style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: '#0059d5',
+            backgroundColor: '#eef5ff',
+            padding: '1px 6px',
+            borderRadius: 4,
+            fontFamily: "'Geist', sans-serif",
+            lineHeight: '16px',
+          }}>
+            Direct Send
+          </span>
+        )}
+        {classMessage === 'message-template' && (
+          <span style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: '#5d5d5d',
+            backgroundColor: '#f0f0f0',
+            padding: '1px 6px',
+            borderRadius: 4,
+            fontFamily: "'Geist', sans-serif",
+            lineHeight: '16px',
+          }}>
+            Template
+          </span>
+        )}
+        <span style={{ color: '#5d5d5d', fontSize: '12px', lineHeight: '16px', fontFamily: "'Geist', sans-serif" }}>
+          {renderTimestamp}
+        </span>
+      </BoxNimbus>
     </BoxNimbus>
   );
 

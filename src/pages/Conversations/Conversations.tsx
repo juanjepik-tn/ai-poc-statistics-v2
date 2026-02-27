@@ -15,6 +15,7 @@ import ModeDataProvider, {
   ModeOption,
 } from '@/components/conversation/providers/ModeDataProvider';
 import { BsuidModeProvider } from '@/components/conversation/providers/BsuidModeProvider';
+import { DirectSendModeProvider } from '@/components/conversation/providers/DirectSendModeProvider';
 import { ConversationView } from '@/components/conversation/view';
 import { Box, IconButton, Popover, Text } from '@nimbus-ds/components';
 import { CogIcon, StatsIcon } from '@nimbus-ds/icons';
@@ -56,14 +57,16 @@ const Conversations: React.FC = () => {
   );
 
   return (
-    <BsuidModeProvider>
-      <ModeDataProvider>
-        <Responsive
-          mobileContent={mobileContent}
-          desktopContent={desktopContent}
-        />
-      </ModeDataProvider>
-    </BsuidModeProvider>
+    <DirectSendModeProvider>
+      <BsuidModeProvider>
+        <ModeDataProvider>
+          <Responsive
+            mobileContent={mobileContent}
+            desktopContent={desktopContent}
+          />
+        </ModeDataProvider>
+      </BsuidModeProvider>
+    </DirectSendModeProvider>
   );
 };
 

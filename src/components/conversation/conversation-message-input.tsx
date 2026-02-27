@@ -28,6 +28,7 @@ import {
 import {
   CheckCircleIcon,
   CloseIcon,
+  InfoCircleIcon,
   MagicWandIcon,
   PlusIcon,
   RedoIcon,
@@ -41,6 +42,7 @@ import Iconify from '../iconify/iconify';
 import MicIcon from '../MicButton/MicButton';
 import { useModeCustomer } from './providers/ModeCustomerDataProvider';
 import { ModeContext } from './providers/ModeDataProvider';
+import { useDirectSendMode } from './providers/DirectSendModeProvider';
 import { BillingDTO } from '@/types/billingDTO';
 import { IQuickReply } from '@/types/conversation';
 import QuickReplyList from './QuickReplyList';
@@ -111,7 +113,9 @@ export default function ConversationMessageInput({
   // Feature 2: 24h check
   const expired24h = is24hExpired(currentConversation);
   const isWhatsApp = currentConversation?.channel?.channelType === 'whatsapp';
-  const show24hBlock = expired24h && isWhatsApp;
+  const { isDirectSendMode } = useDirectSendMode();
+  const show24hBlock = expired24h && isWhatsApp && !isDirectSendMode;
+  const showDirectSendBanner = expired24h && isWhatsApp && isDirectSendMode;
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
 
   // Feature 4: Emoji/Sticker picker
@@ -456,6 +460,63 @@ export default function ConversationMessageInput({
             </BoxNimbus>
           )}
 
+          {showDirectSendBanner && (
+            <BoxNimbus
+              display="flex"
+              flexDirection="row"
+              alignItems="center"
+              gap="2"
+              paddingX="3"
+              paddingY="2"
+              marginX="2"
+              marginBottom="1"
+              borderRadius="2"
+              backgroundColor="primary-surface"
+            >
+              <Icon source={<InfoCircleIcon size={14} />} color="primary-interactive" />
+              <BoxNimbus display="flex" flexDirection="row" alignItems="center" gap="1" flexGrow="1" flexWrap="wrap">
+                <Text fontSize="caption" color="primary-textLow">
+                  Janela de 24h expirada. Mensagens enviadas como Direct Send (utility).
+                </Text>
+                <Link
+                  appearance="primary"
+                  textDecoration="none"
+                  as="a"
+                  onClick={() => setShowTemplatePicker(true)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <Text fontSize="caption" color="primary-interactive" fontWeight="medium">
+                    Usar template
+                  </Text>
+                </Link>
+              </BoxNimbus>
+            </BoxNimbus>
+          )}
+
+          {showDirectSendBanner && showTemplatePicker && (
+            <BoxNimbus padding="4">
+              <BoxNimbus display="flex" flexDirection="column" gap="2">
+                <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center">
+                  <Text fontWeight="bold" fontSize="base">Selecionar template</Text>
+                  <IconButtonNimbus
+                    onClick={() => setShowTemplatePicker(false)}
+                    source={<CloseIcon size="small" />}
+                    borderColor="transparent"
+                    backgroundColor="transparent"
+                  />
+                </BoxNimbus>
+                <TemplateMessagePicker
+                  channelId={currentConversation?.channel?.id || ''}
+                  conversationId={currentConversation?.id}
+                  onSendTemplate={(templateId, templateName) => {
+                    onSendTemplate?.(templateId, templateName);
+                    setShowTemplatePicker(false);
+                  }}
+                />
+              </BoxNimbus>
+            </BoxNimbus>
+          )}
+
           {/* Chat Input Container */}
           <div ref={inputContainerRef} style={{ position: 'relative' }}>
             {/* Quick Reply List (Feature 9) */}
@@ -568,21 +629,26 @@ export default function ConversationMessageInput({
                         {t('conversations.attach-image', { defaultValue: 'Imagem' })}
                       </div>
                       <div
-                        onClick={() => handleFileUpload('.pdf,.xlsx,.xls,.doc,.docx,.csv,.txt,.zip')}
+                        onClick={() => !showDirectSendBanner && handleFileUpload('.pdf,.xlsx,.xls,.doc,.docx,.csv,.txt,.zip')}
+                        title={showDirectSendBanner ? 'Não disponível com Direct Send' : undefined}
                         style={{
                           padding: '8px 16px',
-                          cursor: 'pointer',
+                          cursor: showDirectSendBanner ? 'not-allowed' : 'pointer',
                           fontSize: 14,
                           fontFamily: "'Geist', sans-serif",
                           display: 'flex',
                           alignItems: 'center',
                           gap: 8,
+                          opacity: showDirectSendBanner ? 0.4 : 1,
                         }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
+                        onMouseEnter={(e) => !showDirectSendBanner && (e.currentTarget.style.backgroundColor = '#f5f5f5')}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       >
                         <Iconify icon="ic:baseline-insert-drive-file" width={18} />
                         {t('conversations.attach-document', { defaultValue: 'Documento' })}
+                        {showDirectSendBanner && (
+                          <span style={{ fontSize: 11, color: '#999', marginLeft: 4 }}>Direct Send</span>
+                        )}
                       </div>
                     </Popover>
                   </div>
@@ -602,8 +668,9 @@ export default function ConversationMessageInput({
                   {/* Mic button */}
                   <IconButton
                     onClick={handleRecordClick}
-                    disabled={!billingData?.activeStatus}
-                    sx={{ p: 1 }}
+                    disabled={!billingData?.activeStatus || showDirectSendBanner}
+                    title={showDirectSendBanner ? 'Não disponível com Direct Send' : undefined}
+                    sx={{ p: 1, opacity: showDirectSendBanner ? 0.4 : 1 }}
                   >
                     <MicIcon />
                   </IconButton>

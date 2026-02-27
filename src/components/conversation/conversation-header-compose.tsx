@@ -5,6 +5,7 @@ import { Box, Icon, IconButton, Tag, Text, Tooltip } from '@nimbus-ds/components
 import { CheckCircleIcon, CheckIcon, ChevronLeftIcon, CloseIcon, PencilIcon, UserCircleIcon } from '@nimbus-ds/icons';
 import { useWhatsAppLoginMode } from './providers/WhatsAppLoginModeProvider';
 import { useBsuidMode } from './providers/BsuidModeProvider';
+import { useDirectSendMode } from './providers/DirectSendModeProvider';
 import { ChatNavItemSkeleton } from './chat-skeleton';
 import ConversationAvatar from './conversation-avatar';
 import { ChannelIcon, ChannelType } from '@/components';
@@ -41,6 +42,9 @@ export default function ConversationHeaderCompose({
 
   const { isUsernameMode } = useWhatsAppLoginMode();
   const { isBsuidMode, getIdentifierDisplay } = useBsuidMode();
+  const { isDirectSendMode, toggleDirectSendMode } = useDirectSendMode();
+
+  const isWhatsApp = currentConversation?.channel?.channelType === 'whatsapp';
 
   // Safe defaults if provider is not available
   const selectedModeCustomer = modeContext?.selectedModeCustomer;
@@ -226,20 +230,68 @@ export default function ConversationHeaderCompose({
               </Box>
             </Box>
 
-            {/* Unified assignee + mode selector */}
-            <AssigneeSelector
-              currentAssignee={currentConversation?.assignee}
-              onAssign={handleAssign}
-              isAIActive={isCustomerActive()}
-              onSelectAI={() => {
-                // Set mode to Automatic
-                const autoOption = modeOptions.find((o: any) => o.number === 1);
-                if (autoOption) {
-                  handleCustomerRadioChange(autoOption.customerName, autoOption.number);
-                }
-              }}
-              aiLabel={t('settings.step3.config-3.autopilot.title') || 'Agente IA'}
-            />
+            <Box display="flex" flexDirection="row" gap="2" alignItems="center">
+              {isWhatsApp && (
+                <Tooltip content={isDirectSendMode
+                  ? 'Direct Send ativo: mensagens utility sem template'
+                  : 'Ativar Direct Send para enviar mensagens após 24h sem template'
+                }>
+                  <Box
+                    display="flex"
+                    flexDirection="row"
+                    gap="1"
+                    alignItems="center"
+                    cursor="pointer"
+                    onClick={toggleDirectSendMode}
+                    borderColor={isDirectSendMode ? 'primary-interactive' : 'neutral-surfaceDisabled'}
+                    borderStyle="solid"
+                    borderWidth="1"
+                    borderRadius="2"
+                    padding="1"
+                    paddingLeft="2"
+                    paddingRight="2"
+                    backgroundColor={isDirectSendMode ? 'primary-surface' : 'transparent'}
+                  >
+                    <div style={{
+                      width: 28,
+                      height: 16,
+                      borderRadius: 8,
+                      backgroundColor: isDirectSendMode ? '#0059d5' : '#c4c4c4',
+                      position: 'relative',
+                      transition: 'background-color 0.2s',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}>
+                      <div style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        backgroundColor: '#fff',
+                        position: 'absolute',
+                        top: 2,
+                        left: isDirectSendMode ? 14 : 2,
+                        transition: 'left 0.2s',
+                      }} />
+                    </div>
+                    <Text fontSize="caption" color={isDirectSendMode ? 'primary-interactive' : 'neutral-textDisabled'} fontWeight="medium">
+                      Direct Send
+                    </Text>
+                  </Box>
+                </Tooltip>
+              )}
+              <AssigneeSelector
+                currentAssignee={currentConversation?.assignee}
+                onAssign={handleAssign}
+                isAIActive={isCustomerActive()}
+                onSelectAI={() => {
+                  const autoOption = modeOptions.find((o: any) => o.number === 1);
+                  if (autoOption) {
+                    handleCustomerRadioChange(autoOption.customerName, autoOption.number);
+                  }
+                }}
+                aiLabel={t('settings.step3.config-3.autopilot.title') || 'Agente IA'}
+              />
+            </Box>
           </Box>
         </>
       ) : (
