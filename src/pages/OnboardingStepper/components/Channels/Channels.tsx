@@ -191,7 +191,7 @@ const Channels: React.FC<ChannelsProps> = ({ prevStep }) => {
                             <ChannelCard
                               channel="whatsapp"
                               status={whatsappConnected ? 'connected' : 'disconnected'}
-                              onConnect={handlePreOnboarding}
+                              onConnect={() => navigate('/external/channels/whatsapp/onboarding')}
                             />
 
                             {/* Instagram */}

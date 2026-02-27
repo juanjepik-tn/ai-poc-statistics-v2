@@ -1,8 +1,10 @@
 // @mui
 // types
 // components
-import { Box, Icon, IconButton, Text } from '@nimbus-ds/components';
-import { CheckIcon, ChevronLeftIcon, CloseIcon, PencilIcon, UserCircleIcon } from '@nimbus-ds/icons';
+import { Box, Icon, IconButton, Tag, Text, Tooltip } from '@nimbus-ds/components';
+import { CheckCircleIcon, CheckIcon, ChevronLeftIcon, CloseIcon, PencilIcon, UserCircleIcon } from '@nimbus-ds/icons';
+import { useWhatsAppLoginMode } from './providers/WhatsAppLoginModeProvider';
+import { useBsuidMode } from './providers/BsuidModeProvider';
 import { ChatNavItemSkeleton } from './chat-skeleton';
 import ConversationAvatar from './conversation-avatar';
 import { ChannelIcon, ChannelType } from '@/components';
@@ -36,6 +38,9 @@ export default function ConversationHeaderCompose({
   const modeContext = useModeCustomer();
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
+
+  const { isUsernameMode } = useWhatsAppLoginMode();
+  const { isBsuidMode, getIdentifierDisplay } = useBsuidMode();
 
   // Safe defaults if provider is not available
   const selectedModeCustomer = modeContext?.selectedModeCustomer;
@@ -192,9 +197,32 @@ export default function ConversationHeaderCompose({
                     )}
                   </Box>
                 )}
-                <Text as="span" color='neutral-textDisabled' fontSize="caption">
-                  {getChannelIdentifier()}
-                </Text>
+                {isBsuidMode && currentConversation?.customer?.identifierType && currentConversation.customer.identifierType !== 'phone' ? (
+                  <Box display="flex" flexDirection="row" gap="1" alignItems="center">
+                    <Text as="span" color='neutral-textDisabled' fontSize="caption">
+                      {getIdentifierDisplay(currentConversation.customer).sublabel}
+                    </Text>
+                    <Tooltip
+                      content={
+                        currentConversation.customer.identifierType === 'username'
+                          ? 'Este usuário usa WhatsApp com username. Seu número não está disponível.'
+                          : 'Usuário identificado apenas por BSUID. Sem número nem username disponível.'
+                      }
+                    >
+                      <Tag
+                        appearance={currentConversation.customer.identifierType === 'username' ? 'primary' : 'neutral'}
+                      >
+                        <Text fontSize="caption" color="currentColor">
+                          {currentConversation.customer.identifierType === 'username' ? 'Username' : 'BSUID'}
+                        </Text>
+                      </Tag>
+                    </Tooltip>
+                  </Box>
+                ) : (
+                  <Text as="span" color='neutral-textDisabled' fontSize="caption">
+                    {getChannelIdentifier()}
+                  </Text>
+                )}
               </Box>
             </Box>
 

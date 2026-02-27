@@ -55,6 +55,8 @@ import WhatsAppAlertsContainer from '@/components/FailedMessageAlertStatus/Whats
 import { selectActiveFilter } from '@/redux/slices/channels';
 import HumanHelpReviewBanner from '@/pages/OnboardingStepper/components/KnowledgeLibrary/HumanHelpReviewBanner';
 import { detectHumanHelpInstructions } from '@/pages/OnboardingStepper/components/KnowledgeLibrary/humanHelpDetection';
+import { useBsuidMode } from '../providers/BsuidModeProvider';
+import RequestContactInfoBanner from '../RequestContactInfoBanner';
 
 //
 
@@ -68,6 +70,13 @@ export default function ConversationView({
   const loadingButton = useBoolean();
   const { selectedMode } = useContext(ModeContext);
   const { contacts, participantsInConversation } = useChat();
+  const {
+    isBsuidMode,
+    bsuidConversations,
+    currentBsuidConversation,
+    setCurrentBsuidConversation,
+    bsuidMessages,
+  } = useBsuidMode();
 
   // const details = !!currentConversationId;
   const [selectedStore, setSelectedStore] = useState('');
@@ -1153,20 +1162,24 @@ export default function ConversationView({
     getUnreadConversations();
   }, [neeedAttention, searchQuery, selectedTagFilter]);
 
+  const activeConversation = isBsuidMode ? currentBsuidConversation : currentConversation;
+  const activeMessages = isBsuidMode ? bsuidMessages : chatMessages;
+
+  const onClickNavItemBsuid = (conv: any) => {
+    setCurrentBsuidConversation(conv);
+  };
+
   const renderHead = (
     <Stack>
       <ConversationHeaderCompose
-        currentConversation={currentConversation}
+        currentConversation={activeConversation}
         loadingState={loadingButton.value}
         onChangeQualification={() =>
-          onChangeQualification(currentConversation?.id)
+          onChangeQualification(activeConversation?.id)
         }
         onChangePausedUser={onChangePausedUser}
         pausedUser={pausedUser}
-        onViewOrder={() => {
-          // setShowOrder(true);
-          // setOrderTrigger((prev) => prev + 1);
-        }}
+        onViewOrder={() => {}}
         onAssign={handleAssignConversation}
         onUpdateCustomerName={handleUpdateCustomerName}
       />
@@ -1176,12 +1189,12 @@ export default function ConversationView({
   const renderNav = (
     <ConversationNav
       contacts={contacts}
-      conversations={filteredConversations || []}
-      onClickConversation={onClickNavItem}
-      loading={loadingConversations}
-      currentConversationId={currentConversation?.id}
+      conversations={isBsuidMode ? bsuidConversations : (filteredConversations || [])}
+      onClickConversation={isBsuidMode ? onClickNavItemBsuid : onClickNavItem}
+      loading={isBsuidMode ? false : loadingConversations}
+      currentConversationId={isBsuidMode ? currentBsuidConversation?.id : currentConversation?.id}
       handlePaginationChange={handlePaginationChange}
-      totalConversations={totalConversations}
+      totalConversations={isBsuidMode ? bsuidConversations.length : totalConversations}
       fetchingMoreConversations={loadingMoreConversations}
       handleNeedAttention={toggleAttention}
       handleSearch={(query: string) => {
@@ -1213,11 +1226,11 @@ export default function ConversationView({
   const handleCloseImage = () => {
     setImgUrl(null);
   };
-  const lastMessage = currentConversation?.lastMessage;
+  const lastMessage = activeConversation?.lastMessage;
   const renderMessages = (
     <Box display="flex" flexDirection="column" height="100%" width="100%">
       <ConversationTagsHeader
-        currentConversation={currentConversation}
+        currentConversation={activeConversation}
         onResolveAttention={handleResolveAttention}
       />
       <Stack
@@ -1286,24 +1299,24 @@ export default function ConversationView({
             </Stack>
           </Box>
         )}
-        {!imgUrl && currentConversation && (
+        {!imgUrl && activeConversation && (
           <>
             {/* #region agent log */}
-            {(() => { fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:renderMessages',message:'RENDERING messages area',data:{hasConversation:true,conversationId:currentConversation?.id,messagesCount:chatMessages?.length,isChannelConnected},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H9,H10'})}).catch(()=>{}); return null; })()}
+            {(() => { fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:renderMessages',message:'RENDERING messages area',data:{hasConversation:true,conversationId:activeConversation?.id,messagesCount:activeMessages?.length,isChannelConnected},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H9,H10'})}).catch(()=>{}); return null; })()}
             {/* #endregion */}
             <ConversationMessageList
-              messages={chatMessages || []}
+              messages={activeMessages || []}
               participants={participantsInConversation}
               loadMoreConversations={() => {
-                handlePaginationConversation();
+                if (!isBsuidMode) handlePaginationConversation();
               }}
               store={selectedStore}
               newMessage={newMessageFlag}
-              isLoading={loadingMessages}
-              conversation={currentConversation}
-              isLoadingInitialMessages={loadingInitialMessages}
-              onClickConversation={onClickNavItem}
-              hasMore={currentPageRef.current <= totalMessagesPages}
+              isLoading={isBsuidMode ? false : loadingMessages}
+              conversation={activeConversation}
+              isLoadingInitialMessages={isBsuidMode ? false : loadingInitialMessages}
+              onClickConversation={isBsuidMode ? onClickNavItemBsuid : onClickNavItem}
+              hasMore={isBsuidMode ? false : currentPageRef.current <= totalMessagesPages}
               fetchingMoreMessages={loadingMoreMessages}
             />
             <FailedMessageAlertStatus
@@ -1311,7 +1324,8 @@ export default function ConversationView({
               keyMessage={'conversations.failed-message-alert'}
             />
               <PricingAlertStatus type={billingData?.status} daysLeft={billingData?.billingPlan?.dayLeft} isCostumerInvoice={billingData?.isCostumerInvoice} />
-              {isChannelConnected ? (
+              <RequestContactInfoBanner />
+              {isChannelConnected || isBsuidMode ? (
                 <Box backgroundColor="neutral-surface">
                   <ConversationMessageInput
                   recipients={[]}
@@ -1322,8 +1336,8 @@ export default function ConversationView({
                   onSendImage={onSendImage}
                   onSendFile={onSendFile}
                   onSendTemplate={onSendTemplate}
-                  currentConversation={currentConversation}
-                  isLoadingInitialMessages={loadingInitialMessages}
+                  currentConversation={activeConversation}
+                  isLoadingInitialMessages={isBsuidMode ? false : loadingInitialMessages}
                   lastMessage={lastMessage}
                   markAsResolved={markAsResolved}
                   newTag={notification?.newTag}
@@ -1337,7 +1351,7 @@ export default function ConversationView({
             
           </>
         )}
-        {!currentConversation && (
+        {!activeConversation && (
           <Box
             height="100%"
             display="flex"
@@ -1409,7 +1423,7 @@ export default function ConversationView({
             overflow: 'hidden',
           }}
         >
-          {currentConversation && renderHead}
+          {activeConversation && renderHead}
 
           <Stack
             direction="row"
@@ -1432,7 +1446,7 @@ export default function ConversationView({
 
   return (
     <ModeCustomerDataProvider
-      initialCustomerId={currentConversation?.customer?.id}
+      initialCustomerId={activeConversation?.customer?.id}
     >
       <Box display="flex" flexDirection="column" gap="2" mb="2">
         <WhatsAppAlertsContainer />

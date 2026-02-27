@@ -22,9 +22,12 @@ import { setStoreInfo } from '@/redux/slices/store';
 import BillingDataProvider from '@/pages/Costs/providers/BillingDataProvider';
 import { InstagramOnboarding } from '@/pages/OnboardingInstagram';
 import { FacebookOnboarding } from '@/pages/OnboardingFacebook';
+import { WhatsAppLoginOnboarding } from '@/pages/OnboardingWhatsAppLogin';
 import Home from '@/pages/Home/Home';
 import Costs from '@/pages/Costs/Costs';
 import { LoginPage, ProtectedRoute } from '@/components/Auth';
+import PLBVVerification from '@/pages/Demo/PLBVVerification';
+import BsuidChatDemo from '@/pages/BsuidChatDemo/BsuidChatDemo';
 
 const Router: React.FC = () => {
   const [, setStoreDetails] = useState(null);
@@ -36,7 +39,7 @@ const Router: React.FC = () => {
   // Get store info from Redux (already set by App.tsx in POC mode)
   useSelector((state: any) => state?.store);
 
-  const isExternalRoute = location.pathname.startsWith('/external/');
+  const isExternalRoute = location.pathname.startsWith('/external/') || location.pathname.startsWith('/demo/');
   const isLoginRoute = location.pathname === '/login';
 
   const onGetStoreDetails = () => {
@@ -228,6 +231,14 @@ const Router: React.FC = () => {
         }
       />
       <Route
+        path="/external/channels/whatsapp/onboarding"
+        element={
+          <ProtectedRoute>
+            <WhatsAppLoginOnboarding />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/costs"
         element={
           <ProtectedRoute>
@@ -238,6 +249,34 @@ const Router: React.FC = () => {
         }
       />
       
+      {/* ============================================
+          DEMO ROUTES - Protegidas por access code
+          ============================================ */}
+      <Route
+        path="/demo/plbv"
+        element={
+          <ProtectedRoute>
+            <PLBVVerification />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/demo/bsuid-chat"
+        element={
+          <ProtectedRoute>
+            <BsuidChatDemo />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/demo/whatsapp-login"
+        element={
+          <ProtectedRoute>
+            <WhatsAppLoginOnboarding />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Catch-all redirect */}
       <Route
         path="*"

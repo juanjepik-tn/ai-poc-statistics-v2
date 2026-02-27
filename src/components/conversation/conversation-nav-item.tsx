@@ -23,6 +23,7 @@ import { getTagTranslation } from '@/hooks';
 import { TagText } from './TagText';
 import { ChannelIcon } from '../ChannelIcon';
 import { ChannelType } from '@/types/conversation';
+import { useBsuidMode } from './providers/BsuidModeProvider';
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -91,6 +92,7 @@ export default function ConversationNavItem({
   };
   const { storeDetails } = useStoreDetails();
   const isBrazilianStore = storeDetails?.country === 'BR';
+  const { isBsuidMode, getIdentifierDisplay } = useBsuidMode();
 
   const filterPaymentTags = (tags: any[]) => {
     if (isBrazilianStore) {
@@ -306,6 +308,16 @@ export default function ConversationNavItem({
               <Text color="neutral-textHigh" fontWeight="medium">
                 {conversation?.customer?.name}
               </Text>
+              {isBsuidMode && conversation?.customer?.identifierType === 'username' && (
+                <Tag appearance="primary">
+                  <Text fontSize="caption" color="currentColor">@</Text>
+                </Tag>
+              )}
+              {isBsuidMode && conversation?.customer?.identifierType === 'bsuid_only' && (
+                <Tag appearance="neutral">
+                  <Text fontSize="caption" color="currentColor">ID</Text>
+                </Tag>
+              )}
             </Box>
             <Box display="flex" flexDirection="row" gap="0-5" alignItems="center">
               {lastMessage?.role === 'assistant' && undoneHumanAttentionTags?.length === 0 && !isMessageFailed && (

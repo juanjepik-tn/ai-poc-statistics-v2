@@ -187,7 +187,7 @@ const ConfigurationsInstances: React.FC = () => {
                         <Button 
                           appearance="primary" 
                           size="small"
-                          onClick={handlePreOnboarding}
+                          onClick={() => navigate('/external/channels/whatsapp/onboarding')}
                         >
                           <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
                           Adicionar número

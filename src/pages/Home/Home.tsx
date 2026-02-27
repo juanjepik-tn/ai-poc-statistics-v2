@@ -203,6 +203,43 @@ const Home: React.FC = () => {
               </Card>
             </Box>
 
+            {/* Demo Standalone Pages */}
+            <Box marginBottom="2" marginTop="4">
+              <Text color="neutral-textLow" fontSize="caption" fontWeight="bold">
+                Demos standalone (para compartir):
+              </Text>
+            </Box>
+
+            <Box display="flex" flexDirection="column" gap="4" marginBottom="6">
+              <NavCard
+                title="PLBV Verification"
+                description="Business Verification de Meta via Partner (PLBV). Flujo de carga de docs y panel de estados."
+                emoji="✅"
+                path="/demo/plbv"
+                tag="Nuevo"
+                tagAppearance="success"
+                highlighted
+              />
+              <NavCard
+                title="BSUID & Usernames Chat"
+                description="Experiencia de chat con contactos identificados por username y BSUID en vez de teléfono."
+                emoji="💬"
+                path="/demo/bsuid-chat"
+                tag="Nuevo"
+                tagAppearance="success"
+                highlighted
+              />
+              <NavCard
+                title="WhatsApp Login Directo"
+                description="Onboarding de WhatsApp con login directo por número de teléfono (sin Embedded Signup)."
+                emoji="📱"
+                path="/demo/whatsapp-login"
+                tag="Nuevo"
+                tagAppearance="success"
+                highlighted
+              />
+            </Box>
+
             <Box marginBottom="2">
               <Text color="neutral-textLow" fontSize="caption">
                 Seções standalone (sem layout de admin):

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -33,8 +33,78 @@ import {
 } from '@/redux/slices/channels';
 import NewConversationModal from './NewConversationModal';
 import { ModeContext } from './providers/ModeDataProvider';
+import { useBsuidMode } from './providers/BsuidModeProvider';
 
 // ----------------------------------------------------------------------
+
+const BsuidToggleInNav: React.FC = () => {
+  const { isBsuidMode, toggleBsuidMode } = useBsuidMode();
+  return (
+    <BoxNimbus
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      padding="2"
+      borderRadius="base"
+      style={{
+        background: isBsuidMode
+          ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%)'
+          : 'var(--color-neutral-surface)',
+        border: isBsuidMode ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid transparent',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+      }}
+      onClick={toggleBsuidMode}
+    >
+      <BoxNimbus display="flex" alignItems="center" gap="2">
+        <BoxNimbus
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          width="24px"
+          height="24px"
+          borderRadius="base"
+          style={{
+            background: isBsuidMode ? 'rgba(99, 102, 241, 0.2)' : 'rgba(0,0,0,0.05)',
+            fontSize: '14px',
+          }}
+        >
+          🆔
+        </BoxNimbus>
+        <BoxNimbus display="flex" flexDirection="column">
+          <Text fontSize="caption" fontWeight="bold" color={isBsuidMode ? 'primary-textHigh' : 'neutral-textHigh'}>
+            BSUID & Usernames
+          </Text>
+        </BoxNimbus>
+      </BoxNimbus>
+      <div
+        style={{
+          width: 36,
+          height: 20,
+          borderRadius: 10,
+          background: isBsuidMode ? '#6366f1' : '#D1D5DB',
+          position: 'relative',
+          transition: 'background 0.2s ease',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: '50%',
+            background: '#fff',
+            position: 'absolute',
+            top: 2,
+            left: isBsuidMode ? 18 : 2,
+            transition: 'left 0.2s ease',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+          }}
+        />
+      </div>
+    </BoxNimbus>
+  );
+};
 
 const NAV_WIDTH = 350;
 
@@ -444,6 +514,9 @@ export default function ConversationNav({
             </Popover>
           </BoxNimbus>
         </BoxNimbus>
+
+        {/* BSUID Mode Toggle */}
+        <BsuidToggleInNav />
 
         {/* Segmented Control + Filter Button */}
         <ConversationTabs
