@@ -78,16 +78,19 @@ export const Step1MethodSelection: React.FC<Step1MethodSelectionProps> = ({
         }}
         onClick={onSelectWhatsAppLogin}
       >
-        <Box position="absolute" style={{ top: '-12px', right: '16px', zIndex: 1 }}>
+        <Box
+          position="absolute"
+          display="flex"
+          gap="2"
+          style={{ top: '-12px', left: '16px', zIndex: 1 }}
+        >
+          <Tag appearance="success">Novo</Tag>
           <Tag appearance="primary">
             <Box display="flex" alignItems="center" gap="1">
               <Icon source={<StarIcon size={12} />} color="currentColor" />
               <Text fontSize="caption" color="currentColor" fontWeight="bold">Recomendado</Text>
             </Box>
           </Tag>
-        </Box>
-        <Box position="absolute" style={{ top: '-12px', left: '16px', zIndex: 1 }}>
-          <Tag appearance="success">Novo</Tag>
         </Box>
 
         <Box display="flex" flexDirection="column" gap="4" padding="5">
