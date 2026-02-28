@@ -308,15 +308,50 @@ export default function ConversationNavItem({
               <Text color="neutral-textHigh" fontWeight="medium">
                 {conversation?.customer?.name}
               </Text>
+              {isBsuidMode && conversation?.customer?.identifierType === 'phone' && conversation?.customer?.bsuid && (
+                <span style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: '#059669',
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  padding: '1px 5px',
+                  borderRadius: 4,
+                  fontFamily: "'Geist', sans-serif",
+                  letterSpacing: '0.02em',
+                }}>
+                  DUAL
+                </span>
+              )}
               {isBsuidMode && conversation?.customer?.identifierType === 'username' && (
-                <Tag appearance="primary">
-                  <Text fontSize="caption" color="currentColor">@</Text>
-                </Tag>
+                <span style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: '#0059d5',
+                  backgroundColor: 'rgba(0, 89, 213, 0.08)',
+                  border: '1px solid rgba(0, 89, 213, 0.25)',
+                  padding: '1px 5px',
+                  borderRadius: 4,
+                  fontFamily: "'Geist', sans-serif",
+                  letterSpacing: '0.02em',
+                }}>
+                  @USER
+                </span>
               )}
               {isBsuidMode && conversation?.customer?.identifierType === 'bsuid_only' && (
-                <Tag appearance="neutral">
-                  <Text fontSize="caption" color="currentColor">ID</Text>
-                </Tag>
+                <span style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: '#d97706',
+                  backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                  border: '1px solid rgba(245, 158, 11, 0.25)',
+                  padding: '1px 5px',
+                  borderRadius: 4,
+                  fontFamily: "'Geist', sans-serif",
+                  letterSpacing: '0.02em',
+                }}>
+                  BSUID
+                </span>
               )}
             </Box>
             <Box display="flex" flexDirection="row" gap="0-5" alignItems="center">

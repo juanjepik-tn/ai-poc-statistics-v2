@@ -856,34 +856,38 @@ export default function ConversationMessageItem({ message, store, channelType = 
         </BoxNimbus>
       )}
       
-      {/* Timestamp + Direct Send tag */}
+      {/* Timestamp + Direct Send / Template tag */}
       <BoxNimbus display="flex" flexDirection="row" alignItems="center" gap="1">
         {isDirectSendMode && classMessage !== 'message-template' && me && (
           <span style={{
-            fontSize: '10px',
-            fontWeight: 600,
+            fontSize: 9,
+            fontWeight: 700,
             color: '#0059d5',
-            backgroundColor: '#eef5ff',
+            backgroundColor: 'rgba(0, 89, 213, 0.08)',
+            border: '1px solid rgba(0, 89, 213, 0.2)',
             padding: '1px 6px',
             borderRadius: 4,
             fontFamily: "'Geist', sans-serif",
             lineHeight: '16px',
+            letterSpacing: '0.02em',
           }}>
-            Direct Send
+            DIRECT SEND
           </span>
         )}
         {classMessage === 'message-template' && (
           <span style={{
-            fontSize: '10px',
-            fontWeight: 600,
+            fontSize: 9,
+            fontWeight: 700,
             color: '#5d5d5d',
-            backgroundColor: '#f0f0f0',
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            border: '1px solid rgba(0, 0, 0, 0.08)',
             padding: '1px 6px',
             borderRadius: 4,
             fontFamily: "'Geist', sans-serif",
             lineHeight: '16px',
+            letterSpacing: '0.02em',
           }}>
-            Template
+            TEMPLATE
           </span>
         )}
         <span style={{ color: '#5d5d5d', fontSize: '12px', lineHeight: '16px', fontFamily: "'Geist', sans-serif" }}>

@@ -201,27 +201,47 @@ export default function ConversationHeaderCompose({
                     )}
                   </Box>
                 )}
-                {isBsuidMode && currentConversation?.customer?.identifierType && currentConversation.customer.identifierType !== 'phone' ? (
-                  <Box display="flex" flexDirection="row" gap="1" alignItems="center">
-                    <Text as="span" color='neutral-textDisabled' fontSize="caption">
-                      {getIdentifierDisplay(currentConversation.customer).sublabel}
-                    </Text>
-                    <Tooltip
-                      content={
-                        currentConversation.customer.identifierType === 'username'
-                          ? 'Este usuário usa WhatsApp com username. Seu número não está disponível.'
-                          : 'Usuário identificado apenas por BSUID. Sem número nem username disponível.'
-                      }
-                    >
-                      <Tag
-                        appearance={currentConversation.customer.identifierType === 'username' ? 'primary' : 'neutral'}
-                      >
-                        <Text fontSize="caption" color="currentColor">
-                          {currentConversation.customer.identifierType === 'username' ? 'Username' : 'BSUID'}
-                        </Text>
-                      </Tag>
-                    </Tooltip>
-                  </Box>
+                {isBsuidMode && currentConversation?.customer?.identifierType ? (
+                  (() => {
+                    const display = getIdentifierDisplay(currentConversation.customer);
+                    const idType = currentConversation.customer.identifierType;
+                    return (
+                      <Box display="flex" flexDirection="column" gap="0-5">
+                        <Box display="flex" flexDirection="row" gap="1" alignItems="center">
+                          <Text as="span" color="neutral-textDisabled" fontSize="caption">
+                            {display.sublabel}
+                          </Text>
+                          {idType === 'username' && (
+                            <Tag appearance="primary">
+                              <Text fontSize="caption" color="currentColor">Username</Text>
+                            </Tag>
+                          )}
+                          {idType === 'bsuid_only' && (
+                            <Tag appearance="neutral">
+                              <Text fontSize="caption" color="currentColor">BSUID</Text>
+                            </Tag>
+                          )}
+                          {idType === 'phone' && display.isDualKey && (
+                            <Tooltip content={`BSUID: ${currentConversation.customer.bsuid}`}>
+                              <Tag appearance="success">
+                                <Text fontSize="caption" color="currentColor">Dual-key</Text>
+                              </Tag>
+                            </Tooltip>
+                          )}
+                        </Box>
+                        {display.isDualKey && idType !== 'phone' && (
+                          <Text as="span" color="neutral-textDisabled" fontSize="caption" style={{ opacity: 0.6 }}>
+                            BSUID: {display.bsuidLabel}
+                          </Text>
+                        )}
+                        {idType === 'phone' && display.isDualKey && (
+                          <Text as="span" color="neutral-textDisabled" fontSize="caption" style={{ opacity: 0.6 }}>
+                            BSUID: {display.bsuidLabel}
+                          </Text>
+                        )}
+                      </Box>
+                    );
+                  })()
                 ) : (
                   <Text as="span" color='neutral-textDisabled' fontSize="caption">
                     {getChannelIdentifier()}

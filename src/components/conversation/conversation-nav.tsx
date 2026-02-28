@@ -118,9 +118,9 @@ const DirectSendToggleInNav: React.FC = () => {
       borderRadius="base"
       style={{
         background: isDirectSendMode
-          ? 'linear-gradient(135deg, rgba(0, 89, 213, 0.1) 0%, rgba(0, 60, 150, 0.1) 100%)'
+          ? 'linear-gradient(135deg, rgba(0, 89, 213, 0.08) 0%, rgba(0, 60, 180, 0.06) 100%)'
           : 'var(--color-neutral-surface)',
-        border: isDirectSendMode ? '1px solid rgba(0, 89, 213, 0.3)' : '1px solid transparent',
+        border: isDirectSendMode ? '1px solid rgba(0, 89, 213, 0.25)' : '1px solid transparent',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
       }}
@@ -135,8 +135,7 @@ const DirectSendToggleInNav: React.FC = () => {
           height="24px"
           borderRadius="base"
           style={{
-            background: isDirectSendMode ? 'rgba(0, 89, 213, 0.2)' : 'rgba(0,0,0,0.05)',
-            fontSize: '14px',
+            background: isDirectSendMode ? 'rgba(0, 89, 213, 0.15)' : 'rgba(0,0,0,0.05)',
           }}
         >
           <Icon source={<RocketIcon size={14} />} color={isDirectSendMode ? 'primary-interactive' : 'neutral-textDisabled'} />
@@ -145,6 +144,11 @@ const DirectSendToggleInNav: React.FC = () => {
           <Text fontSize="caption" fontWeight="bold" color={isDirectSendMode ? 'primary-textHigh' : 'neutral-textHigh'}>
             Direct Send
           </Text>
+          {isDirectSendMode && (
+            <Text fontSize="caption" color="primary-textLow" style={{ fontSize: 10 }}>
+              Utility sem template
+            </Text>
+          )}
         </BoxNimbus>
       </BoxNimbus>
       <div

@@ -461,36 +461,54 @@ export default function ConversationMessageInput({
           )}
 
           {showDirectSendBanner && (
-            <BoxNimbus
-              display="flex"
-              flexDirection="row"
-              alignItems="center"
-              gap="2"
-              paddingX="3"
-              paddingY="2"
-              marginX="2"
-              marginBottom="1"
-              borderRadius="2"
-              backgroundColor="primary-surface"
-            >
-              <Icon source={<InfoCircleIcon size={14} />} color="primary-interactive" />
-              <BoxNimbus display="flex" flexDirection="row" alignItems="center" gap="1" flexGrow="1" flexWrap="wrap">
-                <Text fontSize="caption" color="primary-textLow">
-                  Janela de 24h expirada. Mensagens enviadas como Direct Send (utility).
-                </Text>
-                <Link
-                  appearance="primary"
-                  textDecoration="none"
-                  as="a"
-                  onClick={() => setShowTemplatePicker(true)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <Text fontSize="caption" color="primary-interactive" fontWeight="medium">
-                    Usar template
-                  </Text>
-                </Link>
-              </BoxNimbus>
-            </BoxNimbus>
+            <div style={{
+              margin: '0 8px 6px',
+              padding: '10px 14px',
+              borderRadius: 10,
+              background: 'linear-gradient(135deg, rgba(0, 89, 213, 0.06) 0%, rgba(0, 60, 180, 0.04) 100%)',
+              border: '1px solid rgba(0, 89, 213, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+            }}>
+              <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                background: 'rgba(0, 89, 213, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Icon source={<InfoCircleIcon size={16} />} color="primary-interactive" />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#0059d5', fontFamily: "'Geist', sans-serif" }}>
+                  Direct Send ativo
+                </span>
+                <span style={{ fontSize: 11, color: '#5d5d5d', fontFamily: "'Geist', sans-serif" }}>
+                  Janela 24h expirada. Mensagens enviadas como utility.
+                </span>
+              </div>
+              <button
+                onClick={() => setShowTemplatePicker(true)}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: '#0059d5',
+                  background: 'rgba(0, 89, 213, 0.08)',
+                  border: '1px solid rgba(0, 89, 213, 0.2)',
+                  borderRadius: 6,
+                  padding: '4px 10px',
+                  cursor: 'pointer',
+                  fontFamily: "'Geist', sans-serif",
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Usar template
+              </button>
+            </div>
           )}
 
           {showDirectSendBanner && showTemplatePicker && (

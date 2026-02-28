@@ -45,7 +45,7 @@ interface BsuidModeContextType {
   bsuidMessages: any[];
   contactInfoRequestState: Record<string, ContactInfoRequestState>;
   requestContactInfo: (conversationId: string) => void;
-  getIdentifierDisplay: (customer: BsuidCustomer) => { label: string; sublabel: string; badgeType?: 'username' | 'bsuid' };
+  getIdentifierDisplay: (customer: BsuidCustomer) => { label: string; sublabel: string; bsuidLabel?: string; badgeType?: 'username' | 'bsuid'; isDualKey?: boolean };
 }
 
 const BsuidModeContext = createContext<BsuidModeContextType>({
@@ -57,7 +57,7 @@ const BsuidModeContext = createContext<BsuidModeContextType>({
   bsuidMessages: [],
   contactInfoRequestState: {},
   requestContactInfo: () => {},
-  getIdentifierDisplay: () => ({ label: '', sublabel: '' }),
+  getIdentifierDisplay: () => ({ label: '', sublabel: '', bsuidLabel: '', isDualKey: false }),
 });
 
 export const useBsuidMode = () => useContext(BsuidModeContext);
@@ -76,6 +76,7 @@ const BSUID_MOCK_CONVERSATIONS: BsuidConversation[] = [
       name: 'María López',
       phone: '+54 11 5555-1234',
       username: '+54 11 5555-1234',
+      bsuid: 'US.72841039562718394021',
       identifierType: 'phone',
       state: { name: 'Active', id: 1 },
       frecuent: true,
@@ -198,19 +199,22 @@ export const BsuidModeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const getIdentifierDisplay = useCallback((customer: BsuidCustomer) => {
+    const bsuidShort = customer.bsuid ? `${customer.bsuid.substring(0, 6)}...${customer.bsuid.slice(-4)}` : '';
     switch (customer.identifierType) {
       case 'phone':
-        return { label: customer.name, sublabel: customer.phone || '' };
+        return { label: customer.name, sublabel: customer.phone || '', bsuidLabel: bsuidShort, isDualKey: !!customer.bsuid };
       case 'username':
-        return { label: customer.name, sublabel: customer.username || '', badgeType: 'username' as const };
+        return { label: customer.name, sublabel: customer.username || '', bsuidLabel: bsuidShort, badgeType: 'username' as const, isDualKey: !!customer.bsuid };
       case 'bsuid_only':
         return {
           label: 'Usuario sin identificar',
-          sublabel: customer.bsuid ? `${customer.bsuid.substring(0, 6)}...${customer.bsuid.slice(-4)}` : '',
+          sublabel: bsuidShort,
+          bsuidLabel: bsuidShort,
           badgeType: 'bsuid' as const,
+          isDualKey: false,
         };
       default:
-        return { label: customer.name, sublabel: '' };
+        return { label: customer.name, sublabel: '', bsuidLabel: '', isDualKey: false };
     }
   }, []);
 

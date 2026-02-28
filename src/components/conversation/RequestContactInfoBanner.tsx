@@ -26,17 +26,25 @@ const RequestContactInfoBanner: React.FC = () => {
         }}
       >
         <Icon source={<CheckCircleIcon size={20} />} color="success-interactive" />
-        <Box display="flex" flexDirection="column" gap="0-5" flexGrow="1">
+        <Box display="flex" flexDirection="column" gap="1" flexGrow="1">
           <Text fontWeight="bold" fontSize="caption" color="success-textHigh">
-            O contato compartilhou seu número
+            Dual-key ativo
           </Text>
-          <Text fontSize="caption" color="neutral-textHigh">
-            +54 11 5555-9876
-          </Text>
+          <Box display="flex" gap="2" alignItems="center" flexWrap="wrap">
+            <Box display="flex" gap="1" alignItems="center">
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', backgroundColor: 'rgba(16,185,129,0.12)', padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(16,185,129,0.3)' }}>
+                PHONE
+              </span>
+              <Text fontSize="caption" color="neutral-textHigh">+54 11 5555-9876</Text>
+            </Box>
+            <Box display="flex" gap="1" alignItems="center">
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#6366f1', backgroundColor: 'rgba(99,102,241,0.08)', padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(99,102,241,0.25)' }}>
+                BSUID
+              </span>
+              <Text fontSize="caption" color="neutral-textLow">{customer.bsuid ? `${customer.bsuid.substring(0, 8)}...` : ''}</Text>
+            </Box>
+          </Box>
         </Box>
-        <Button appearance="neutral" size="small" onClick={() => {}}>
-          Salvar contato
-        </Button>
       </Box>
     );
   }
