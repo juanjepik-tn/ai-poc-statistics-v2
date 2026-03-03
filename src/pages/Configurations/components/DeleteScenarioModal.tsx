@@ -26,6 +26,12 @@ const DeleteScenarioModal: React.FC<DeleteScenarioModalProps> = ({
     setDeleting(true);
     try {
       await onConfirm(actionRule.id);
+      addToast({
+        type: 'success',
+        text: t('humanSupport.toast.deleted'),
+        duration: 4000,
+        id: 'human-support-deleted',
+      });
       onClose();
     } catch (error) {
       console.error('Error deleting action rule:', error);

@@ -1,8 +1,85 @@
-import React from 'react';
-import { Box, Button, Card, Icon, Tag, Text, Toggle } from '@nimbus-ds/components';
-import { LockIcon } from '@nimbus-ds/icons';
+import React, { useState } from 'react';
+import { Box, Button, Card, Icon, IconButton, Popover, Tag, Text, Toggle } from '@nimbus-ds/components';
+import { EditIcon, EllipsisIcon, LockIcon, TrashIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
+import { Responsive } from '@/components';
 import { ActionRule, ActionRuleSuggestion } from '../types/actionRule';
+
+const styles: Record<string, React.CSSProperties> = {
+  card: {
+    minHeight: 200,
+    width: '100%',
+    maxWidth: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  },
+  content: {
+    height: '100%',
+    width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    overflow: 'hidden',
+  },
+  header: {
+    minWidth: 0,
+    width: '100%',
+    height: 44,
+    flexShrink: 0,
+    overflow: 'hidden',
+  },
+  headerTitleWrap: {
+    minWidth: 0,
+    flex: 1,
+    overflow: 'hidden',
+    maxWidth: '100%',
+  },
+  headerTagWrap: {
+    flexShrink: 0,
+  },
+  title: {
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    lineHeight: '20px',
+    wordBreak: 'break-all',
+    overflowWrap: 'anywhere',
+    maxWidth: '100%',
+  },
+  body: {
+    minWidth: 0,
+    width: '100%',
+    height: 54,
+    flexShrink: 0,
+    overflow: 'hidden',
+    margin: 0,
+    padding: 0,
+  },
+  descriptionWrapper: {
+    display: '-webkit-box',
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: 'vertical' as const,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '100%',
+  },
+  footer: {
+    marginTop: 'auto',
+    height: 48,
+    flexShrink: 0,
+  },
+  footerSpacer: {
+    flex: 1,
+  },
+  footerLeft: {
+    minWidth: 0,
+  },
+  footerRight: {
+    flexShrink: 0,
+  },
+};
 
 interface TransferScenarioCardProps {
   actionRule?: ActionRule;
@@ -22,17 +99,15 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
   onActivateSuggestion,
 }) => {
   const { t } = useTranslation('translations');
+  const [menuOpen, setMenuOpen] = useState(false);
   const isSuggestion = !!suggestion;
 
-  // Get display name
   const displayName = isSuggestion ? suggestion.name : actionRule?.name || '';
 
-  // Get description (trigger for action rules, description for suggestions)
   const description = isSuggestion
     ? suggestion.description
     : (actionRule?.trigger || t('humanSupport.noDescription'));
 
-  // Determine if this is a system rule (locked)
   // TODO: Replace hardcoded name comparison with a backend-provided flag (e.g., isSystem or isLocked).
   // Current implementation is fragile and breaks i18n. Coordinate with backend team to extend ActionRule contract.
   const isLocked = actionRule?.state === 'enabled' && 
@@ -54,7 +129,6 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
 
   const getTagLabel = () => {
     if (isSuggestion) return t('humanSupport.status.suggestion');
-    // Only show tag for 'to_review', don't show for 'enabled' or 'disabled'
     if (actionRule?.state === 'to_review') {
       return t('humanSupport.status.review');
     }
@@ -63,126 +137,119 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
 
   const isEnabled = actionRule?.state === 'enabled';
 
-  return (
-    <Card padding="base" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box 
-        display="flex" 
-        flexDirection="column" 
-        style={{ 
-          height: '100%', 
-          minHeight: '200px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}
-      >
-        {/* Header - Title and Tag */}
-        <Box 
-          display="flex" 
-          alignItems="center" 
-          gap="2" 
-          flexWrap="wrap" 
-          style={{ 
-            height: '32px',
-            minHeight: '32px',
-            maxHeight: '32px',
-            alignItems: 'center'
-          }}
-        >
-          <Text fontSize="base" fontWeight="bold" color="neutral-textHigh">
-            {displayName}
-          </Text>
+  const toggleElement = (
+    <Toggle
+      name={`toggle-${isSuggestion ? suggestion?.id : actionRule?.id}`}
+      active={isSuggestion ? false : isEnabled}
+      onChange={() => {
+        if (isSuggestion && suggestion && onActivateSuggestion) {
+          onActivateSuggestion(suggestion);
+        } else if (actionRule?.id && onToggle) {
+          onToggle(actionRule.id);
+        }
+      }}
+      disabled={isLocked && !isSuggestion}
+    />
+  );
+
+  const mobileMenuElement = !isSuggestion && actionRule && !isLocked ? (
+    <Popover
+      visible={menuOpen}
+      onVisibility={setMenuOpen}
+      enabledClick
+      enabledDismiss
+      arrow={false}
+      position="bottom-end"
+      padding="small"
+      content={
+        <Box display="flex" flexDirection="column">
+          <Button appearance="transparent" onClick={() => { setMenuOpen(false); onEdit?.(actionRule); }}>
+            <Icon source={<EditIcon />} color="currentColor" />
+            {t('humanSupport.actions.edit')}
+          </Button>
+          <Button appearance="transparent" onClick={() => { setMenuOpen(false); onDelete?.(actionRule); }}>
+            <Icon source={<TrashIcon />} color="currentColor" />
+            {t('humanSupport.actions.delete')}
+          </Button>
+        </Box>
+      }
+    >
+      <IconButton
+        size="2rem"
+        source={<EllipsisIcon />}
+        aria-label={t('settings.more_options')}
+      />
+    </Popover>
+  ) : null;
+
+  const desktopCard = (
+    <Card padding="base" style={styles.card}>
+      <Box display="flex" flexDirection="column" gap="4" style={styles.content}>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap="3" style={styles.header}>
+          <Box display="flex" flexDirection="column" gap="1" style={styles.headerTitleWrap}>
+            <Text fontSize="base" fontWeight="bold" color="neutral-textHigh" style={styles.title}>
+              {displayName}
+            </Text>
+          </Box>
           {getTagLabel() && (
-            <Tag appearance={getTagAppearance()}>{getTagLabel()}</Tag>
+            <Box style={styles.headerTagWrap}>
+              <Tag appearance={getTagAppearance()}>{getTagLabel()}</Tag>
+            </Box>
           )}
         </Box>
-
-        {/* Body - Description */}
-        <Box 
-          style={{ 
-            height: '72px',
-            minHeight: '72px',
-            maxHeight: '72px',
-            marginTop: '8px',
-            marginBottom: '8px'
-          }}
-        >
-          <Text 
-            fontSize="caption" 
-            color="neutral-textLow"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              height: '100%',
-              lineHeight: '16px',
-              textAlign: 'justify'
-            }}
-          >
+        <Box style={styles.body}>
+          <Text as="p" fontSize="caption" color="neutral-textLow" style={styles.descriptionWrapper}>
             {description}
           </Text>
         </Box>
-
-        {/* Footer - Buttons and Toggle */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          style={{
-            height: '40px',
-            minHeight: '40px',
-            maxHeight: '40px',
-            paddingTop: '8px'
-          }}
-        >
+        <Box display="flex" justifyContent="space-between" alignItems="center" gap="4" style={styles.footer}>
           {!isSuggestion && actionRule && !isLocked ? (
-            <Box display="flex" gap="2" alignItems="center" style={{ height: '100%' }}>
-              <Button
-                appearance="neutral"
-                onClick={() => onEdit?.(actionRule)}
-                style={{ fontSize: '12px', padding: '6px 12px' }}
-              >
+            <Box display="flex" gap="2" alignItems="center" style={styles.footerLeft}>
+              <Button appearance="neutral" onClick={() => onEdit?.(actionRule)}>
                 {t('humanSupport.actions.edit')}
               </Button>
-              <Button
-                appearance="transparent"
-                onClick={() => onDelete?.(actionRule)}
-                style={{ fontSize: '12px', padding: '6px 12px' }}
-              >
+              <Button appearance="transparent" onClick={() => onDelete?.(actionRule)}>
                 {t('humanSupport.actions.delete')}
               </Button>
             </Box>
           ) : (
-            <Box style={{ height: '100%' }} />
+            <Box style={styles.footerSpacer} />
           )}
-
-          <Box 
-            display="flex" 
-            alignItems="center" 
-            gap="2"
-            style={{ height: '100%' }}
-          >
-            {isLocked && (
-              <Icon source={<LockIcon />} color="neutral-textLow" />
-            )}
-            <Toggle
-              name={`toggle-${isSuggestion ? suggestion?.id : actionRule?.id}`}
-              active={isSuggestion ? false : isEnabled}
-              onChange={() => {
-                if (isSuggestion && suggestion && onActivateSuggestion) {
-                  onActivateSuggestion(suggestion);
-                } else if (actionRule?.id && onToggle) {
-                  onToggle(actionRule.id);
-                }
-              }}
-              disabled={isLocked && !isSuggestion}
-            />
+          <Box display="flex" alignItems="center" gap="2" style={styles.footerRight}>
+            {isLocked && <Icon source={<LockIcon />} color="neutral-textLow" />}
+            {toggleElement}
           </Box>
         </Box>
       </Box>
     </Card>
+  );
+
+  const mobileCard = (
+    <Card padding="base">
+      <Box display="flex" alignItems="center" gap="3">
+        <Box flex="1" display="flex" flexDirection="column" gap="1" style={{ minWidth: 0 }}>
+          <Text fontSize="base" fontWeight="bold" color="neutral-textHigh" style={styles.title}>
+            {displayName}
+          </Text>
+          <Text as="p" fontSize="caption" color="neutral-textLow" lineClamp={2}>
+            {description}
+          </Text>
+        </Box>
+        {getTagLabel() && (
+          <Tag appearance={getTagAppearance()}>{getTagLabel()}</Tag>
+        )}
+        {mobileMenuElement}
+        {isLocked && <Icon source={<LockIcon />} color="neutral-textLow" />}
+        {toggleElement}
+      </Box>
+    </Card>
+  );
+
+  return (
+    <Responsive
+      desktopContent={desktopCard}
+      mobileContent={mobileCard}
+    />
   );
 };
 

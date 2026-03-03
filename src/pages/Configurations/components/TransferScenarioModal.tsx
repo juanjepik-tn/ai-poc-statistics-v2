@@ -72,13 +72,18 @@ const TransferScenarioModal: React.FC<TransferScenarioModalProps> = ({
 
   return (
     <Modal open={open} onDismiss={handleClose}>
-      <Modal.Header title={t('humanSupport.modal.title')} />
-      <Modal.Body padding="none">
-        <Box padding="4" display="flex" flexDirection="column" gap="4">
-          <Text color="neutral-textLow">
+      <Modal.Header>
+        <Box display="flex" flexDirection="column" gap="1">
+          <Text fontSize="highlight" fontWeight="bold">
+            {t('humanSupport.modal.title')}
+          </Text>
+          <Text color="neutral-textLow" fontSize="base">
             {t('humanSupport.modal.subtitle')}
           </Text>
-
+        </Box>
+      </Modal.Header>
+      <Modal.Body padding="none">
+        <Box paddingTop="1" paddingBottom="4" display="flex" flexDirection="column" gap="4">
           {/* Scenario name */}
           <Box display="flex" flexDirection="column" gap="1">
             <Label>{t('humanSupport.modal.nameLabel')}</Label>
