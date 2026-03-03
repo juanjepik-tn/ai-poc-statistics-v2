@@ -66,6 +66,7 @@ const AdminPage: React.FC = () => {
         height="100%" 
         display="flex" 
         flexDirection="column"
+        overflow="hidden"
       >
         {renderContent()}
       </Box>
