@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Alert, Box, Button, Text } from '@nimbus-ds/components';
 import { useTranslation } from 'react-i18next';
 
+const DISMISSED_KEY = 'humanHelpReviewBanner:dismissed';
+
 interface HumanHelpReviewBannerProps {
   itemsToReviewCount: number;
   showLibraryButton?: boolean;
@@ -10,7 +12,13 @@ interface HumanHelpReviewBannerProps {
 
 const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToReviewCount, showLibraryButton = false, onMarkAllReviewed }) => {
   const { t } = useTranslation('translations');
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(DISMISSED_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   if (itemsToReviewCount === 0 || dismissed) {
     return null;
@@ -21,6 +29,9 @@ const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToRe
   };
 
   const handleRemove = () => {
+    try {
+      localStorage.setItem(DISMISSED_KEY, 'true');
+    } catch { /* storage unavailable */ }
     setDismissed(true);
   };
 
