@@ -11,7 +11,7 @@ import translations from "./locales";
 
 const i18nConfig = {
   resources: translations,
-  fallbackLng: "es-AR", // idioma por defecto
+  fallbackLng: "pt-BR",
   defaultNS: "translations",
 };
 

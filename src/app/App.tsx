@@ -45,10 +45,16 @@ const App: React.FC = () => {
     const initializePOC = async () => {
       console.log('[POC] Initializing with mock data...');
 
-      // Set default language
-      const browserLang = navigator.language || 'es-AR';
-      const lang = browserLang.startsWith('pt') ? 'pt-BR' : 'es-AR';
-      changeLanguage(lang);
+      // Set language: prefer saved preference, then browser language
+      const savedLanguage = localStorage.getItem('app_language');
+      if (savedLanguage) {
+        changeLanguage(savedLanguage);
+      } else {
+        const browserLang = navigator.language || 'pt-BR';
+        const lang = browserLang.startsWith('es') ? browserLang : 'pt-BR';
+        changeLanguage(lang);
+        localStorage.setItem('app_language', lang);
+      }
 
       // Set mock session data
       dispatch(set(mockSessionData));
