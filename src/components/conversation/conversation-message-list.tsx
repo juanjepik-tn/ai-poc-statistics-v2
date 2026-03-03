@@ -9,11 +9,37 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { TypeAnimation } from 'react-type-animation';
 // import { IConversation, IConversationMessage } from 'src/types/conversation';
 import { Grow } from '@mui/material';
-import { Box, Spinner, Tag, Text } from '@nimbus-ds/components';
+import { Box, Spinner, Text } from '@nimbus-ds/components';
 import ConversationMessageItem from './conversation-message-item';
 import { useTranslation } from 'react-i18next';
 import { useStoreDetails, useWindowWidth } from '@/hooks';
-import { StopIcon } from '@nimbus-ds/icons';
+import ConversationEndDivider from './ConversationEndDivider';
+
+function getDateKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getDateLabel(dateStr: string, t: (key: string) => string): string {
+  const msgDate = new Date(dateStr);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const isSameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+
+  if (isSameDay(msgDate, today)) return t('conversations.date-today');
+  if (isSameDay(msgDate, yesterday)) return t('conversations.date-yesterday');
+
+  return msgDate.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
 
 // ----------------------------------------------------------------------
 
@@ -183,19 +209,35 @@ export default function ConversationMessageList({
   // const slides =
   //   !!messages && messages.map((message) => ({ src: message.content }));
 
+  // #region agent log
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el) {
+      const cs = window.getComputedStyle(el);
+      const parent = el.parentElement;
+      const parentCs = parent ? window.getComputedStyle(parent) : null;
+      fetch('http://127.0.0.1:7246/ingest/c2947b57-3094-42da-965c-5d20fee898a5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-message-list.tsx:scrollContainer',message:'Scroll container DOM metrics',data:{offsetHeight:el.offsetHeight,clientHeight:el.clientHeight,scrollHeight:el.scrollHeight,flex:cs.flex,minHeight:cs.minHeight,overflowY:cs.overflowY,parentTag:parent?.tagName,parentOffsetH:parent?.offsetHeight,parentDisplay:parentCs?.display,parentFlex:parentCs?.flex,parentFlexDir:parentCs?.flexDirection,msgCount:messages.length},timestamp:Date.now(),hypothesisId:'H2,H3'})}).catch(()=>{});
+    }
+  });
+  // #endregion
+
   return (
     <>
-      <Box
-        pt="4"
+      <div
         ref={containerRef}
-        overflowY="auto"
-        paddingLeft="5"
-        paddingRight="4"
-        pb={isMobile ? '10' : 'none'}
-        width="100%"
-        height="100%"
         key="conversation-message-list-box"
-        style={{ backgroundColor: '#f6f6f6' }}
+        style={{
+          backgroundColor: '#ffffff',
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          paddingTop: 'var(--nimbus-spacing-4)',
+          paddingLeft: 'var(--nimbus-spacing-5)',
+          paddingRight: 'var(--nimbus-spacing-4)',
+          paddingBottom: isMobile ? 'var(--nimbus-spacing-10)' : undefined,
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
       >
         {isLoading && (
           <TypeAnimation
@@ -227,24 +269,58 @@ export default function ConversationMessageList({
           </>
         )}
 
-        {messages.map((message, index) => (
+        {messages.map((message, index) => {
+          const currentDateKey = message?.created_at ? getDateKey(message.created_at) : null;
+          const prevDateKey = index > 0 && messages[index - 1]?.created_at
+            ? getDateKey(messages[index - 1].created_at)
+            : null;
+          const showDateDivider = currentDateKey && currentDateKey !== prevDateKey;
+
+          return (
           <div
             key={`message-${index}`}
             id={`message-${message.id}`}
             style={{
               marginBottom: index === messages.length - 1 ? '10px' : '10px',
             }}
-          >      
-          {message?.isFirstMessage && (
-             <Box display="flex" alignItems="center" my="2">
-             <hr style={{ flex: 1, border: '1px solid #935B00', margin: '0 10px' }} />
-             <Tag appearance="warning" style={{ display: 'flex', alignItems: 'center' }}>
-               <StopIcon size={12} />
-               <Text color="warning-textLow">{t('conversations.end-conversation')}</Text>
-             </Tag>
-             <hr style={{ flex: 1, border: '1px solid #935B00', margin: '10px 10px' }} />
-              </Box>
-            )}
+          >
+          {showDateDivider && (
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              my="4"
+            >
+              <div style={{
+                backgroundColor: '#e2e2e2',
+                borderRadius: '8px',
+                padding: '4px 12px',
+                fontSize: '12px',
+                color: '#54656f',
+                fontFamily: "'Geist', sans-serif",
+                fontWeight: 500,
+                lineHeight: '20px',
+              }}>
+                {getDateLabel(message.created_at, t)}
+              </div>
+            </Box>
+          )}
+          {message?.isFirstMessage && (() => {
+              let unread = 0;
+              for (let j = index; j < messages.length; j++) {
+                if (messages[j].role === 'customer' || messages[j].role === 'user') {
+                  unread++;
+                } else {
+                  break;
+                }
+              }
+              return (
+                <ConversationEndDivider
+                  endedAt={index > 0 ? messages[index - 1]?.created_at : undefined}
+                  unreadCount={unread}
+                />
+              );
+            })()}
             <Grow
               in={renderedMessages.has(message?.id)}
               timeout={300}
@@ -262,8 +338,9 @@ export default function ConversationMessageList({
               </div>
             </Grow>            
           </div>
-        ))}
-      </Box>
+          );
+        })}
+      </div>
     </>
   );
 }

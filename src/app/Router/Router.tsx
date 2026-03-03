@@ -25,6 +25,7 @@ import { FacebookOnboarding } from '@/pages/OnboardingFacebook';
 import Home from '@/pages/Home/Home';
 import Costs from '@/pages/Costs/Costs';
 import { LoginPage, ProtectedRoute } from '@/components/Auth';
+import PreviewEndDivider from '@/pages/PreviewEndDivider';
 
 const Router: React.FC = () => {
   const [, setStoreDetails] = useState(null);
@@ -238,6 +239,9 @@ const Router: React.FC = () => {
         }
       />
       
+      {/* Preview route — remove before production */}
+      <Route path="/preview/end-divider" element={<PreviewEndDivider />} />
+
       {/* Catch-all redirect */}
       <Route
         path="*"

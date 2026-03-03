@@ -12,6 +12,7 @@ import {
 // _mock
 
 // @mui
+import { Box as MuiBox } from '@mui/material';
 import { IconButton } from '@mui/material';
 import Stack from '@mui/material/Stack';
 
@@ -34,7 +35,7 @@ import {
   resetReloadConversation
 } from '@/redux/slices/notification';
 import { conversationReferenceIds } from '@/constants/conversationReferenceIds';
-import { Box, Card, useToast } from '@nimbus-ds/components';
+import { Box, useToast } from '@nimbus-ds/components';
 import { InfoCircleIcon } from '@nimbus-ds/icons';
 import { EmptyMessage } from '@nimbus-ds/patterns';
 import { getStoreInfo } from '@tiendanube/nexo';
@@ -291,7 +292,7 @@ export default function ConversationView({
 
   const getConversations = useCallback((_resetPage: boolean = false, neeedAttentionFilter: boolean, searchQueryFilter: string = '', tagFilter: string = 'all') => {
 
-    const queryParts = [`attention=${neeedAttentionFilter}`, `length=20`];
+    const queryParts = [`attention=${neeedAttentionFilter}`, `length=7`];
     if (searchQueryFilter) {
       queryParts.push(`search=${searchQueryFilter}`);
     }
@@ -350,9 +351,6 @@ export default function ConversationView({
   };
 
   const fetchMoreConversations = useCallback(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:fetchMoreConversations',message:'CALLING API',data:{username:currentConversation?.customer?.username,page:currentPageRef.current},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H12'})}).catch(()=>{});
-    // #endregion
     setLoadingMoreMessages(true);
     currentConversation &&
       request<any>({
@@ -363,9 +361,6 @@ export default function ConversationView({
         method: 'GET',
       })
         .then(({ content }) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:fetchMoreConversations:response',message:'API response',data:{rowsCount:content?.rows?.length,total:content?.total,firstRowMessages:content?.rows?.[0]?.messagesPanel?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H12,H13'})}).catch(()=>{});
-          // #endregion
           setConversationsQuantity(content.total);
           setTotalMessagesPages(content.total);
           if (content.rows.length > 0) {
@@ -390,9 +385,6 @@ export default function ConversationView({
           setLoadingMoreConversations(false);
         })
         .catch((error) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:fetchMoreConversations:error',message:'API ERROR',data:{error:error?.message||String(error)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H12'})}).catch(()=>{});
-          // #endregion
           console.error(error);
           // Manejo de errores
         });
@@ -943,9 +935,6 @@ export default function ConversationView({
   useEffect(() => {
     // Only clear conversation if store actually changed (not on initial render)
     if (prevStoreIdRef.current !== stateStore.id && prevStoreIdRef.current !== undefined) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:812-useEffect',message:'CLEARING currentConversation (store changed)',data:{prevStoreId:prevStoreIdRef.current,newStoreId:stateStore.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H6-fix'})}).catch(()=>{});
-      // #endregion
       setCurrentConversation(undefined);
     }
     prevStoreIdRef.current = stateStore.id;
@@ -953,9 +942,6 @@ export default function ConversationView({
   }, [stateStore.id]);
 
   const onClickNavItem = (conversationAux: any) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:onClickNavItem',message:'SELECTING conversation',data:{conversationId:conversationAux?.id,customerId:conversationAux?.customer?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H6,H8'})}).catch(()=>{});
-    // #endregion
     setCurrentConversation(conversationAux);
     currentPageRef.current = 0;
     setCurrentPage(0);
@@ -966,9 +952,6 @@ export default function ConversationView({
   };
 
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:useEffect-fetchMessages',message:'useEffect triggered',data:{hasUsername:!!currentConversation?.customer?.username,username:currentConversation?.customer?.username,conversationId:currentConversation?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H11'})}).catch(()=>{});
-    // #endregion
     if (currentConversation?.customer?.username) {
       fetchMoreConversations();
     }
@@ -1154,7 +1137,7 @@ export default function ConversationView({
   }, [neeedAttention, searchQuery, selectedTagFilter]);
 
   const renderHead = (
-    <Stack>
+    <Stack sx={{ flexShrink: 0 }}>
       <ConversationHeaderCompose
         currentConversation={currentConversation}
         loadingState={loadingButton.value}
@@ -1214,148 +1197,124 @@ export default function ConversationView({
     setImgUrl(null);
   };
   const lastMessage = currentConversation?.lastMessage;
-  const renderMessages = (
-    <Box display="flex" flexDirection="column" height="100%" width="100%">
-      <ConversationTagsHeader
-        currentConversation={currentConversation}
-        onResolveAttention={handleResolveAttention}
-      />
-      <Stack
-        sx={{
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
-          position: 'relative',
-          backgroundColor: '#ffffff',
-        }}
+  const renderImagePreview = imgUrl ? (
+    <MuiBox
+      sx={{ flex: 1, minHeight: 0, position: 'relative', backgroundColor: '#E9EDEF' }}
+    >
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        width="100%"
+        height="100%"
       >
-        {imgUrl && (
-          <Box
-            width="100%"
-            height="100%"
-            position="relative"
-            style={{
-              backgroundColor: '#E9EDEF',
-            }}
-          >
-            <Box
-              position="absolute"
-              top="0"
-              left="0"
-              width="100%"
-              height="100%"
-            >
-              <img
-                src={imgUrl}
-                alt="Preview"
-                style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-              />
-            </Box>
-            <Box position="absolute" top="2" left="20">
-              <IconButton
-                onClick={handleCloseImage}
-                sx={{
-                  backgroundColor: 'grey.100',
-                  '&:hover': {
-                    backgroundColor: 'grey.400',
-                  },
-                }}
-              >
-                <Iconify icon="eva:close-fill" color="black" />
-              </IconButton>
-            </Box>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="flex-end"
-              spacing={1}
-              sx={{ position: 'absolute', bottom: 10, left: 10, right: 10 }}
-            >
-              <IconButton
-                onClick={sendImage}
-                sx={{
-                  backgroundColor: '#25D366',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: '#1ebe5f',
-                  },
-                }}
-              >
-                <Iconify width={24} icon="ic:baseline-send" />
-              </IconButton>
-            </Stack>
-          </Box>
-        )}
-        {!imgUrl && currentConversation && (
-          <>
-            {/* #region agent log */}
-            {(() => { fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:renderMessages',message:'RENDERING messages area',data:{hasConversation:true,conversationId:currentConversation?.id,messagesCount:chatMessages?.length,isChannelConnected},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H9,H10'})}).catch(()=>{}); return null; })()}
-            {/* #endregion */}
-            <ConversationMessageList
-              messages={chatMessages || []}
-              participants={participantsInConversation}
-              loadMoreConversations={() => {
-                handlePaginationConversation();
-              }}
-              store={selectedStore}
-              newMessage={newMessageFlag}
-              isLoading={loadingMessages}
-              conversation={currentConversation}
-              isLoadingInitialMessages={loadingInitialMessages}
-              onClickConversation={onClickNavItem}
-              hasMore={currentPageRef.current <= totalMessagesPages}
-              fetchingMoreMessages={loadingMoreMessages}
-            />
-            <FailedMessageAlertStatus
-              message={getLastBotMessage() || null}
-              keyMessage={'conversations.failed-message-alert'}
-            />
-              <PricingAlertStatus type={billingData?.status} daysLeft={billingData?.billingPlan?.dayLeft} isCostumerInvoice={billingData?.isCostumerInvoice} />
-              {isChannelConnected ? (
-                <Box backgroundColor="neutral-surface">
-                  <ConversationMessageInput
-                  recipients={[]}
-                  onSendCompose={sendMessage}
-                  onSendMessage={sendMessage}
-                  onShowImagePreview={onShowImagePreview}
-                  onSendAudio={onSendAudio}
-                  onSendImage={onSendImage}
-                  onSendFile={onSendFile}
-                  onSendTemplate={onSendTemplate}
-                  currentConversation={currentConversation}
-                  isLoadingInitialMessages={loadingInitialMessages}
-                  lastMessage={lastMessage}
-                  markAsResolved={markAsResolved}
-                  newTag={notification?.newTag}
-                />
-              </Box>
-              ) : (
-                <Box backgroundColor="danger-surface" height="300px">
-                  <MessageInputNoChannels />
-                </Box>
-              )}
-            
-          </>
-        )}
-        {!currentConversation && (
-          <Box
-            height="100%"
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-          >
-            {billingData?.status === 'inactive' && <PaymentRequiredAlert />}
-            {billingData?.status !== 'inactive' && <EmptyMessage
-              text={t('conversations.unselected-conversation')}
-              title=""
-              icon={<InfoCircleIcon size={32} color="black" />}
-            />}
-          </Box>
-        )}
+        <img
+          src={imgUrl}
+          alt="Preview"
+          style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+        />
+      </Box>
+      <Box position="absolute" top="2" left="20">
+        <IconButton
+          onClick={handleCloseImage}
+          sx={{
+            backgroundColor: 'grey.100',
+            '&:hover': {
+              backgroundColor: 'grey.400',
+            },
+          }}
+        >
+          <Iconify icon="eva:close-fill" color="black" />
+        </IconButton>
+      </Box>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="flex-end"
+        spacing={1}
+        sx={{ position: 'absolute', bottom: 10, left: 10, right: 10 }}
+      >
+        <IconButton
+          onClick={sendImage}
+          sx={{
+            backgroundColor: '#25D366',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#1ebe5f',
+            },
+          }}
+        >
+          <Iconify width={24} icon="ic:baseline-send" />
+        </IconButton>
       </Stack>
-    </Box>
-  );
+    </MuiBox>
+  ) : null;
+
+  const renderMessagesArea = !imgUrl && currentConversation ? (
+    <MuiBox sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <ConversationMessageList
+        messages={chatMessages || []}
+        participants={participantsInConversation}
+        loadMoreConversations={() => {
+          handlePaginationConversation();
+        }}
+        store={selectedStore}
+        newMessage={newMessageFlag}
+        isLoading={loadingMessages}
+        conversation={currentConversation}
+        isLoadingInitialMessages={loadingInitialMessages}
+        onClickConversation={onClickNavItem}
+        hasMore={currentPageRef.current <= totalMessagesPages}
+        fetchingMoreMessages={loadingMoreMessages}
+      />
+    </MuiBox>
+  ) : null;
+
+  const renderInputBar = !imgUrl && currentConversation ? (
+    <MuiBox sx={{ flexShrink: 0, zIndex: 10 }}>
+      <FailedMessageAlertStatus
+        message={getLastBotMessage() || null}
+        keyMessage={'conversations.failed-message-alert'}
+      />
+      <PricingAlertStatus type={billingData?.status} daysLeft={billingData?.billingPlan?.dayLeft} isCostumerInvoice={billingData?.isCostumerInvoice} />
+      {isChannelConnected ? (
+        <Box backgroundColor="neutral-surface">
+          <ConversationMessageInput
+            recipients={[]}
+            onSendCompose={sendMessage}
+            onSendMessage={sendMessage}
+            onShowImagePreview={onShowImagePreview}
+            onSendAudio={onSendAudio}
+            onSendImage={onSendImage}
+            onSendFile={onSendFile}
+            onSendTemplate={onSendTemplate}
+            currentConversation={currentConversation}
+            isLoadingInitialMessages={loadingInitialMessages}
+            lastMessage={lastMessage}
+            markAsResolved={markAsResolved}
+            newTag={notification?.newTag}
+          />
+        </Box>
+      ) : (
+        <Box backgroundColor="danger-surface" height="300px">
+          <MessageInputNoChannels />
+        </Box>
+      )}
+    </MuiBox>
+  ) : null;
+
+  const renderEmptyState = !currentConversation ? (
+    <MuiBox
+      sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+    >
+      {billingData?.status === 'inactive' && <PaymentRequiredAlert />}
+      {billingData?.status !== 'inactive' && <EmptyMessage
+        text={t('conversations.unselected-conversation')}
+        title=""
+        icon={<InfoCircleIcon size={32} color="black" />}
+      />}
+    </MuiBox>
+  ) : null;
   const renderMobile = (
     <Box>
       <ConversationNavMobile
@@ -1398,47 +1357,92 @@ export default function ConversationView({
       />
     </Box>
   );
+  // #region agent log
+  const debugDesktopRef = useRef<HTMLDivElement>(null);
+  const debugChatColRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const desktop = debugDesktopRef.current;
+    const chatCol = debugChatColRef.current;
+    if (desktop) {
+      const cs = window.getComputedStyle(desktop);
+      fetch('http://127.0.0.1:7246/ingest/c2947b57-3094-42da-965c-5d20fee898a5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:renderDesktop',message:'Desktop MuiBox metrics',data:{offsetH:desktop.offsetHeight,clientH:desktop.clientHeight,height:cs.height,parentTag:desktop.parentElement?.tagName,parentH:desktop.parentElement?.clientHeight,parentClass:desktop.parentElement?.className?.substring(0,80)},timestamp:Date.now(),hypothesisId:'H4,H5'})}).catch(()=>{});
+    }
+    if (chatCol) {
+      const cs2 = window.getComputedStyle(chatCol);
+      fetch('http://127.0.0.1:7246/ingest/c2947b57-3094-42da-965c-5d20fee898a5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:chatColumn',message:'Chat column MuiBox metrics',data:{offsetH:chatCol.offsetHeight,clientH:chatCol.clientHeight,flex:cs2.flex,hasConversation:!!currentConversation,childCount:chatCol.childElementCount},timestamp:Date.now(),hypothesisId:'H2,H4'})}).catch(()=>{});
+    }
+  });
+  // #endregion
   const renderDesktop = (
-    <Card padding="none">
-      <Box display="flex" flexDirection="row" height="100vh">
-        {renderNav}
-        <Stack
-          sx={{
-            width: 1,
-            height: 1,
-            overflow: 'hidden',
-          }}
-        >
-          {currentConversation && renderHead}
+    <MuiBox
+      ref={debugDesktopRef}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        border: '1px solid #e7e7e7',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        bgcolor: 'background.paper',
+        boxSizing: 'border-box',
+      }}
+    >
+      {renderNav}
+      <MuiBox ref={debugChatColRef} sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        {/* TopBar - fixed at top */}
+        {currentConversation && (
+          <MuiBox sx={{ flexShrink: 0 }}>
+            {renderHead}
+            <ConversationTagsHeader
+              currentConversation={currentConversation}
+              onResolveAttention={handleResolveAttention}
+            />
+          </MuiBox>
+        )}
 
-          <Stack
-            direction="row"
-            sx={{
-              width: 1,
-              height: 1,
-              overflow: 'hidden',
-              borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
-            }}
-          >
-            {renderMessages}
-          </Stack>
-        </Stack>
-      </Box>
-    </Card>
+        {/* Image preview - takes over middle area when active */}
+        {renderImagePreview}
+
+        {/* MessagesArea - scrollable, takes remaining space */}
+        {renderMessagesArea}
+
+        {/* Empty state - when no conversation selected */}
+        {renderEmptyState}
+
+        {/* InputBar - fixed at bottom */}
+        {renderInputBar}
+      </MuiBox>
+    </MuiBox>
   );
   // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:1148',message:'ConversationView render',data:{hasCurrentConversation:!!currentConversation,conversationId:currentConversation?.id,customerId:currentConversation?.customer?.id,messagesCount:chatMessages?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H4,H5'})}).catch(()=>{});
+  const debugOuterRef = useRef<HTMLDivElement>(null);
+  const debugContentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const outer = debugOuterRef.current;
+    const content = debugContentRef.current;
+    if (outer) {
+      const cs = window.getComputedStyle(outer);
+      fetch('http://127.0.0.1:7246/ingest/c2947b57-3094-42da-965c-5d20fee898a5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:outerBox',message:'Outer Box computed styles',data:{offsetHeight:outer.offsetHeight,clientHeight:outer.clientHeight,display:cs.display,flexDirection:cs.flexDirection,height:cs.height,minHeight:cs.minHeight,overflow:cs.overflow,parentTag:outer.parentElement?.tagName,parentHeight:outer.parentElement?.clientHeight},timestamp:Date.now(),hypothesisId:'H1,H3'})}).catch(()=>{});
+    }
+    if (content) {
+      const cs2 = window.getComputedStyle(content);
+      fetch('http://127.0.0.1:7246/ingest/c2947b57-3094-42da-965c-5d20fee898a5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-view.tsx:contentBox',message:'Content Box computed styles',data:{offsetHeight:content.offsetHeight,clientHeight:content.clientHeight,flex:cs2.flex,minHeight:cs2.minHeight,overflow:cs2.overflow,height:cs2.height},timestamp:Date.now(),hypothesisId:'H1,H4'})}).catch(()=>{});
+    }
+  });
   // #endregion
-
   return (
     <ModeCustomerDataProvider
       initialCustomerId={currentConversation?.customer?.id}
     >
-      <Box display="flex" flexDirection="column" gap="2" mb="2">
-        <WhatsAppAlertsContainer />
-        <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} showLibraryButton={true} />
+      <Box ref={debugOuterRef} display="flex" flexDirection="column" height="100%" overflow="hidden" minHeight="0">
+        <Box display="flex" flexDirection="column" gap="2" flexShrink="0">
+          <WhatsAppAlertsContainer />
+          <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} showLibraryButton={true} />
+        </Box>
+        <Box ref={debugContentRef} flex="1" minHeight="0" overflow="hidden">
+          <Responsive mobileContent={renderMobile} desktopContent={renderDesktop} />
+        </Box>
       </Box>
-      <Responsive mobileContent={renderMobile} desktopContent={renderDesktop} />
     </ModeCustomerDataProvider>
   );
 }

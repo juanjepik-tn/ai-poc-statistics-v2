@@ -363,6 +363,26 @@ const mockCustomers = [
       { id: 1501, name: 'Get Order Status', summary: 'Consulta estado de pedido' }
     ]
   },
+  {
+    id: 16,
+    name: 'Ricardo Almeida',
+    username: '+5511987654321',
+    phone: '+5511987654321',
+    state: { name: 'Active', id: 1 },
+    frecuent: true,
+    undoneHumanAttentionTags: [],
+    undoneTaggedTags: []
+  },
+  {
+    id: 17,
+    name: 'Fernanda Costa',
+    username: '+5511912345678',
+    phone: '+5511912345678',
+    state: { name: 'Active', id: 1 },
+    frecuent: true,
+    undoneHumanAttentionTags: [],
+    undoneTaggedTags: []
+  },
 ];
 
 // Conversación 1: Cliente con solicitud de atención humana (Human Request)
@@ -1455,6 +1475,97 @@ const messagesConv12 = [
   },
 ];
 
+// Conversación 24h expirada - WhatsApp (último mensaje del cliente hace más de 24h)
+const messagesConv24hExpired = [
+  {
+    id: 1601,
+    content: 'Oi, tudo bem? Vocês têm aquela camiseta azul em estoque?',
+    created_at: new Date(Date.now() - 60000 * 60 * 26).toISOString(),
+    saw: true,
+    mimetype: null,
+    username: '+5511987654321',
+    role: 'customer',
+    class: 'message-customer',
+    fromApp: false,
+    hasImage: false,
+    run_id: null,
+    response_score: null,
+  },
+  {
+    id: 1602,
+    content: 'Olá Ricardo! 👋 Sim, temos a camiseta azul disponível nos tamanhos M, G e GG. Qual tamanho você precisa?',
+    created_at: new Date(Date.now() - 60000 * 60 * 25.9).toISOString(),
+    saw: true,
+    mimetype: null,
+    username: null,
+    role: 'assistant',
+    class: 'message-bot',
+    fromApp: true,
+    hasImage: false,
+    run_id: 'run-1601',
+    response_score: 10,
+  },
+  {
+    id: 1603,
+    content: 'Quero a G! Quanto custa? E o frete para São Paulo?',
+    created_at: new Date(Date.now() - 60000 * 60 * 25).toISOString(),
+    saw: true,
+    mimetype: null,
+    username: '+5511987654321',
+    role: 'customer',
+    class: 'message-customer',
+    fromApp: false,
+    hasImage: false,
+    run_id: null,
+    response_score: null,
+  },
+];
+
+const messagesConv24hExpiredB = [
+  {
+    id: 1701,
+    content: 'Oi! Vi que vocês têm promoção de tênis. Tem o modelo Runner no 42?',
+    created_at: new Date(Date.now() - 60000 * 60 * 27).toISOString(),
+    saw: true,
+    mimetype: null,
+    username: '+5511912345678',
+    role: 'customer',
+    class: 'message-customer',
+    fromApp: false,
+    hasImage: false,
+    run_id: null,
+    response_score: null,
+  },
+  {
+    id: 1702,
+    content: 'Olá Fernanda! Temos sim o Runner no 42. Está com 20% de desconto, saindo por R$ 299,90. Quer que eu monte o pedido?',
+    created_at: new Date(Date.now() - 60000 * 60 * 26.5).toISOString(),
+    saw: true,
+    mimetype: null,
+    username: null,
+    role: 'assistant',
+    class: 'message-bot',
+    fromApp: true,
+    hasImage: false,
+    run_id: 'run-1701',
+    response_score: 10,
+  },
+  {
+    id: 1703,
+    content: 'Sim! Pode montar. Qual o prazo de entrega para o CEP 04567-000?',
+    created_at: new Date(Date.now() - 60000 * 60 * 26).toISOString(),
+    saw: true,
+    mimetype: null,
+    username: '+5511912345678',
+    role: 'customer',
+    class: 'message-customer',
+    fromApp: false,
+    hasImage: false,
+    run_id: null,
+    response_score: null,
+  },
+];
+
 // Construir las conversaciones completas
 export const mockConversations = [
   // ============================================
@@ -2146,6 +2257,54 @@ export const mockConversations = [
     messagesPanel: messagesConv12,
     lastMessage: messagesConv12[messagesConv12.length - 1],
   },
+  // ============================================
+  // WHATSAPP - 24h expirada (com templates)
+  // ============================================
+  {
+    id: '16',
+    chat_summary: 'Cliente perguntou sobre camiseta azul - 24h expirada (com templates)',
+    conversation_summary: 16,
+    created_at: new Date(Date.now() - 60000 * 60 * 25).toISOString(),
+    messages: messagesConv24hExpired,
+    channel: mockChannelWhatsApp,
+    name: mockCustomers[15].name,
+    username: mockCustomers[15].username,
+    chatSummary: 'Consulta produto - 24h expirada',
+    conversationSummary: 'Janela de 24h expirada',
+    unreadMessages: 1,
+    customer: mockCustomers[15],
+    unreadMessagesAfterAccepted: 1,
+    qualification: { id: 'q16', class: 'pending', created_at: new Date().toISOString(), name: 'Pendente', description: 'Aguardando resposta' },
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(mockCustomers[15].name)}&background=eef5ff&color=0059d5`,
+    virtual_assistant_failed: false,
+    isPaused: false,
+    messagesPanel: messagesConv24hExpired,
+    lastMessage: messagesConv24hExpired[messagesConv24hExpired.length - 1],
+  },
+  // ============================================
+  // WHATSAPP - 24h expirada (sem templates)
+  // ============================================
+  {
+    id: '17',
+    chat_summary: 'Cliente perguntou sobre tênis - 24h expirada (sem templates)',
+    conversation_summary: 17,
+    created_at: new Date(Date.now() - 60000 * 60 * 26).toISOString(),
+    messages: messagesConv24hExpiredB,
+    channel: mockChannelWhatsApp,
+    name: mockCustomers[16].name,
+    username: mockCustomers[16].username,
+    chatSummary: 'Consulta produto - 24h expirada (sem templates)',
+    conversationSummary: 'Janela de 24h expirada',
+    unreadMessages: 1,
+    customer: mockCustomers[16],
+    unreadMessagesAfterAccepted: 1,
+    qualification: { id: 'q17', class: 'pending', created_at: new Date().toISOString(), name: 'Pendente', description: 'Aguardando resposta' },
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(mockCustomers[16].name)}&background=eef5ff&color=0059d5`,
+    virtual_assistant_failed: false,
+    isPaused: false,
+    messagesPanel: messagesConv24hExpiredB,
+    lastMessage: messagesConv24hExpiredB[messagesConv24hExpiredB.length - 1],
+  },
 ];
 
 export const mockConversationsGrouped = {
@@ -2390,32 +2549,59 @@ export const mockActionRules = {
     {
       id: 1,
       store_id: 12345,
-      name: 'Transferir a humano por reclamos',
+      name: 'Troca e devoluções',
       action: 'transfer' as const,
       state: 'enabled' as const,
-      instruction: 'Cuando el cliente mencione un reclamo o queja, transferir inmediatamente',
-      triggers: [{ id: 1, action_rule_id: 1, content: 'reclamo, queja, problema, no funciona' }],
+      instruction: 'Quando o cliente pede para trocar ou devolver um produto',
+      triggers: [{ id: 1, action_rule_id: 1, content: 'Quando o cliente pede para trocar ou devolver um produto, seja por tamanho, cor, defeito ou arrependimento.' }],
     },
     {
       id: 2,
       store_id: 12345,
-      name: 'Recolectar datos para cotización',
-      action: 'collect' as const,
+      name: 'Status do pedido',
+      action: 'transfer' as const,
       state: 'enabled' as const,
-      instruction: 'Solicitar nombre, email y teléfono para enviar cotización',
-      triggers: [{ id: 2, action_rule_id: 2, content: 'cotización, presupuesto, precio mayorista' }],
+      instruction: 'Quando o cliente quer saber onde está o pedido',
+      triggers: [{ id: 2, action_rule_id: 2, content: 'Quando o cliente quer saber onde está o pedido, como está o envio ou por que o rastreio não atualiza.' }],
     },
     {
       id: 3,
       store_id: 12345,
-      name: 'Transferir por devoluciones',
+      name: 'Pedido personalizado',
       action: 'transfer' as const,
-      state: 'disabled' as const,
-      instruction: null,
-      triggers: [{ id: 3, action_rule_id: 3, content: 'devolución, cambio, reembolso' }],
+      state: 'enabled' as const,
+      instruction: 'Quando o cliente envia uma foto, referência, medida ou pede uma personalização',
+      triggers: [{ id: 3, action_rule_id: 3, content: 'Quando o cliente envia uma foto, referência, medida ou pede uma personalização mais específica.' }],
+    },
+    {
+      id: 4,
+      store_id: 12345,
+      name: 'Cliente frustrado',
+      action: 'transfer' as const,
+      state: 'enabled' as const,
+      instruction: 'O cliente está explicitamente irritado, frustrado e insatisfeito',
+      triggers: [{ id: 4, action_rule_id: 4, content: 'O cliente está explicitamente irritado, frustrado e insatisfeito' }],
+    },
+    {
+      id: 5,
+      store_id: 12345,
+      name: 'Pedido atacado',
+      action: 'transfer' as const,
+      state: 'enabled' as const,
+      instruction: 'Quando o cliente solicita compras em grande quantidade',
+      triggers: [{ id: 5, action_rule_id: 5, content: 'Quando o cliente solicita compras em grande quantidade como acima de 50 unidades ou pergunta sobre condições...' }],
+    },
+    {
+      id: 6,
+      store_id: 12345,
+      name: 'Cliente solicita atendimento',
+      action: 'transfer' as const,
+      state: 'enabled' as const,
+      instruction: 'Quando o cliente pede diretamente para falar com alguém da equipe',
+      triggers: [{ id: 6, action_rule_id: 6, content: 'Quando o cliente pede diretamente para falar com alguém da equipe.' }],
     },
   ],
-  total: 3,
+  total: 6,
   limit: 20,
   offset: 0,
 };
@@ -2610,12 +2796,20 @@ export const mockTemplateMessages = [
     id: 'tmpl-1',
     name: 'welcome_message',
     status: 'approved',
-    language: 'es',
+    language: 'pt_BR',
     category: 'MARKETING',
     components: [
       {
+        type: 'HEADER',
+        text: 'Bem-vindo à nossa loja! 🎉',
+      },
+      {
         type: 'BODY',
-        text: '¡Hola {{1}}! Gracias por contactarnos. ¿En qué podemos ayudarte hoy?',
+        text: 'Olá {{1}}! Obrigado por entrar em contato. Temos novidades incríveis esperando por você. Como podemos ajudar hoje?',
+      },
+      {
+        type: 'FOOTER',
+        text: 'Responda a qualquer momento',
       },
     ],
   },
@@ -2623,25 +2817,111 @@ export const mockTemplateMessages = [
     id: 'tmpl-2',
     name: 'order_confirmation',
     status: 'approved',
-    language: 'es',
+    language: 'pt_BR',
     category: 'UTILITY',
     components: [
       {
         type: 'BODY',
-        text: 'Tu pedido #{{1}} ha sido confirmado. Te avisaremos cuando esté en camino.',
+        text: 'Seu pedido #{{1}} foi confirmado com sucesso! ✅ Avisaremos assim que estiver a caminho. Previsão de entrega: {{2}}.',
       },
     ],
   },
   {
     id: 'tmpl-3',
     name: 'shipping_update',
-    status: 'pending',
-    language: 'es',
+    status: 'approved',
+    language: 'pt_BR',
     category: 'UTILITY',
     components: [
       {
         type: 'BODY',
-        text: '¡Tu pedido está en camino! Número de seguimiento: {{1}}',
+        text: 'Seu pedido está a caminho! 🚚 Código de rastreio: {{1}}. Acompanhe em: {{2}}',
+      },
+    ],
+  },
+  {
+    id: 'tmpl-4',
+    name: 'abandoned_cart',
+    status: 'approved',
+    language: 'pt_BR',
+    category: 'MARKETING',
+    components: [
+      {
+        type: 'BODY',
+        text: 'Oi {{1}}! Você deixou itens no carrinho 🛒. Finalize sua compra e aproveite frete grátis por tempo limitado!',
+      },
+      {
+        type: 'FOOTER',
+        text: 'Oferta válida por 24h',
+      },
+    ],
+  },
+  {
+    id: 'tmpl-5',
+    name: 'payment_reminder',
+    status: 'approved',
+    language: 'pt_BR',
+    category: 'UTILITY',
+    components: [
+      {
+        type: 'BODY',
+        text: 'Olá {{1}}, seu boleto do pedido #{{2}} vence amanhã. Pague a tempo para garantir o envio rápido do seu pedido.',
+      },
+    ],
+  },
+  {
+    id: 'tmpl-6',
+    name: 'promotion_seasonal',
+    status: 'approved',
+    language: 'pt_BR',
+    category: 'MARKETING',
+    components: [
+      {
+        type: 'HEADER',
+        text: '🔥 Mega Promoção',
+      },
+      {
+        type: 'BODY',
+        text: '{{1}}, aproveite até 50% de desconto em produtos selecionados! A promoção termina em {{2}}. Não perca!',
+      },
+    ],
+  },
+  {
+    id: 'tmpl-7',
+    name: 'auth_code',
+    status: 'approved',
+    language: 'pt_BR',
+    category: 'AUTHENTICATION',
+    components: [
+      {
+        type: 'BODY',
+        text: 'Seu código de verificação é: {{1}}. Não compartilhe este código com ninguém.',
+      },
+    ],
+  },
+  {
+    id: 'tmpl-8',
+    name: 'delivery_complete',
+    status: 'approved',
+    language: 'pt_BR',
+    category: 'UTILITY',
+    components: [
+      {
+        type: 'BODY',
+        text: 'Entrega realizada! ✅ Seu pedido #{{1}} foi entregue. Esperamos que goste! Deixe sua avaliação e nos conte como foi.',
+      },
+    ],
+  },
+  {
+    id: 'tmpl-9',
+    name: 'reengagement',
+    status: 'pending',
+    language: 'pt_BR',
+    category: 'MARKETING',
+    components: [
+      {
+        type: 'BODY',
+        text: 'Sentimos sua falta, {{1}}! Faz tempo que não nos visita. Que tal conferir as novidades? 💙',
       },
     ],
   },

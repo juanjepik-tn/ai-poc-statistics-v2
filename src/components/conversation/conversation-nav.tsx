@@ -509,7 +509,13 @@ export default function ConversationNav({
       </BoxNimbus>
       <Box
         ref={containerRef}
-        sx={{ px: 0, py: 1, height: 1, overflow: 'auto' }}
+        sx={{
+          px: 0,
+          py: 1,
+          maxHeight: 'calc(100vh - 280px)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
       >
         {!searchQuery ? renderList : renderListResults}
         {fetchingMoreConversations && (
@@ -539,7 +545,9 @@ export default function ConversationNav({
         <Stack
           sx={{
             height: 1,
+            minHeight: 0,
             flexShrink: 0,
+            overflow: 'hidden',
             width: NAV_WIDTH,
             borderRight: `solid 1px ${theme.palette.divider}`,
             transition: theme.transitions.create(['width'], {

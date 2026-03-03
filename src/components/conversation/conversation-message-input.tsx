@@ -112,7 +112,6 @@ export default function ConversationMessageInput({
   const expired24h = is24hExpired(currentConversation);
   const isWhatsApp = currentConversation?.channel?.channelType === 'whatsapp';
   const show24hBlock = expired24h && isWhatsApp;
-  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
 
   // Feature 4: Emoji/Sticker picker
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -370,66 +369,231 @@ export default function ConversationMessageInput({
     input.click();
   }, [sendImage, onSendFile]);
 
-  // Feature 2: 24h block - show template picker
+  // Feature 2: 24h expired — locked state
+  // conv '16' = com templates (evolução), conv '17' = sem templates (texto definitivo)
+  const hasTemplateSupport = currentConversation?.id === '16';
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+
   if (show24hBlock) {
     return (
-      <BoxNimbus padding="4">
-        {showTemplatePicker ? (
-          <BoxNimbus display="flex" flexDirection="column" gap="2">
-            <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center">
-              <Text fontWeight="bold" fontSize="base">
-                {t('conversations.select-template', { defaultValue: 'Selecionar template' })}
-              </Text>
-              <IconButtonNimbus
-                onClick={() => setShowTemplatePicker(false)}
-                source={<CloseIcon size="small" />}
-                borderColor="transparent"
-                backgroundColor="transparent"
-              />
-            </BoxNimbus>
-            <TemplateMessagePicker
-              channelId={currentConversation?.channel?.id || ''}
-              conversationId={currentConversation?.id}
-              onSendTemplate={(templateId, templateName) => {
-                onSendTemplate?.(templateId, templateName);
-                setShowTemplatePicker(false);
-              }}
-            />
-          </BoxNimbus>
-        ) : (
-          <BoxNimbus
-            display="flex"
-            flexDirection="column"
-            gap="2"
-            alignItems="center"
-            padding="4"
-            borderRadius="4"
-            backgroundColor="warning-surface"
-          >
-            <Text fontSize="base" textAlign="center" color="warning-textLow">
-              {t('conversations.24h-expired', {
-                defaultValue: 'A janela de 24h expirou. Só é possível enviar templates de mensagem.',
+      <Box
+        sx={{
+          backgroundColor: '#ffffff',
+          borderTop: '1px solid #e7e7e7',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          p: '16px',
+        }}
+      >
+        {/* Alert */}
+        <Box
+          sx={{
+            backgroundColor: '#f6f6f6',
+            border: '1px solid #d1d1d1',
+            borderRadius: '8px',
+            display: 'flex',
+            gap: '16px',
+            alignItems: 'flex-start',
+            p: '16px',
+            overflow: 'hidden',
+          }}
+        >
+          <Iconify
+            icon="mdi:information-outline"
+            width={16}
+            color="#6d6d6d"
+            style={{ flexShrink: 0, marginTop: 2 }}
+          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: 0 }}>
+            <span style={{
+              fontFamily: "'Geist', sans-serif",
+              fontWeight: 600,
+              fontSize: 14,
+              lineHeight: '20px',
+              color: '#0a0a0a',
+            }}>
+              {t('conversations.24h-title', {
+                defaultValue: 'Não é possível enviar mensagens',
               })}
-            </Text>
-            <button
-              onClick={() => setShowTemplatePicker(true)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: 'none',
-                backgroundColor: '#0059d5',
-                color: '#ffffff',
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: 'pointer',
-                fontFamily: "'Geist', sans-serif",
-              }}
-            >
-              {t('conversations.send-template', { defaultValue: 'Enviar template de mensagem' })}
-            </button>
-          </BoxNimbus>
+            </span>
+            <span style={{
+              fontFamily: "'Geist', sans-serif",
+              fontWeight: 400,
+              fontSize: 14,
+              lineHeight: '20px',
+              color: '#5d5d5d',
+            }}>
+              {hasTemplateSupport
+                ? t('conversations.24h-description-template', {
+                    defaultValue: 'Respostas são permitidas até 24h após a última mensagem recebida do cliente. Envie um template de mensagem para retomar a conversa.',
+                  })
+                : t('conversations.24h-description', {
+                    defaultValue: 'Respostas são permitidas até 24h após a última mensagem recebida do cliente. Aguarde uma nova mensagem ou envie pelo aplicativo do WhatsApp Business.',
+                  })
+              }
+            </span>
+          </Box>
+        </Box>
+
+        {/* Template picker (when supported) */}
+        {hasTemplateSupport && (
+          <>
+            {showTemplatePicker ? (
+              <Box
+                sx={{
+                  border: '1px solid #d1d1d1',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  backgroundColor: '#ffffff',
+                }}
+              >
+                {/* Picker header */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: '16px',
+                    py: '10px',
+                    borderBottom: '1px solid #e7e7e7',
+                    backgroundColor: '#fafafa',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Iconify icon="mdi:file-document-multiple-outline" width={18} color="#0059d5" />
+                    <span style={{
+                      fontFamily: "'Geist', sans-serif",
+                      fontWeight: 600,
+                      fontSize: 14,
+                      lineHeight: '20px',
+                      color: '#0a0a0a',
+                    }}>
+                      {t('conversations.24h-template-picker-title', {
+                        defaultValue: 'Templates de mensagem',
+                      })}
+                    </span>
+                  </Box>
+                  <IconButton
+                    onClick={() => setShowTemplatePicker(false)}
+                    sx={{
+                      p: '4px',
+                      borderRadius: '6px',
+                      '&:hover': { backgroundColor: '#f0f0f0' },
+                    }}
+                  >
+                    <Icon source={<CloseIcon size={16} />} color="neutral-textLow" />
+                  </IconButton>
+                </Box>
+                <TemplateMessagePicker
+                  channelId={currentConversation?.channel?.id ?? ''}
+                  conversationId={currentConversation?.id}
+                  onSendTemplate={(templateId, templateName) => {
+                    onSendTemplate?.(templateId, templateName);
+                    setShowTemplatePicker(false);
+                  }}
+                  onClose={() => setShowTemplatePicker(false)}
+                />
+              </Box>
+            ) : (
+              <Box
+                onClick={() => setShowTemplatePicker(true)}
+                sx={{
+                  backgroundColor: '#0059d5',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  py: '10px',
+                  px: '16px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  '&:hover': { backgroundColor: '#004bb3', transform: 'translateY(-1px)' },
+                  '&:active': { transform: 'translateY(0)' },
+                }}
+              >
+                <Iconify icon="mdi:file-document-multiple-outline" width={18} color="#ffffff" />
+                <span style={{
+                  fontFamily: "'Geist', sans-serif",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  lineHeight: '20px',
+                  color: '#ffffff',
+                }}>
+                  {t('conversations.24h-send-template', {
+                    defaultValue: 'Enviar template de mensagem',
+                  })}
+                </span>
+              </Box>
+            )}
+          </>
         )}
-      </BoxNimbus>
+
+        {/* Disabled chat input */}
+        <Box
+          sx={{
+            backgroundColor: '#e7e7e7',
+            border: '1px solid #d1d1d1',
+            borderRadius: '8px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <Box sx={{ px: '12px', pt: '10px', pb: '4px' }}>
+            <span style={{
+              fontFamily: "'Geist', sans-serif",
+              fontWeight: 400,
+              fontSize: 14,
+              lineHeight: '20px',
+              color: '#6d6d6d',
+            }}>
+              {t('conversations.24h-input-placeholder', {
+                defaultValue: 'Escreva uma mensagem',
+              })}
+            </span>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              px: '4px',
+              pb: '4px',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton disabled sx={{ p: '8px' }}>
+                <Icon source={<PlusIcon size={16} />} color="neutral-textDisabled" />
+              </IconButton>
+              <IconButton disabled sx={{ p: '8px' }}>
+                <Iconify icon="ic:outline-emoji-emotions" width={18} color="#b5b5b5" />
+              </IconButton>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <IconButton disabled sx={{ p: '8px' }}>
+                <MicIcon />
+              </IconButton>
+              <IconButton
+                disabled
+                sx={{
+                  backgroundColor: '#d1d1d1',
+                  borderRadius: '8px',
+                  width: 32,
+                  height: 32,
+                  minWidth: 32,
+                  p: 0,
+                  '&.Mui-disabled': {
+                    backgroundColor: '#d1d1d1',
+                  },
+                }}
+              >
+                <Iconify width={16} icon="mdi:arrow-up" color="#8c8c8c" />
+              </IconButton>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     );
   }
 

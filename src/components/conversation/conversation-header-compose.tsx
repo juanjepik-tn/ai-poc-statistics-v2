@@ -94,8 +94,9 @@ export default function ConversationHeaderCompose({
           <Box
             display='flex'
             flexDirection='row'
-            gap='2'
-            p="4"
+            gap='none'
+            paddingY="1"
+            paddingX="4"
             alignItems="center"
             justifyContent="space-between"
           >
@@ -107,10 +108,10 @@ export default function ConversationHeaderCompose({
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 {currentConversation.avatar ? (
                   <Box
-                    backgroundColor="primary-surface"
+                    backgroundColor="neutral-surfaceDisabled"
                     borderRadius="half"
-                    height="40px"
-                    width="40px"
+                    height="32px"
+                    width="32px"
                     alignItems="center"
                     display="flex"
                     justifyContent="center"
@@ -118,32 +119,31 @@ export default function ConversationHeaderCompose({
                     <ConversationAvatar
                       name={currentConversation?.customer?.name}
                       imageUrl={currentConversation?.avatar}
-                      height={40}
-                      width={40}
+                      height={32}
+                      width={32}
                     />
                   </Box>
                 ) : (
                   <Box            
                     backgroundColor="neutral-surfaceDisabled"
                     borderRadius="half"
-                    height="40px"
-                    width="40px"
+                    height="32px"
+                    width="32px"
                     alignItems="center"
                     display="flex"
                     justifyContent="center"
                   >
-                    <Icon color="primary-textLow" source={<UserCircleIcon width="20px" height="20px" />} />
+                    <Icon color="neutral-textHigh" source={<UserCircleIcon />} />
                   </Box>
                 )}
                 {/* Channel Badge */}
                 {channelType && (
-                  <div style={{ position: 'absolute', bottom: '-3px', right: '-5px' }}>
-                    <ChannelIcon channel={channelType} size="small" />
+                  <div style={{ position: 'absolute', bottom: '0px', right: '-3px' }}>
+                    <ChannelIcon channel={channelType} size="xsmall" />
                   </div>
                 )}
               </div>
-              <Box display='flex' flexDirection='column' gap="0-5" justifyContent='flex-start'>
-                {/* Editable name (Feature 7) */}
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1.2 }}>
                 {isEditingName ? (
                   <Box display="flex" flexDirection="row" gap="1" alignItems="center">
                     <input
@@ -195,7 +195,7 @@ export default function ConversationHeaderCompose({
                 <Text as="span" color='neutral-textDisabled' fontSize="caption">
                   {getChannelIdentifier()}
                 </Text>
-              </Box>
+              </div>
             </Box>
 
             {/* Unified assignee + mode selector */}
