@@ -8,9 +8,20 @@ a {
 }
 
 html,
-body {
+body,
+#root {
+  height: 100%;
   max-width: 100vw;
+  overflow: hidden;
   background-color: #F6F6F6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Allow vertical scroll inside the main content area */
+#root [class*="nimbus-box"][class*="overflow-hidden"]:has(main) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 /* Slim scrollbar – 4px, visible only on hover, no track line */

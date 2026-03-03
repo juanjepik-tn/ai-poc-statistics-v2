@@ -14,6 +14,7 @@ import {
 } from '@nimbus-ds/icons';
 import { AppShell } from '@nimbus-ds/patterns';
 import { useTranslation } from 'react-i18next';
+import { changeLanguage } from '@/app/I18n/I18n';
 import AdminMenu from './AdminMenu';
 import { LanguageSelectorModal } from '../LanguageSelectorModal';
 
@@ -55,13 +56,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [menuExpanded, setMenuExpanded] = useState(false);
   const [languageModalOpen, setLanguageModalOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('es-AR');
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('translations');
   const userName = 'ar-nuvemchat';
 
-  // Initialize language from localStorage or i18n
+  // Sync language state with i18n whenever it changes
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('app_language') || i18n.language || 'es-AR';
+    const savedLanguage = localStorage.getItem('app_language') || i18n.language || 'pt-BR';
     setCurrentLanguage(savedLanguage);
+    if (i18n.language !== savedLanguage) {
+      changeLanguage(savedLanguage);
+    }
   }, [i18n.language]);
 
   // Toggle function para colapsar/expandir o menu
@@ -86,7 +90,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const leftSlot = (
     <Button appearance="transparent" onClick={() => window.history.back()}>
       <Icon source={<ChevronLeftIcon />} color="neutral-textLow" />
-      <Text color="neutral-textLow">Voltar</Text>
+      <Text color="neutral-textLow">{t('common.back')}</Text>
     </Button>
   );
 
@@ -178,17 +182,23 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         menuExpanded={menuExpanded}
         menuExpandedWidth="270px"
         menuCollapsedWidth="48px"
+        contentProperties={{
+          overflow: 'auto',
+        }}
       >
         <AppShell.Header
           leftSlot={leftSlot}
           rightSlot={rightSlot}
+          alignItems="center"
+          gap="none"
+          padding="4"
         />
-        <AppShell.Body>
+        <AppShell.Body overflow="auto">
           <Box 
             height="100%" 
             width="100%"
             backgroundColor="neutral-surface"
-            overflow="auto"
+            style={{ overflowY: 'auto', overflowX: 'hidden' }}
           >
             {children}
           </Box>
