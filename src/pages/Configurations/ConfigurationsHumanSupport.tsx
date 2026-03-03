@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Box, Button, Icon, Input, Popover, Spinner, Text, Title } from '@nimbus-ds/components';
-import { SlidersIcon, PlusCircleIcon, SearchIcon } from '@nimbus-ds/icons';
+import { Box, Button, Icon, Input, Link, Popover, Spinner, Text, Title } from '@nimbus-ds/components';
+import { SlidersIcon, PlusCircleIcon, SearchIcon, QuestionCircleIcon, ExternalLinkIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import TransferScenarioCard from './components/TransferScenarioCard';
 import TransferScenarioModal from './components/TransferScenarioModal';
 import DeleteScenarioModal from './components/DeleteScenarioModal';
 import useTransferScenarios, { StatusFilter } from './hooks/useTransferScenarios';
 import { ActionRule, ActionRuleFormData, ActionRuleSuggestion } from './types/actionRule';
+import { useWindowWidth } from '@/hooks';
 
 const ConfigurationsHumanSupport: React.FC = () => {
   const { t } = useTranslation('translations');
@@ -30,6 +32,24 @@ const ConfigurationsHumanSupport: React.FC = () => {
   const [editingRule, setEditingRule] = useState<ActionRule | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [deletingRule, setDeletingRule] = useState<ActionRule | null>(null);
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth !== null && windowWidth < 768;
+
+  type ViewMode = 'list' | '2col' | '3col';
+  const [viewMode, setViewMode] = useState<ViewMode>('3col');
+  const effectiveViewMode: ViewMode = isMobile ? 'list' : viewMode;
+
+  const viewModeLabels: Record<ViewMode, string> = {
+    list: 'Lista',
+    '2col': '2 colunas',
+    '3col': '3 colunas',
+  };
+
+  const cycleViewMode = () => {
+    const modes: ViewMode[] = ['list', '2col', '3col'];
+    const idx = modes.indexOf(viewMode);
+    setViewMode(modes[(idx + 1) % modes.length]);
+  };
 
   const handleOpenCreate = () => {
     setEditingRule(null);
@@ -69,11 +89,23 @@ const ConfigurationsHumanSupport: React.FC = () => {
   };
 
   const handleToggle = async (id: number) => {
-    await toggleActionRule(id);
+    const toastId = toast.loading(t('humanSupport.toast.loading'));
+    try {
+      await toggleActionRule(id);
+      toast.success(t('humanSupport.toast.toggleSuccess'), { id: toastId });
+    } catch {
+      toast.error(t('humanSupport.toast.toggleError'), { id: toastId });
+    }
   };
 
   const handleActivateSuggestion = async (suggestion: ActionRuleSuggestion) => {
-    await activateSuggestion(suggestion);
+    const toastId = toast.loading(t('humanSupport.toast.loading'));
+    try {
+      await activateSuggestion(suggestion);
+      toast.success(t('humanSupport.toast.activateSuccess'), { id: toastId });
+    } catch {
+      toast.error(t('humanSupport.toast.activateError'), { id: toastId });
+    }
   };
 
   const handleFilterChange = (filter: StatusFilter) => {
@@ -82,32 +114,60 @@ const ConfigurationsHumanSupport: React.FC = () => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap="6">
+    <Box display="flex" flexDirection="column" style={{ maxWidth: '100%' }}>
       {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap="4">
-        <Box display="flex" flexDirection="column" gap="2" flex="1">
-        <Title as="h3">{t('humanSupport.title')}</Title>
-        <Text color="neutral-textLow">
+      <Box display="flex" flexDirection="column" gap="2">
+        <Box display="flex" alignItems="center" justifyContent="space-between" gap="2">
+          <Title as="h4" style={{ flex: '1 1 0', minWidth: 0 }}>{t('humanSupport.title')}</Title>
+          <Button appearance="primary" onClick={handleOpenCreate} style={{ flexShrink: 0 }}>
+            <Icon source={<PlusCircleIcon />} color="currentColor" />
+            {t('humanSupport.addButton')}
+          </Button>
+        </Box>
+        <Text color="neutral-textHigh">
           {t('humanSupport.description')}
         </Text>
       </Box>
-        <Button appearance="primary" onClick={handleOpenCreate}>
-          <Icon source={<PlusCircleIcon />} color="currentColor" />
-          {t('humanSupport.addButton')}
-        </Button>
-      </Box>
 
-      {/* Actions bar */}
-      <Box display="flex" alignItems="center" gap="4" flexWrap="wrap">
-        <Box flex="1" minWidth="200px">
-          <Input
-            placeholder={t('humanSupport.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            append={<Icon source={<SearchIcon />} />}
-            appendPosition="end"
-          />
-        </Box>
+      {/* Content: search + cards + suggestions */}
+      <Box display="flex" flexDirection="column" gap="4" paddingTop="4">
+        {!isMobile && (
+          <div style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+            display: 'flex',
+            gap: '8px',
+            background: '#fff',
+            padding: '8px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+          }}>
+            {(['list', '2col', '3col'] as const).map((mode) => (
+              <Button
+                key={mode}
+                appearance={viewMode === mode ? 'primary' : 'neutral'}
+                onClick={() => setViewMode(mode)}
+                size="small"
+              >
+                {viewModeLabels[mode]}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        {/* Search bar */}
+        <Box display="flex" gap="2" alignItems="start">
+          <Box flex="1">
+            <Input
+              placeholder={t('humanSupport.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              append={<Icon source={<SearchIcon />} />}
+              appendPosition="start"
+            />
+          </Box>
           <Popover
             visible={filterPopoverOpen}
             onVisibility={setFilterPopoverOpen}
@@ -118,10 +178,10 @@ const ConfigurationsHumanSupport: React.FC = () => {
             padding="small"
             content={
               <Box display="flex" flexDirection="column" gap="2" padding="2">
-                <label 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-family, "CentraNube", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
                     fontSize: '14px',
@@ -134,19 +194,14 @@ const ConfigurationsHumanSupport: React.FC = () => {
                     name="status-filter"
                     checked={statusFilter === 'all'}
                     onChange={() => handleFilterChange('all')}
-                    style={{ 
-                      width: '16px', 
-                      height: '16px',
-                      accentColor: '#0059d5',
-                      cursor: 'pointer'
-                    }}
+                    style={{ width: '16px', height: '16px', accentColor: '#0059d5', cursor: 'pointer' }}
                   />
                   {t('humanSupport.filter.all')}
                 </label>
-                <label 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-family, "CentraNube", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
                     fontSize: '14px',
@@ -159,19 +214,14 @@ const ConfigurationsHumanSupport: React.FC = () => {
                     name="status-filter"
                     checked={statusFilter === 'enabled'}
                     onChange={() => handleFilterChange('enabled')}
-                    style={{ 
-                      width: '16px', 
-                      height: '16px',
-                      accentColor: '#0059d5',
-                      cursor: 'pointer'
-                    }}
+                    style={{ width: '16px', height: '16px', accentColor: '#0059d5', cursor: 'pointer' }}
                   />
                   {t('humanSupport.filter.enabled')}
                 </label>
-                <label 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-family, "CentraNube", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
                     fontSize: '14px',
@@ -184,12 +234,7 @@ const ConfigurationsHumanSupport: React.FC = () => {
                     name="status-filter"
                     checked={statusFilter === 'disabled'}
                     onChange={() => handleFilterChange('disabled')}
-                    style={{ 
-                      width: '16px', 
-                      height: '16px',
-                      accentColor: '#0059d5',
-                      cursor: 'pointer'
-                    }}
+                    style={{ width: '16px', height: '16px', accentColor: '#0059d5', cursor: 'pointer' }}
                   />
                   {t('humanSupport.filter.disabled')}
                 </label>
@@ -201,82 +246,110 @@ const ConfigurationsHumanSupport: React.FC = () => {
               {t('humanSupport.filterButton')}
             </Button>
           </Popover>
+        </Box>
+
+        {/* Loading */}
+        {loading && (
+          <Box display="flex" justifyContent="center" padding="6">
+            <Spinner />
+          </Box>
+        )}
+
+        {/* Scrollable cards area */}
+        {!loading && (
+          <Box>
+            <Box display="flex" flexDirection="column" gap="4">
+              {filteredActionRules.length === 0 ? (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  padding="6"
+                  borderStyle="dashed"
+                  borderWidth="1"
+                  borderColor="neutral-surfaceHighlight"
+                  borderRadius="2"
+                >
+                  <Text color="neutral-textLow">
+                    {searchQuery
+                      ? t('humanSupport.noResults')
+                      : t('humanSupport.noScenarios')}
+                  </Text>
+                </Box>
+              ) : (
+                <Box
+                  display={effectiveViewMode === 'list' ? 'flex' : 'grid'}
+                  gap={effectiveViewMode === 'list' ? '2' : '4'}
+                  flexDirection={effectiveViewMode === 'list' ? 'column' : undefined}
+                  gridTemplateColumns={effectiveViewMode !== 'list' ? {
+                    xs: '1fr',
+                    md: `repeat(${effectiveViewMode === '2col' ? 2 : 3}, 1fr)`,
+                  } : undefined}
+                  style={effectiveViewMode !== 'list' ? { gridAutoRows: '1fr' } : undefined}
+                >
+                  {filteredActionRules.map((rule) => (
+                    <TransferScenarioCard
+                      key={rule.id}
+                      actionRule={rule}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleOpenDelete}
+                      onToggle={handleToggle}
+                      layout={effectiveViewMode === 'list' ? 'list' : 'grid'}
+                    />
+                  ))}
+                </Box>
+              )}
+
+              {/* Suggestions */}
+              {suggestions.length > 0 && (
+                <>
+                  <Text fontSize="base" color="neutral-textLow">
+                    {t('humanSupport.suggestionsTitle')}
+                  </Text>
+                  <Box
+                    display={effectiveViewMode === 'list' ? 'flex' : 'grid'}
+                    gap={effectiveViewMode === 'list' ? '2' : '4'}
+                    flexDirection={effectiveViewMode === 'list' ? 'column' : undefined}
+                    gridTemplateColumns={effectiveViewMode !== 'list' ? {
+                      xs: '1fr',
+                      md: `repeat(${effectiveViewMode === '2col' ? 2 : 3}, 1fr)`,
+                    } : undefined}
+                    style={effectiveViewMode !== 'list' ? { gridAutoRows: '1fr' } : undefined}
+                  >
+                    {suggestions.map((suggestion) => (
+                      <TransferScenarioCard
+                        key={suggestion.id}
+                        suggestion={suggestion}
+                        onActivateSuggestion={handleActivateSuggestion}
+                        layout={effectiveViewMode === 'list' ? 'list' : 'grid'}
+                      />
+                    ))}
+                  </Box>
+                </>
+              )}
+            </Box>
+          </Box>
+        )}
       </Box>
 
-      {/* Loading state */}
-      {loading && (
-        <Box display="flex" justifyContent="center" padding="6">
-          <Spinner />
-        </Box>
-      )}
-
-      {/* Action Rules List */}
-      {!loading && (
-        <Box display="flex" flexDirection="column" gap="4">
-          {filteredActionRules.length === 0 ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              padding="6"
-              borderStyle="dashed"
-              borderWidth="1"
-              borderColor="neutral-surfaceHighlight"
-              borderRadius="2"
-            >
-              <Text color="neutral-textLow">
-                {searchQuery
-                  ? t('humanSupport.noResults')
-                  : t('humanSupport.noScenarios')}
-              </Text>
-            </Box>
-          ) : (
-            <Box
-              display="grid"
-              gap="4"
-              gridTemplateColumns={{
-                xs: '1fr',
-                md: '1fr 1fr',
-                lg: '1fr 1fr 1fr',
-              }}
-            >
-              {filteredActionRules.map((rule) => (
-                <TransferScenarioCard
-                  key={rule.id}
-                  actionRule={rule}
-                  onEdit={handleOpenEdit}
-                  onDelete={handleOpenDelete}
-                  onToggle={handleToggle}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
-      )}
-
-      {/* Suggestions section */}
-      {!loading && suggestions.length > 0 && (
-        <Box display="flex" flexDirection="column" gap="4">
-          <Title as="h4">{t('humanSupport.suggestionsTitle')}</Title>
-          <Box
-            display="grid"
-            gap="4"
-            gridTemplateColumns={{
-              xs: '1fr',
-              md: '1fr 1fr',
-              lg: '1fr 1fr 1fr',
-            }}
-          >
-            {suggestions.map((suggestion) => (
-              <TransferScenarioCard
-                key={suggestion.id}
-                suggestion={suggestion}
-                onActivateSuggestion={handleActivateSuggestion}
-              />
-            ))}
+      {/* Help link */}
+      <Box display="flex" justifyContent="center" padding="4">
+        <Link
+          as="a"
+          href="https://atendimento.nuvemshop.com.br/pt_BR/nuvem-chat"
+          target="_blank"
+          appearance="primary"
+          textDecoration="none"
+        >
+          <Box display="flex" alignItems="center" gap="2">
+            <Icon source={<QuestionCircleIcon />} color="primary-interactive" />
+            <Text color="primary-interactive" fontSize="base">
+              {t('humanSupport.helpLink')}
+            </Text>
+            <Icon source={<ExternalLinkIcon />} color="primary-interactive" />
           </Box>
-        </Box>
-      )}
+        </Link>
+      </Box>
 
       {/* Modals */}
       <TransferScenarioModal
