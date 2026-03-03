@@ -6,18 +6,12 @@ import useActionRulesApi from './useActionRulesApi';
 const MOCK_SUGGESTIONS: ActionRuleSuggestion[] = [
   {
     id: 'sug-1',
-    name: 'Pedido em andamento',
+    name: 'Alterar pedido em andamento',
     description: 'O cliente pediu para alterar o pedido que já foi enviado.',
     defaultTrigger: 'Quando o cliente pedir para alterar um pedido que já foi enviado',
   },
   {
     id: 'sug-2',
-    name: 'Mensagem de mídia',
-    description: 'O cliente enviou uma mensagem de mídia (imagem, vídeo, documento)',
-    defaultTrigger: 'Quando o cliente enviar uma mensagem de mídia',
-  },
-  {
-    id: 'sug-3',
     name: 'Reembolso',
     description: 'O cliente quer saber quando vai receber o dinheiro de volta.',
     defaultTrigger: 'Quando o cliente perguntar sobre reembolso ou estorno',
