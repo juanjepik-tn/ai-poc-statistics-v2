@@ -547,6 +547,13 @@ export default {
         description: 'Al hacer esto, eliminarás el escenario "{{name}}" y no podrás deshacer esta acción.',
         error: 'Error al eliminar el escenario. Intenta nuevamente.',
       },
+      toast: {
+        created: 'Escenario creado',
+        deleted: 'Escenario eliminado',
+        saved: 'Escenario guardado',
+        enabled: 'Escenario activado',
+        disabled: 'Escenario desactivado',
+      },
     },
     common: {
       delete: 'Eliminar',

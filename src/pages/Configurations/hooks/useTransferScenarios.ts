@@ -38,7 +38,7 @@ interface UseTransferScenariosResult {
   createActionRule: (data: ActionRuleFormData) => Promise<void>;
   updateActionRule: (id: number, data: ActionRuleFormData) => Promise<void>;
   deleteActionRule: (id: number) => Promise<void>;
-  toggleActionRule: (id: number) => Promise<void>;
+  toggleActionRule: (id: number) => Promise<ActionRule>;
   activateSuggestion: (suggestion: ActionRuleSuggestion) => Promise<void>;
 }
 
@@ -101,7 +101,7 @@ const useTransferScenarios = (): UseTransferScenariosResult => {
   }, [apiDeleteActionRule]);
 
   const toggleActionRule = useCallback(async (id: number) => {
-    await apiToggleActionRule(id);
+    return apiToggleActionRule(id);
   }, [apiToggleActionRule]);
 
   const activateSuggestion = useCallback(async (suggestion: ActionRuleSuggestion) => {

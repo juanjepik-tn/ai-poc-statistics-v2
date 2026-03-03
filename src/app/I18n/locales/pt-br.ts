@@ -552,6 +552,13 @@ export default {
         description: 'Ao fazer isso, você removerá o cenário "{{name}}" e não poderá desfazer essa ação.',
         error: 'Erro ao excluir o cenário. Tente novamente.',
       },
+      toast: {
+        created: 'Cenário criado',
+        deleted: 'Cenário excluído',
+        saved: 'Cenário salvo',
+        enabled: 'Cenário ativado',
+        disabled: 'Cenário desativado',
+      },
     },
     common: {
       delete: 'Deletar',

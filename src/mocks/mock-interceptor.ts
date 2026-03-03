@@ -440,7 +440,7 @@ export const getMockResponse = (
   }
 
   if (normalizedUrl.includes('/stores/has/tag/')) {
-    return { data: { hasTag: true }, status: 200 };
+    return { data: { has_tag: true }, status: 200 };
   }
 
   // Action Rules

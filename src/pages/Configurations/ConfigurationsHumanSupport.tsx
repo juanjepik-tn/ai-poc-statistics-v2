@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Icon, Input, Popover, Spinner, Text, Title } from '@nimbus-ds/components';
+import { Box, Button, Icon, Input, Popover, Spinner, Text, Title, useToast } from '@nimbus-ds/components';
 import { SlidersIcon, PlusCircleIcon, SearchIcon } from '@nimbus-ds/icons';
 import { useTranslation } from 'react-i18next';
 import TransferScenarioCard from './components/TransferScenarioCard';
@@ -10,6 +10,7 @@ import { ActionRule, ActionRuleFormData, ActionRuleSuggestion } from './types/ac
 
 const ConfigurationsHumanSupport: React.FC = () => {
   const { t } = useTranslation('translations');
+  const { addToast } = useToast();
   const {
     filteredActionRules,
     suggestions,
@@ -49,8 +50,20 @@ const ConfigurationsHumanSupport: React.FC = () => {
   const handleSave = async (data: ActionRuleFormData) => {
     if (editingRule?.id) {
       await updateActionRule(editingRule.id, data);
+      addToast({
+        type: 'success',
+        text: t('humanSupport.toast.saved'),
+        duration: 4000,
+        id: 'human-support-saved',
+      });
     } else {
       await createActionRule(data);
+      addToast({
+        type: 'success',
+        text: t('humanSupport.toast.created'),
+        duration: 4000,
+        id: 'human-support-created',
+      });
     }
   };
 
@@ -69,7 +82,13 @@ const ConfigurationsHumanSupport: React.FC = () => {
   };
 
   const handleToggle = async (id: number) => {
-    await toggleActionRule(id);
+    const updatedRule = await toggleActionRule(id);
+    addToast({
+      type: 'success',
+      text: t(updatedRule.state === 'enabled' ? 'humanSupport.toast.enabled' : 'humanSupport.toast.disabled'),
+      duration: 4000,
+      id: 'human-support-toggle',
+    });
   };
 
   const handleActivateSuggestion = async (suggestion: ActionRuleSuggestion) => {
@@ -85,12 +104,12 @@ const ConfigurationsHumanSupport: React.FC = () => {
     <Box display="flex" flexDirection="column" gap="6">
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap="4">
-        <Box display="flex" flexDirection="column" gap="2" flex="1">
-        <Title as="h3">{t('humanSupport.title')}</Title>
-        <Text color="neutral-textLow">
-          {t('humanSupport.description')}
-        </Text>
-      </Box>
+        <Box display="flex" flexDirection="column" gap="2">
+          <Title as="h3">{t('humanSupport.title')}</Title>
+          <Text color="neutral-textLow">
+            {t('humanSupport.description')}
+          </Text>
+        </Box>
         <Button appearance="primary" onClick={handleOpenCreate}>
           <Icon source={<PlusCircleIcon />} color="currentColor" />
           {t('humanSupport.addButton')}
@@ -99,7 +118,7 @@ const ConfigurationsHumanSupport: React.FC = () => {
 
       {/* Actions bar */}
       <Box display="flex" alignItems="center" gap="4" flexWrap="wrap">
-        <Box flex="1" minWidth="200px">
+        <Box flex="1" minWidth="0">
           <Input
             placeholder={t('humanSupport.searchPlaceholder')}
             value={searchQuery}
@@ -233,21 +252,19 @@ const ConfigurationsHumanSupport: React.FC = () => {
           ) : (
             <Box
               display="grid"
+              gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }}
               gap="4"
-              gridTemplateColumns={{
-                xs: '1fr',
-                md: '1fr 1fr',
-                lg: '1fr 1fr 1fr',
-              }}
+              width="100%"
             >
               {filteredActionRules.map((rule) => (
-                <TransferScenarioCard
-                  key={rule.id}
-                  actionRule={rule}
-                  onEdit={handleOpenEdit}
-                  onDelete={handleOpenDelete}
-                  onToggle={handleToggle}
-                />
+                <Box key={rule.id} minWidth="0">
+                  <TransferScenarioCard
+                    actionRule={rule}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleOpenDelete}
+                    onToggle={handleToggle}
+                  />
+                </Box>
               ))}
             </Box>
           )}
@@ -260,19 +277,17 @@ const ConfigurationsHumanSupport: React.FC = () => {
           <Title as="h4">{t('humanSupport.suggestionsTitle')}</Title>
           <Box
             display="grid"
+            gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }}
             gap="4"
-            gridTemplateColumns={{
-              xs: '1fr',
-              md: '1fr 1fr',
-              lg: '1fr 1fr 1fr',
-            }}
+            width="100%"
           >
             {suggestions.map((suggestion) => (
-              <TransferScenarioCard
-                key={suggestion.id}
-                suggestion={suggestion}
-                onActivateSuggestion={handleActivateSuggestion}
-              />
+              <Box key={suggestion.id} minWidth="0">
+                <TransferScenarioCard
+                  suggestion={suggestion}
+                  onActivateSuggestion={handleActivateSuggestion}
+                />
+              </Box>
             ))}
           </Box>
         </Box>
