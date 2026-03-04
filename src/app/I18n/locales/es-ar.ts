@@ -78,6 +78,7 @@ export default {
       add: 'Agregar',
       success: 'Configuración actualizada con éxito',
       'search-placeholder': 'Buscar contenido',
+      addButton: 'Agregar',
       'more-about':{
         'assistant-personalization': 'Más sobre personalizar respuestas',
         'knowledge-library': 'Más sobre biblioteca de conocimiento del asistente',
@@ -551,6 +552,13 @@ export default {
         description: 'Al hacer esto, vas a eliminar el escenario "{{name}}" y no vas a poder deshacer esta acción.',
         error: 'Error al eliminar el escenario. Intentá nuevamente.',
       },
+      toast: {
+        loading: 'Guardando cambio...',
+        toggleSuccess: '¡Escenario actualizado con éxito!',
+        toggleError: 'Error al actualizar el escenario. Intentá nuevamente.',
+        activateSuccess: '¡Escenario activado con éxito!',
+        activateError: 'Error al activar el escenario. Intentá nuevamente.',
+      },
     },
     common: {
       delete: 'Eliminar',
@@ -685,6 +693,11 @@ export default {
       'whatsapp-not-connected-description': 'No es posible enviar mensajes en este momento porque su WhatsApp está desconectado',
       'whatsapp-connect': 'Conectar',
       'end-conversation': 'Fin de conversación',
+      'end-conversation-unread_one': '{{count}} mensaje no leído',
+      'end-conversation-unread_other': '{{count}} mensajes no leídos',
+      'end-conversation-unread': '{{count}} mensajes no leídos',
+      'date-today': 'Hoy',
+      'date-yesterday': 'Ayer',
       'view-more': 'Ver más',
       'view-less': 'Ver menos',
       photos: 'Fotos',
@@ -697,7 +710,19 @@ export default {
       'marketing-message': 'Este es un mensaje de marketing, abrí este mensaje en tu teléfono.',
       'message-not-delivered': 'Mensaje no entregado',
       'view-cart': 'Ver Carrito',
-      'failed-message-alert': 'Este mensaje no se pudo entregar. Tu número parece tener problemas para conectarse con <Meta>Meta</Meta>.'
+      'failed-message-alert': 'Este mensaje no se pudo entregar. Tu número parece tener problemas para conectarse con <Meta>Meta</Meta>.',
+      '24h-title': 'No es posible enviar mensajes',
+      '24h-description': 'Las respuestas están permitidas hasta 24h después del último mensaje recibido del cliente. Esperá un nuevo mensaje o enviá uno desde la app de WhatsApp Business.',
+      '24h-description-template': 'Las respuestas están permitidas hasta 24h después del último mensaje recibido del cliente. Enviá un template de mensaje para retomar la conversación.',
+      '24h-send-template': 'Enviar template de mensaje',
+      '24h-template-picker-title': 'Templates de mensaje',
+      '24h-input-placeholder': 'Escribí un mensaje'
+    },
+    templatePicker: {
+      send: 'Enviar',
+      empty: 'No hay templates aprobados disponibles',
+      search: 'Buscar template...',
+      'no-results': 'No se encontraron templates',
     },
     notifications: {
       'new-messages': 'Has recibido un nuevo mensaje',

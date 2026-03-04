@@ -128,10 +128,6 @@ const KnowledgeLibrary: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
                     proxStep={proxStep}
                     toggleOpenAdditionInformation={toggleOpenAdditionInformation}
                     showTags={true}
-                    onToggleHumanAttention={(content: any) => {                      
-                      content.tool = !content.tool;
-                      onUpdateContent(content.id, content, content.class);
-                    }}
                     source='onboarding'
                   />
                 </Card>

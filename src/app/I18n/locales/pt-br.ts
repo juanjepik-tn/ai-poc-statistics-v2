@@ -77,6 +77,7 @@ export default {
       delete: 'Apagar',
       success: 'Configuração atualizada com sucesso',
       'search-placeholder': 'Procurar conteúdo',
+      addButton: 'Adicionar',
       'more-about':{
         'assistant-personalization': 'Mais sobre personalizar respostas',
         'knowledge-library': 'Mais sobre biblioteca de conhecimento do assistente',
@@ -503,7 +504,7 @@ export default {
       preferences: 'Preferências',
       humanSupport: 'Atendimento humano',
       test: 'Testar',
-      channels: 'Canais',
+      channels: 'Canal',
       save: 'Salvar',
       'preferences-description':
         'Modifique as preferências para as respostas automáticas do Nuvem Chat.',
@@ -551,6 +552,13 @@ export default {
         title: 'Quer excluir esse cenário?',
         description: 'Ao fazer isso, você removerá o cenário "{{name}}" e não poderá desfazer essa ação.',
         error: 'Erro ao excluir o cenário. Tente novamente.',
+      },
+      toast: {
+        loading: 'Salvando alteração...',
+        toggleSuccess: 'Cenário atualizado com sucesso!',
+        toggleError: 'Erro ao atualizar o cenário. Tente novamente.',
+        activateSuccess: 'Cenário ativado com sucesso!',
+        activateError: 'Erro ao ativar o cenário. Tente novamente.',
       },
     },
     common: {
@@ -688,6 +696,11 @@ export default {
       'whatsapp-not-connected-description': 'Não é possível enviar mensagens neste momento porque seu WhatsApp está desconectado',
       'whatsapp-connect': 'Conectar',
       'end-conversation': 'Fim de conversa',
+      'end-conversation-unread_one': '{{count}} mensagem não lida',
+      'end-conversation-unread_other': '{{count}} mensagens não lidas',
+      'end-conversation-unread': '{{count}} mensagens não lidas',
+      'date-today': 'Hoje',
+      'date-yesterday': 'Ontem',
       'view-more': 'Ver mais',
       'view-less': 'Ver menos',
       photos: 'Fotos',
@@ -700,11 +713,19 @@ export default {
       'marketing-message': 'Esta é uma mensagem de marketing, abra esta mensagem no seu celular.',
       'message-not-delivered': 'Mensagem não entregue', 
       'view-cart': 'Ver Carrinho',
-      'failed-message-alert': 'Você não pode enviar mensagens no momento, pois sua conta está com problemas na <Meta>Meta</Meta>.'
+      'failed-message-alert': 'Você não pode enviar mensagens no momento, pois sua conta está com problemas na <Meta>Meta</Meta>.',
+      '24h-title': 'Não é possível enviar mensagens',
+      '24h-description': 'Respostas são permitidas até 24h após a última mensagem recebida do cliente. Aguarde uma nova mensagem ou envie pelo aplicativo do WhatsApp Business.',
+      '24h-description-template': 'Respostas são permitidas até 24h após a última mensagem recebida do cliente. Envie um template de mensagem para retomar a conversa.',
+      '24h-send-template': 'Enviar template de mensagem',
+      '24h-template-picker-title': 'Templates de mensagem',
+      '24h-input-placeholder': 'Escreva uma mensagem'
     },
     templatePicker: {
       send: 'Enviar',
       empty: 'Nenhum template aprovado disponível',
+      search: 'Buscar template...',
+      'no-results': 'Nenhum template encontrado',
     },
     notifications: {
       'new-messages': 'Você recebeu uma nova mensagem',

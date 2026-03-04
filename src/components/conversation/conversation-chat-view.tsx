@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // _mock
 
 // @mui
+import { Box as MuiBox } from '@mui/material';
 import { IconButton } from '@mui/material';
 import Stack from '@mui/material/Stack';
 // routes
@@ -17,7 +18,7 @@ import Stack from '@mui/material/Stack';
 // import useHasRoles from 'src/hooks/use-has-roles';
 // import { useLocales } from 'src/locales';
 //import { setNotificationConversationUpdate } from 'src/redux/slices/notification';
-import { Box, Card, Sidebar } from '@nimbus-ds/components';
+import { Box, Sidebar } from '@nimbus-ds/components';
 import Iconify from '../iconify';
 import ConversationHeaderCompose from './conversation-header-compose';
 import ConversationMessageInput from './conversation-message-input';
@@ -701,155 +702,139 @@ const onSendImage = useCallback(
 
   const lastMessage = currentConversation?.lastMessage;
 
-  const renderMessages = (
-    <Box display="flex" flexDirection="column" height="100%" width="100%">
-      <ConversationTagsHeader
-        currentConversation={currentConversation}
-        onResolveAttention={onUpdateTags}
-      />
-      <Stack
-        sx={{
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
-          position: 'relative',
-          backgroundColor: '#ffffff',
-        }}
+  const renderImagePreview = imgUrl ? (
+    <MuiBox
+      sx={{ flex: 1, minHeight: 0, position: 'relative', backgroundColor: '#E9EDEF' }}
+    >
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        width="100%"
+        height="100%"
       >
-        {imgUrl && (
-          <Box
-            width="100%"
-            height="100%"
-            position="relative"
-            style={{
-              backgroundColor: '#E9EDEF',
-            }}
-          >
-            <Box
-              position="absolute"
-              top="0"
-              left="0"
-              width="100%"
-              height="100%"
-            >
-              <img
-                src={imgUrl}
-                alt="Preview"
-                style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-              />
-            </Box>
-            <Box position="absolute" top="2" left="20">
-              <IconButton
-                onClick={handleCloseImage}
-                sx={{
-                  backgroundColor: 'grey.100',
-                  '&:hover': {
-                    backgroundColor: 'grey.400',
-                  },
-                }}
-              >
-                <Iconify icon="eva:close-fill" color="black" />
-              </IconButton>
-            </Box>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="flex-end"
-              spacing={1}
-              sx={{ position: 'absolute', bottom: 10, left: 10, right: 10 }}
-            >
-              <IconButton
-                onClick={sendImage}
-                sx={{
-                  backgroundColor: '#25D366',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: '#1ebe5f',
-                  },
-                }}
-              >
-                <Iconify width={24} icon="ic:baseline-send" />
-              </IconButton>
-            </Stack>
-          </Box>
-        )}
-        {!imgUrl && currentConversation && (
-          <>
-            <ConversationMessageList
-              messages={chatMessages || []}
-              participants={participantsInConversation}
-              loadMoreConversations={() => {
-                handlePaginationConversation();
-              }}
-              store={selectedStore}
-              newMessage={newMessageFlag.value}
-              isLoading={loadingMessages}
-              conversation={currentConversation}
-              isLoadingInitialMessages={loadingInitialMessages}
-              onClickConversation={() => {}}
-              hasMore={currentPageRef.current <= totalMessagesPages}
-              fetchingMoreMessages={loadingMoreMessages}
-            />
-            <PricingAlertStatus type={billingData?.status} daysLeft={billingData?.billingPlan?.dayLeft} isCostumerInvoice={billingData?.isCostumerInvoice} />
-            {isChannelConnected ? (
-               <Box backgroundColor="primary-surface">
-
-               <ConversationMessageInput
-                 recipients={[]}
-                 onSendCompose={sendMessage}
-                 onSendMessage={sendMessage}
-                 onShowImagePreview={onShowImagePreview}
-                 onSendAudio={onSendAudio}
-                 onSendImage={onSendImage}
-                 currentConversation={currentConversation}
-                 isLoadingInitialMessages={loadingInitialMessages}
-                 lastMessage={lastMessage}
-                 newTag={notification?.newTag}
-               />
-             </Box>
-            ) : (
-              <Box backgroundColor="danger-surface" padding="4" alignItems="center" justifyContent="center">
-                <MessageInputNoChannels />
-              </Box>
-            )}
-           
-          </>
-        )}
+        <img
+          src={imgUrl}
+          alt="Preview"
+          style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+        />
+      </Box>
+      <Box position="absolute" top="2" left="20">
+        <IconButton
+          onClick={handleCloseImage}
+          sx={{
+            backgroundColor: 'grey.100',
+            '&:hover': {
+              backgroundColor: 'grey.400',
+            },
+          }}
+        >
+          <Iconify icon="eva:close-fill" color="black" />
+        </IconButton>
+      </Box>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="flex-end"
+        spacing={1}
+        sx={{ position: 'absolute', bottom: 10, left: 10, right: 10 }}
+      >
+        <IconButton
+          onClick={sendImage}
+          sx={{
+            backgroundColor: '#25D366',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#1ebe5f',
+            },
+          }}
+        >
+          <Iconify width={24} icon="ic:baseline-send" />
+        </IconButton>
       </Stack>
-    </Box>
-  );
+    </MuiBox>
+  ) : null;
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/b5c293e6-5691-4fb2-95f8-27f6dbe75d88',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'conversation-chat-view.tsx:822',message:'ChatView render',data:{showChat,hasCurrentConversation:!!currentConversation,conversationId:currentConversation?.id,messagesCount:chatMessages?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H5'})}).catch(()=>{});
-  // #endregion
+  const renderMessagesArea = !imgUrl && currentConversation ? (
+    <MuiBox sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <ConversationMessageList
+        messages={chatMessages || []}
+        participants={participantsInConversation}
+        loadMoreConversations={() => {
+          handlePaginationConversation();
+        }}
+        store={selectedStore}
+        newMessage={newMessageFlag.value}
+        isLoading={loadingMessages}
+        conversation={currentConversation}
+        isLoadingInitialMessages={loadingInitialMessages}
+        onClickConversation={() => {}}
+        hasMore={currentPageRef.current <= totalMessagesPages}
+        fetchingMoreMessages={loadingMoreMessages}
+      />
+    </MuiBox>
+  ) : null;
+
+  const renderInputBar = !imgUrl && currentConversation ? (
+    <MuiBox sx={{ flexShrink: 0, zIndex: 10 }}>
+      <PricingAlertStatus type={billingData?.status} daysLeft={billingData?.billingPlan?.dayLeft} isCostumerInvoice={billingData?.isCostumerInvoice} />
+      {isChannelConnected ? (
+        <Box backgroundColor="primary-surface">
+          <ConversationMessageInput
+            recipients={[]}
+            onSendCompose={sendMessage}
+            onSendMessage={sendMessage}
+            onShowImagePreview={onShowImagePreview}
+            onSendAudio={onSendAudio}
+            onSendImage={onSendImage}
+            currentConversation={currentConversation}
+            isLoadingInitialMessages={loadingInitialMessages}
+            lastMessage={lastMessage}
+            newTag={notification?.newTag}
+          />
+        </Box>
+      ) : (
+        <Box backgroundColor="danger-surface" padding="4" alignItems="center" justifyContent="center">
+          <MessageInputNoChannels />
+        </Box>
+      )}
+    </MuiBox>
+  ) : null;
 
   return (
     <Sidebar padding="none" open={showChat} onRemove={() => {}} maxWidth="100%">
-      <Card padding="none">
-        <Box display="flex" flexDirection="row" height="90vh">
-          <Stack
-            sx={{
-              width: 1,
-              height: 1,
-              overflow: 'hidden',
-            }}
-          >
-            {currentConversation && renderHead}
+      <MuiBox
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          border: '1px solid #e7e7e7',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          bgcolor: 'background.paper',
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* TopBar - fixed at top */}
+        {currentConversation && (
+          <MuiBox sx={{ flexShrink: 0 }}>
+            {renderHead}
+            <ConversationTagsHeader
+              currentConversation={currentConversation}
+              onResolveAttention={onUpdateTags}
+            />
+          </MuiBox>
+        )}
 
-            <Stack
-              direction="row"
-              sx={{
-                width: 1,
-                height: 1,
-                overflow: 'hidden',
-                borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
-              }}
-            >
-              {renderMessages}
-            </Stack>
-          </Stack>
-        </Box>
-      </Card>
+        {/* Image preview - takes over middle area when active */}
+        {renderImagePreview}
+
+        {/* MessagesArea - scrollable, takes remaining space */}
+        {renderMessagesArea}
+
+        {/* InputBar - fixed at bottom */}
+        {renderInputBar}
+      </MuiBox>
     </Sidebar>
   );
 }

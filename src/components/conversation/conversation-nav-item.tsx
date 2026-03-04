@@ -287,7 +287,7 @@ export default function ConversationNavItem({
               </Box>
             )}
             {conversation?.channel?.channelType && (
-              <div style={{ position: 'absolute', bottom: '-2px', right: '-3px' }}>
+              <div style={{ position: 'absolute', bottom: '0px', right: '-3px' }}>
                 <ChannelIcon 
                   channel={conversation.channel.channelType as ChannelType} 
                   size="xsmall"
@@ -401,7 +401,7 @@ export default function ConversationNavItem({
                           cursor="pointer"
                           onClick={handleMarkAsRead}
                         >
-                          <Iconify icon="mdi:email-open-outline" width={18} color="#8696a0" style={{ flexShrink: 0 }} />
+                          <Iconify icon="material-symbols:mark-chat-read-outline-rounded" width={18} color="#8696a0" style={{ flexShrink: 0 }} />
                           <Text fontSize="base" color="neutral-textHigh">{t('conversations.mark-as-read')}</Text>
                         </BoxNimbus>
                       ) : (
@@ -415,7 +415,7 @@ export default function ConversationNavItem({
                           cursor="pointer"
                           onClick={handleMarkAsUnread}
                         >
-                          <Iconify icon="mdi:email-mark-as-unread" width={18} color="#8696a0" style={{ flexShrink: 0 }} />
+                          <Iconify icon="material-symbols:mark-chat-unread-outline-rounded" width={18} color="#8696a0" style={{ flexShrink: 0 }} />
                           <Text fontSize="base" color="neutral-textHigh">{t('conversations.mark-as-unread')}</Text>
                         </BoxNimbus>
                       )}

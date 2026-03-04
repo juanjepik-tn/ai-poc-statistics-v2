@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Label, Modal, Radio, Text, Textarea, Input } from '@nimbus-ds/components';
+import { Box, Button, Modal, Radio, Text, Textarea, Input } from '@nimbus-ds/components';
 import { useTranslation } from 'react-i18next';
 import { ActionRule, ActionRuleFormData } from '../types/actionRule';
 
@@ -70,108 +70,80 @@ const TransferScenarioModal: React.FC<TransferScenarioModalProps> = ({
     }
   };
 
+  const labelStyle: React.CSSProperties = {
+    fontSize: '16px',
+    lineHeight: '20px',
+    fontWeight: 500,
+    color: '#5d5d5d',
+  };
+
   return (
     <Modal open={open} onDismiss={handleClose}>
       <Modal.Header title={t('humanSupport.modal.title')} />
       <Modal.Body padding="none">
-        <Box padding="4" display="flex" flexDirection="column" gap="4">
-          <Text color="neutral-textLow">
+        <Box padding="4" display="flex" flexDirection="column" gap="6">
+          <Text
+            fontSize="base"
+            color="neutral-textDisabled"
+          >
             {t('humanSupport.modal.subtitle')}
           </Text>
 
-          {/* Scenario name */}
-          <Box display="flex" flexDirection="column" gap="1">
-            <Label>{t('humanSupport.modal.nameLabel')}</Label>
-            <Input
-              placeholder={t('humanSupport.modal.namePlaceholder')}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Box>
+          <Box display="flex" flexDirection="column" gap="4">
+            <Box display="flex" flexDirection="column" gap="2">
+              <Text style={labelStyle}>
+                {t('humanSupport.modal.nameLabel')}
+              </Text>
+              <Input
+                placeholder={t('humanSupport.modal.namePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Box>
 
-          {/* Describe when the AI should transfer */}
-          <Box display="flex" flexDirection="column" gap="1">
-            <Label>{t('humanSupport.modal.triggerLabel')}</Label>
-            <Textarea
-              id="trigger"
-              placeholder={t('humanSupport.modal.triggerPlaceholder')}
-              value={trigger}
-              onChange={(e) => setTrigger(e.target.value)}
-              rows={3}
-            />
-          </Box>
+            <Box display="flex" flexDirection="column" gap="2">
+              <Text style={labelStyle}>
+                {t('humanSupport.modal.triggerLabel')}
+              </Text>
+              <Textarea
+                id="trigger"
+                placeholder={t('humanSupport.modal.triggerPlaceholder')}
+                value={trigger}
+                onChange={(e) => setTrigger(e.target.value)}
+                rows={3}
+              />
+            </Box>
 
-          {/* Do you want the AI to ask something before transferring? */}
-          <Box display="flex" flexDirection="column" gap="2">
-            <Text fontWeight="bold">{t('humanSupport.modal.askBeforeLabel')}</Text>
-            <Box display="flex" gap="4">
-              <label 
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-family, "CentraNube", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
-                  fontSize: '14px',
-                  color: '#0a0a0a',
-                  gap: '8px'
-                }}
-              >
-                <input
-                  type="radio"
+            <Box display="flex" flexDirection="column" gap="2">
+              <Text style={labelStyle}>
+                {t('humanSupport.modal.askBeforeLabel')}
+              </Text>
+              <Box display="flex" gap="2">
+                <Radio
                   name="askBeforeTransfer"
-                  value="no"
+                  label={t('common.no')}
                   checked={!askBeforeTransfer}
                   onChange={() => setAskBeforeTransfer(false)}
-                  style={{ 
-                    width: '16px', 
-                    height: '16px',
-                    accentColor: '#0059d5',
-                    cursor: 'pointer'
-                  }}
                 />
-                {t('common.no')}
-              </label>
-              <label 
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-family, "CentraNube", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
-                  fontSize: '14px',
-                  color: '#0a0a0a',
-                  gap: '8px'
-                }}
-              >
-                <input
-                  type="radio"
+                <Radio
                   name="askBeforeTransfer"
-                  value="yes"
+                  label={t('common.yes')}
                   checked={askBeforeTransfer}
                   onChange={() => setAskBeforeTransfer(true)}
-                  style={{ 
-                    width: '16px', 
-                    height: '16px',
-                    accentColor: '#0059d5',
-                    cursor: 'pointer'
-                  }}
                 />
-                {t('common.yes')}
-              </label>
+              </Box>
             </Box>
-          </Box>
 
-          {/* Instruction textarea - only shown when askBeforeTransfer is true */}
-          {askBeforeTransfer && (
-            <Box display="flex" flexDirection="column" gap="1">
+            {askBeforeTransfer && (
               <Textarea
                 id="instruction"
                 placeholder={t('humanSupport.modal.instructionPlaceholder')}
                 value={instruction}
                 onChange={(e) => setInstruction(e.target.value)}
-                rows={3}
+                rows={2}
               />
-            </Box>
-          )}
+            )}
+          </Box>
         </Box>
       </Modal.Body>
       <Modal.Footer>

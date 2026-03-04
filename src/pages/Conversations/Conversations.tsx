@@ -35,15 +35,19 @@ const Conversations: React.FC = () => {
   }, [conversationId, isValidConversationId]);
 
   const desktopContent = (
-    <div style={{ zoom: 0.9 }}>
-      <Page minWidth="100%">
-        <Page.Body>
-          <ConversationView
-            conversationId={(isValidConversationId ? conversationId : '') || ''}
-          />
-        </Page.Body>
-      </Page>
-    </div>
+    <Box
+      height="100%"
+      width="100%"
+      overflow="hidden"
+      padding="6"
+      display="flex"
+      flexDirection="column"
+      style={{ boxSizing: 'border-box', minHeight: 0 }}
+    >
+      <ConversationView
+        conversationId={(isValidConversationId ? conversationId : '') || ''}
+      />
+    </Box>
   );
 
   const mobileContent = (
