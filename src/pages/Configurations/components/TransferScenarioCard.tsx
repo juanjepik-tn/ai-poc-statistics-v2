@@ -32,6 +32,7 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const isSuggestion = !!suggestion;
+  const isToReview = actionRule?.state === 'to_review';
   const displayName = isSuggestion ? suggestion.name : actionRule?.name || '';
   const description = isSuggestion
     ? suggestion.description
@@ -129,6 +130,9 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
             {isSuggestion && (
               <Tag appearance="neutral">{t('humanSupport.status.suggestion')}</Tag>
             )}
+            {isToReview && (
+              <Tag appearance="warning">{t('humanSupport.status.review')}</Tag>
+            )}
           </Box>
 
           <Box display="flex" gap="2" alignItems="flex-start">
@@ -192,6 +196,9 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
             </Box>
             {isSuggestion && (
               <Tag appearance="primary">{t('humanSupport.status.suggestion')}</Tag>
+            )}
+            {isToReview && (
+              <Tag appearance="warning">{t('humanSupport.status.review')}</Tag>
             )}
           </Box>
 
@@ -258,6 +265,9 @@ const TransferScenarioCard: React.FC<TransferScenarioCardProps> = ({
           </Box>
           {isSuggestion && (
             <Tag appearance="primary">{t('humanSupport.status.suggestion')}</Tag>
+          )}
+          {isToReview && (
+            <Tag appearance="warning">{t('humanSupport.status.review')}</Tag>
           )}
         </Box>
 

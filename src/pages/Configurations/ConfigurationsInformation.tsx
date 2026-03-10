@@ -48,11 +48,11 @@ const ConfigurationsInstances: React.FC = () => {
   
   return (
       <Step2DataProvider>
-        {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, onSearchContent, itemsToReviewCount, onMarkAllReviewed }: any) => (
+        {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, onSearchContent, scenariosCreatedCount, dismissScenariosAlert }: any) => (
     <Box gap="6" display="flex" flexDirection="column">
           <>
           <Text>{t('settings.step2.description')}</Text>
-          <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} onMarkAllReviewed={onMarkAllReviewed} />
+          <HumanHelpReviewBanner scenariosCreatedCount={scenariosCreatedCount} onDismiss={dismissScenariosAlert} />
             <Box display="flex" gap="2" alignItems="start">
               <Box flex="1">
                 <Input

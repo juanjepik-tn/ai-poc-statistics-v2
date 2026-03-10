@@ -190,7 +190,7 @@ const ConfigurationsInstances: React.FC = () => {
                           onClick={handlePreOnboarding}
                         >
                           <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
-                          Adicionar número
+                          Adicionar
                         </Button>
                       </Box>
                     </Box>
@@ -355,7 +355,7 @@ const ConfigurationsInstances: React.FC = () => {
                           onClick={() => navigate('/external/channels/instagram/onboarding')}
                         >
                           <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
-                          Adicionar conta
+                          Adicionar
                         </Button>
                       </Box>
                     </Box>
@@ -491,7 +491,7 @@ const ConfigurationsInstances: React.FC = () => {
                           onClick={() => navigate('/external/channels/facebook/onboarding')}
                         >
                           <Icon source={<PlusCircleIcon size={16} />} color="currentColor" />
-                          Adicionar página
+                          Adicionar
                         </Button>
                       </Box>
                     </Box>
