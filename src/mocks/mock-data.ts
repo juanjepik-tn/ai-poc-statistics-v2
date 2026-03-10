@@ -2600,8 +2600,17 @@ export const mockActionRules = {
       instruction: 'Quando o cliente pede diretamente para falar com alguém da equipe',
       triggers: [{ id: 6, action_rule_id: 6, content: 'Quando o cliente pede diretamente para falar com alguém da equipe.' }],
     },
+    {
+      id: 7,
+      store_id: 12345,
+      name: 'Política de devolução',
+      action: 'transfer' as const,
+      state: 'to_review' as const,
+      instruction: null,
+      triggers: [{ id: 7, action_rule_id: 7, content: 'Se o cliente perguntar sobre devolução, encaminhe para atendimento humano para verificar o prazo e condições...' }],
+    },
   ],
-  total: 6,
+  total: 7,
   limit: 20,
   offset: 0,
 };

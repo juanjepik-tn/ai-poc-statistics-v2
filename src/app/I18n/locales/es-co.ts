@@ -159,17 +159,10 @@ export default {
           'respond-with-ia': 'Responder con IA',
           'connected': 'Conectado',
         },
-        reviewBanner: {
-          title: 'Revisa los contenidos con atención humana',
-          description: 'Identificamos instrucciones de atención humana en {{count}} contenido(s). La atención humana fue habilitada automáticamente.',
-          descriptionWithLink: 'Identificamos instrucciones de atención humana en {{count}} contenido(s) de la biblioteca.',
-          goToLibrary: 'Ir a la biblioteca',
-          markReviewed: 'Entendido, ya revisé',
-        },
-        reviewBadge: 'Confirmar',
-        reviewTag: 'Revisar',
-        humanHelpWarning: {
-          description: 'Activamos la atención humana porque identificamos instrucciones relacionadas en el contenido.',
+        scenarioBanner: {
+          title: 'Escenarios creados a partir de tu contenido',
+          description: 'Identificamos instrucciones de atención humana en el contenido que guardaste y creamos {{count}} escenario(s) de transferencia para que revises en la pestaña de Atención humana.',
+          goToHumanSupport: 'Revisar escenarios',
         },
         'no-content': 'No hay contenido para mostrar',
         'mcp-connected': 'La información ya está conectada con la configuración de ',

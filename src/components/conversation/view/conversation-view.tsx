@@ -54,8 +54,6 @@ import FailedMessageAlertStatus from '@/components/FailedMessageAlertStatus/Fail
 import { IConversationMessage } from '@/types/conversation';
 import WhatsAppAlertsContainer from '@/components/FailedMessageAlertStatus/WhatsAppAlertsContainer';
 import { selectActiveFilter } from '@/redux/slices/channels';
-import HumanHelpReviewBanner from '@/pages/OnboardingStepper/components/KnowledgeLibrary/HumanHelpReviewBanner';
-import { detectHumanHelpInstructions } from '@/pages/OnboardingStepper/components/KnowledgeLibrary/humanHelpDetection';
 
 //
 
@@ -138,7 +136,6 @@ export default function ConversationView({
   const [markAsResolved, setMarkAsResolved] = useState<boolean>(false);
   const [isChannelConnected, setIsChannelConnected] = useState<boolean>(false);
   const billingData: BillingDTO = useSelector((state: any) => state?.billing?.billingData);
-  const [itemsToReviewCount, setItemsToReviewCount] = useState<number>(0);
   const { addToast } = useToast();
 
   // Use hardcoded list of available reference_ids
@@ -236,28 +233,6 @@ export default function ConversationView({
     getUnreadConversations();
   }, []);
 
-  // Fetch library content to calculate items needing human help review
-  useEffect(() => {
-    request<any>({
-      url: API_ENDPOINTS.relevantContent.list('0'),
-      method: 'GET',
-    })
-      .then(({ content }: any) => {
-        const rows = content?.rows || [];
-        const countToReview = rows.filter((item: any) => {
-          if (item.class === 'relevant_content_dummy') return false;
-          // Check if item needs review (detected instructions but not yet confirmed)
-          if (item.state === 'to_review') return true;
-          // Also check for items without state that have human help instructions
-          if (!item.state && detectHumanHelpInstructions(item.content || '')) return true;
-          return false;
-        }).length;
-        setItemsToReviewCount(countToReview);
-      })
-      .catch((error) => {
-        console.error('Error fetching library content for review count:', error);
-      });
-  }, []);
 
   const getConversationDetail = useCallback(
     (converId: string) => {
@@ -1437,7 +1412,6 @@ export default function ConversationView({
       <Box ref={debugOuterRef} display="flex" flexDirection="column" height="100%" overflow="hidden" minHeight="0">
         <Box display="flex" flexDirection="column" gap="2" flexShrink="0">
           <WhatsAppAlertsContainer />
-          <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} showLibraryButton={true} />
         </Box>
         <Box ref={debugContentRef} flex="1" minHeight="0" overflow="hidden">
           <Responsive mobileContent={renderMobile} desktopContent={renderDesktop} />

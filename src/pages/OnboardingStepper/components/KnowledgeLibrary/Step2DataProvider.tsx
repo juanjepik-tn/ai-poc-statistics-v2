@@ -1,12 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useToast } from '@nimbus-ds/components';
 import { useFetch } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '@/app/Axios/Axios';
-import { trackingCTHEnabled } from '@/tracking';
 import { MCP_RELEVANT_CONTENT} from '@/constants/mcpRelevantContent';
 import { detectHumanHelpInstructions } from './humanHelpDetection';
-import { HumanHelpState } from './step2.types';
+import { mapFrontendToBackend } from '@/pages/Configurations/types/actionRule';
 
 
 const TOAST_CONFIG = {
@@ -31,6 +30,31 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
   const pageRef = useRef(page);
   const [searchQuery, setSearchQuery] = useState('');
   const isFirstSearchRef = useRef(true);
+  const [scenariosCreatedCount, setScenariosCreatedCount] = useState(0);
+
+  const createScenarioFromContent = useCallback(async (contentTitle: string, contentText: string) => {
+    const scenarioData = mapFrontendToBackend({
+      name: contentTitle,
+      action: 'transfer',
+      state: 'to_review',
+      instruction: null,
+      trigger: contentText.length > 200 ? contentText.substring(0, 200) + '...' : contentText,
+    });
+    try {
+      await request<unknown>({
+        url: API_ENDPOINTS.actionRules.create(),
+        method: 'POST',
+        data: scenarioData,
+      });
+      setScenariosCreatedCount(prev => prev + 1);
+    } catch {
+      // Silently handle - scenario creation is a secondary action
+    }
+  }, [request]);
+
+  const dismissScenariosAlert = useCallback(() => {
+    setScenariosCreatedCount(0);
+  }, []);
 
   const onSearchContent = (searchQuery: string) => {
     setSearchQuery(searchQuery);
@@ -45,40 +69,11 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
       method: 'GET',
     })
       .then(({content}: any) => {                  
-          // Process content to ensure all items have tool_name and state
           let processedContent = content.rows.map((item: any) => {
-            // Skip MCP/dummy content
             if (item.class === 'relevant_content_dummy') {
               return item;
             }
-            
-            // Ensure tool_name exists
-            const toolName = item.tool_name || 'transfer_to_human';
-            
-            // Check if content has human help instructions
-            const hasHumanHelpInstructions = detectHumanHelpInstructions(item.content || '');
-            
-            // Determine tool and state
-            let toolEnabled = item.tool;
-            let state = item.state;
-            
-            if (!state) {
-              // If human help instructions detected and tool is not already enabled,
-              // enable it and mark as 'to_review' for user confirmation
-              if (hasHumanHelpInstructions && !item.tool) {
-                toolEnabled = true; // Enable human help by default
-                state = 'to_review'; // Mark for user review/confirmation
-              } else {
-                state = item.tool ? 'enabled' : 'disabled';
-              }
-            }
-            
-            return {
-              ...item,
-              tool: toolEnabled,
-              tool_name: toolName,
-              state: state,
-            };
+            return item;
           });
           
           if (!searchQuery) {
@@ -170,23 +165,9 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
   }, []);
 
   const onCreateContent = (formData: any, className: string): Promise<boolean> => {    
-    // Detect if content has human help instructions
-    const hasHumanHelpInstructions = detectHumanHelpInstructions(formData.content);
-    
-    // If human help instructions are detected, ALWAYS enable human help (even if form has tool: false)
-    // This ensures automatic detection takes precedence for new content
-    const toolEnabled = hasHumanHelpInstructions ? true : (formData.tool || false);
-    
-    // If detected, mark as 'to_review' for user confirmation
-    // Otherwise, use 'enabled' or 'disabled' based on tool state
-    const state: HumanHelpState = hasHumanHelpInstructions ? 'to_review' : (toolEnabled ? 'enabled' : 'disabled');
-    
     const PARAMS = {
       title: formData.title,
       content: formData.content,      
-      tool: toolEnabled,
-      tool_name: formData.tool_name || 'transfer_to_human',
-      state: state,
     };
     setLoading(true);
     const url = className === 'relevant_content_store' 
@@ -210,6 +191,12 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
          });
          onGetContentList();
          onGetOptionals();
+
+         const hasHumanHelpInstructions = detectHumanHelpInstructions(formData.content);
+         if (hasHumanHelpInstructions) {
+           createScenarioFromContent(formData.title, formData.content);
+         }
+
          return true;              
        })
        .catch((error) => {    
@@ -224,15 +211,9 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
        });
   };
   const onUpdateContent = (contentId: string, formData: any, className: string): Promise<boolean> => {    
-    // When user confirms toggle, update state from 'to_review' to 'enabled' or 'disabled'
-    const newState: HumanHelpState = formData.tool ? 'enabled' : 'disabled';
-    
     const PARAMS = {
       title: formData.title,
       content: formData.content,     
-      tool: formData.tool,
-      tool_name: formData.tool_name || 'transfer_to_human',
-      state: newState,
     };
     setLoading(true);
     const url = className === 'relevant_content_store' 
@@ -248,7 +229,7 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
        .then(() => {
          setLoading(false);
          const updatedContentList = contentList.map((item) => 
-           item.id === parseInt(contentId, 10) ? { ...item, ...formData, state: newState, tool_name: PARAMS.tool_name } : item
+           item.id === parseInt(contentId, 10) ? { ...item, ...formData } : item
          );         
          setContentList(updatedContentList);
          addToast({
@@ -257,14 +238,12 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
            duration: TOAST_CONFIG.duration,
            id: 'update-content',
          });
-         //if the content has a tool, track the CTH enabled
-         if (formData.tool_name || PARAMS.tool_name) {
-          trackingCTHEnabled(
-            formData.tool ? 'Enabled' : 'Disabled',
-            formData.title,
-            'onboarding'
-          );
+
+         const hasHumanHelpInstructions = detectHumanHelpInstructions(formData.content);
+         if (hasHumanHelpInstructions) {
+           createScenarioFromContent(formData.title, formData.content);
          }
+
          return true;              
        })
        .catch((error) => {    
@@ -314,54 +293,6 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
     setFetchingMoreData(true);
   };
 
-  // Count items that need review (to_review state)
-  const itemsToReviewCount = useMemo(() => {
-    return contentList.filter(item => item.state === 'to_review').length;
-  }, [contentList]);
-
-  // Count items with human help enabled
-  const humanHelpEnabledCount = useMemo(() => {
-    return contentList.filter(item => item.tool === true && item.class !== 'relevant_content_dummy').length;
-  }, [contentList]);
-
-  // Mark all 'to_review' items as 'enabled' (user confirmed review)
-  const onMarkAllReviewed = useCallback(() => {
-    const itemsToReview = contentList.filter(item => item.state === 'to_review');
-    
-    // Update each item's state locally and on server
-    const updatedContentList = contentList.map(item => {
-      if (item.state === 'to_review') {
-        return { ...item, state: 'enabled' };
-      }
-      return item;
-    });
-    setContentList(updatedContentList);
-
-    // Fire updates to the server for each reviewed item
-    itemsToReview.forEach(item => {
-      const updatedItem = { ...item, state: 'enabled' };
-      const PARAMS = {
-        title: updatedItem.title,
-        content: updatedItem.content,
-        tool: updatedItem.tool,
-        tool_name: updatedItem.tool_name || 'transfer_to_human',
-        state: 'enabled' as const,
-      };
-      const url = updatedItem.class === 'relevant_content_store'
-        ? API_ENDPOINTS.relevantContent.updateStore(updatedItem.id.toString())
-        : updatedItem.class === 'relevant_content_mandatory'
-        ? API_ENDPOINTS.relevantContent.updateMandatory(updatedItem.id.toString())
-        : API_ENDPOINTS.relevantContent.updateOptionals(updatedItem.id.toString());
-      request<unknown>({
-        url: url,
-        method: 'PUT',
-        data: PARAMS,
-      }).catch(() => {
-        // Silently handle errors — the local state is already updated
-      });
-    });
-  }, [contentList, request]);
-
   const contextValue = {
     contentList,    
     onCreateContent,
@@ -373,9 +304,8 @@ const Step2DataProvider: React.FC<any> = ({ children }) => {
     fetchingMoreData,
     optionalsList,
     onSearchContent,
-    itemsToReviewCount,
-    humanHelpEnabledCount,
-    onMarkAllReviewed,
+    scenariosCreatedCount,
+    dismissScenariosAlert,
   };
 
   return (

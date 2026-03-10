@@ -55,7 +55,7 @@ const KnowledgeLibrary: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
   }, []);
   return (
     <Step2DataProvider>
-      {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, mcpEnabled, itemsToReviewCount, onMarkAllReviewed }: any) => {
+      {({ contentList, totalContent, onCreateContent, loading, onUpdateContent, onDeleteContent, fetchMoreData, fetchingMoreData, optionalsList, mcpEnabled, scenariosCreatedCount, dismissScenariosAlert }: any) => {
         
         const validateMandatoryFields = (contentList: any) => {
           let hasIncompleteMandatoryContent = false;
@@ -114,7 +114,7 @@ const KnowledgeLibrary: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
           <Page.Body>
             <Layout>
               <Layout.Section>
-                <HumanHelpReviewBanner itemsToReviewCount={itemsToReviewCount} onMarkAllReviewed={onMarkAllReviewed} />
+                <HumanHelpReviewBanner scenariosCreatedCount={scenariosCreatedCount} onDismiss={dismissScenariosAlert} />
                 <Card padding="small">
                   <ContentList
                     contentList={contentList}

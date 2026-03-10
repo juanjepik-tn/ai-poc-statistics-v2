@@ -1,12 +1,11 @@
-import { Alert, Box, Button, Icon, Sidebar, Spinner, Text, Toggle, Tooltip } from '@nimbus-ds/components';
+import { Box, Button, Icon, Sidebar, Spinner } from '@nimbus-ds/components';
 import { FormField, Layout } from '@nimbus-ds/patterns';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ChevronLeftIcon, ExclamationCircleIcon, InfoCircleIcon } from '@nimbus-ds/icons';
+import { ChevronLeftIcon, ExclamationCircleIcon } from '@nimbus-ds/icons';
 import { IContentItem } from './step2.types';
-import { trackingLibraryContentContentUpdate, trackingLibraryContentFormClose, trackingLibraryContentTitleUpdate, trackingLibraryContentToolUpdate, trackingModifyLibraryContent, trackingNewLibraryContent } from '@/tracking';
-import { detectHumanHelpInstructions } from './humanHelpDetection';
+import { trackingLibraryContentContentUpdate, trackingLibraryContentFormClose, trackingLibraryContentTitleUpdate, trackingModifyLibraryContent, trackingNewLibraryContent } from '@/tracking';
 
 interface Props {
   open: boolean;
@@ -23,25 +22,17 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
   const [formValues, setFormValues] = useState({    
     title: '',
     content: '',
-    tool: false,
-    tool_name: content?.tool_name || 'transfer_to_human',
   });
   const [errors, setErrors] = useState({
     title: '',  
     content: ''
   });
-  const [showHumanHelpWarning, setShowHumanHelpWarning] = useState(false);
-
-  
 
   useEffect(() => {
       setFormValues({
         title: content?.title || '',
         content: content?.content || '',
-        tool: content?.tool || false,
-        tool_name: content?.tool_name || 'transfer_to_human',
       });
-      setShowHumanHelpWarning(false);
   }, [content, open]);
 
   const handleChange = (
@@ -53,42 +44,6 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
     setFormValues({
       ...formValues,
       [name]: value,
-    });
-    
-    // Check for human help instructions in real-time
-    if (name === 'content') {
-      const hasInstructions = detectHumanHelpInstructions(value);
-      if (hasInstructions && !formValues.tool) {
-        setFormValues(prev => ({ ...prev, [name]: value, tool: true }));
-        setShowHumanHelpWarning(true);
-      } else if (!hasInstructions) {
-        setShowHumanHelpWarning(false);
-      }
-    }
-  };
-
-  const handleToggle = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const { name, checked } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: checked,
-    });    
-    
-    // Only call onUpdateContent if we're editing existing content (has ID)
-    // For new content, the toggle state will be saved when the form is submitted
-    if (content?.id && onUpdateContent) {
-      const data = {
-        ...formValues,
-        tool: checked,
-      }
-      onUpdateContent(content.id.toString(), data, content?.class || '');
-    }
-    
-    trackingLibraryContentToolUpdate({
-      source: source,
-      content_tool: checked.toString(),
     });
   };
 
@@ -104,21 +59,10 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      // Check if content has human help instructions
-      const hasHumanHelpInstructions = detectHumanHelpInstructions(formValues.content);
-      
-      // If human help instructions detected and toggle is off, enable it and show warning
-      let dataToSubmit = formValues;
-      if (hasHumanHelpInstructions && !formValues.tool) {
-        dataToSubmit = { ...formValues, tool: true };
-        setFormValues(dataToSubmit);
-        setShowHumanHelpWarning(true);
-      }
-      
       let result = false;
       if (content?.content || (content?.class === 'relevant_content_mandatory' && content?.title)) {
         if (onUpdateContent) {
-          result = await onUpdateContent(content.id.toString(), dataToSubmit, content?.class);
+          result = await onUpdateContent(content.id.toString(), formValues, content?.class);
           trackingModifyLibraryContent({
             content_id: content.id.toString(),
             source: source,
@@ -126,9 +70,9 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
         }
       } else {
         if (onCreateContent) {
-          result = await onCreateContent(dataToSubmit, content?.class || '');          
+          result = await onCreateContent(formValues, content?.class || '');          
           trackingNewLibraryContent({
-            content_title: dataToSubmit.title,
+            content_title: formValues.title,
             source: source,
           });
         }
@@ -139,10 +83,7 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
         setFormValues({
           title: '',
           content: '',
-          tool: false,
-          tool_name: 'transfer_to_human',
         });
-        setShowHumanHelpWarning(false);
       }
     }
   };
@@ -154,8 +95,6 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
         setFormValues({
           title: '',
           content: '',
-          tool: false,
-          tool_name: 'transfer_to_human',
         });
       }}>
 
@@ -234,33 +173,6 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
                         }}
                       ></FormField.Textarea>
                     </Box>
-                    <Box display="flex" alignItems="center" gap="2" padding="3">
-                      <Toggle name='tool' label={t('settings.step2.actions.request-human-help')} checked={formValues.tool} onChange={handleToggle} />
-                      {/*@ts-ignore*/}
-                      <Tooltip content={
-                        <>
-                          <Box maxWidth="200px" style={{ textAlign: 'justify' }}>
-                            <Box>
-                              {t('settings.step3.config-4.help-text')}
-                            </Box>
-                        </Box>
-                        </>
-                      } position="top">
-                        <Icon color="primary-interactive" source={<InfoCircleIcon size="small" />} />
-                      </Tooltip>
-                    </Box>
-
-                    {/* Human help detection warning */}
-                    {showHumanHelpWarning && (
-                      <Box marginTop="2">
-                        <Alert appearance="warning">
-                          <Text fontSize="caption">
-                            {t('settings.step2.humanHelpWarning.description')}
-                          </Text>
-                        </Alert>
-                      </Box>
-                    )}
-
                     <Box
                       display="flex"
                       justifyContent="flex-end"
@@ -269,7 +181,6 @@ const ContentForm: React.FC<Props> = ({ open, toggleOpen, content, onCreateConte
                     >
                       <Button onClick={() => {
                         toggleOpen();
-                        setShowHumanHelpWarning(false);
                         trackingLibraryContentFormClose({
                           source: source,
                         });

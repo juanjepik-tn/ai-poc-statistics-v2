@@ -70,6 +70,12 @@ const useTransferScenarios = (): UseTransferScenariosResult => {
       );
     }
 
+    filtered.sort((a, b) => {
+      if (a.state === 'to_review' && b.state !== 'to_review') return -1;
+      if (b.state === 'to_review' && a.state !== 'to_review') return 1;
+      return 0;
+    });
+
     return filtered;
   }, [actionRules, searchQuery, statusFilter]);
 

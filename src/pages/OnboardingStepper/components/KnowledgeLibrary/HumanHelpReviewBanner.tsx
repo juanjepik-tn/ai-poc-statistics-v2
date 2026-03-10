@@ -1,65 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Alert, Box, Button, Text } from '@nimbus-ds/components';
 import { useTranslation } from 'react-i18next';
 
-const DISMISSED_KEY = 'humanHelpReviewBanner:dismissed';
-
 interface HumanHelpReviewBannerProps {
-  itemsToReviewCount: number;
-  showLibraryButton?: boolean;
-  onMarkAllReviewed?: () => void;
+  scenariosCreatedCount: number;
+  onDismiss: () => void;
 }
 
-const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ itemsToReviewCount, showLibraryButton = false, onMarkAllReviewed }) => {
+const HumanHelpReviewBanner: React.FC<HumanHelpReviewBannerProps> = ({ scenariosCreatedCount, onDismiss }) => {
   const { t } = useTranslation('translations');
-  const [dismissed, setDismissed] = useState(() => {
-    try {
-      return localStorage.getItem(DISMISSED_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
 
-  if (itemsToReviewCount === 0 || dismissed) {
+  if (scenariosCreatedCount === 0) {
     return null;
   }
 
-  const handleGoToLibrary = () => {
-    window.location.href = '/admin/chat#/configurations/1';
-  };
-
-  const handleRemove = () => {
-    try {
-      localStorage.setItem(DISMISSED_KEY, 'true');
-    } catch { /* storage unavailable */ }
-    setDismissed(true);
+  const handleGoToHumanSupport = () => {
+    window.location.hash = '#/configurations/2';
   };
 
   return (
     <Box marginBottom="4">
       <Alert 
         appearance="warning"
-        title={t('settings.step2.reviewBanner.title')}
-        onRemove={handleRemove}
+        title={t('settings.step2.scenarioBanner.title')}
+        onRemove={onDismiss}
       >
         <Box display="flex" flexDirection="column" gap="3">
           <Text>
-            {showLibraryButton 
-              ? t('settings.step2.reviewBanner.descriptionWithLink', { count: itemsToReviewCount })
-              : t('settings.step2.reviewBanner.description', { count: itemsToReviewCount })
-            }
+            {t('settings.step2.scenarioBanner.description', { count: scenariosCreatedCount })}
           </Text>
-          <Box display="flex" justifyContent="flex-start" gap="2">
-            {showLibraryButton && (
-              <Button appearance="neutral" onClick={handleGoToLibrary}>
-                {t('settings.step2.reviewBanner.goToLibrary')}
-              </Button>
-            )}
-            {onMarkAllReviewed && (
-              <Button appearance="neutral" onClick={onMarkAllReviewed}>
-                {t('settings.step2.reviewBanner.markReviewed')}
-              </Button>
-            )}
+          <Box display="flex" justifyContent="flex-start">
+            <Button appearance="neutral" onClick={handleGoToHumanSupport}>
+              {t('settings.step2.scenarioBanner.goToHumanSupport')}
+            </Button>
           </Box>
         </Box>
       </Alert>

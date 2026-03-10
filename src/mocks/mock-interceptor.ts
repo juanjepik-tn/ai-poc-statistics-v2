@@ -449,18 +449,38 @@ export const getMockResponse = (
   }
 
   if (normalizedUrl.includes('action-rules/store') && normalizedMethod === 'POST') {
-    const { id: _existingId, ...rest } = mockActionRules.data[0];
+    const requestData = config?.data ? (typeof config.data === 'string' ? JSON.parse(config.data) : config.data) : {};
+    const newId = Date.now();
     return {
       data: {
-        ...rest,
-        id: Date.now(),
+        id: newId,
+        store_id: 12345,
+        name: requestData.name || 'Novo cenário',
+        action: requestData.action || 'transfer',
+        state: requestData.state || 'enabled',
+        instruction: requestData.instruction || null,
+        triggers: requestData.triggers || [{ id: newId, action_rule_id: newId, content: '' }],
       },
       status: 201,
     };
   }
 
   if (normalizedUrl.match(/action-rules\/store\/\d+/) && normalizedMethod === 'PUT') {
-    return { data: mockActionRules.data[0], status: 200 };
+    const requestData = config?.data ? (typeof config.data === 'string' ? JSON.parse(config.data) : config.data) : {};
+    const idMatch = normalizedUrl.match(/action-rules\/store\/(\d+)/);
+    const ruleId = idMatch ? parseInt(idMatch[1], 10) : 1;
+    return {
+      data: {
+        id: ruleId,
+        store_id: 12345,
+        name: requestData.name || mockActionRules.data[0].name,
+        action: requestData.action || mockActionRules.data[0].action,
+        state: requestData.state || mockActionRules.data[0].state,
+        instruction: requestData.instruction ?? mockActionRules.data[0].instruction,
+        triggers: requestData.triggers || mockActionRules.data[0].triggers,
+      },
+      status: 200,
+    };
   }
 
   if (normalizedUrl.match(/action-rules\/store\/\d+/) && normalizedMethod === 'DELETE') {
