@@ -1001,11 +1001,10 @@ export default function ConversationView({
       setConversations((prev) =>
         prev.map((conv: any) =>
           conv.id === conversationId
-            ? { ...conv, unreadMessages: Math.max(conv.unreadMessages, 1) }
+            ? { ...conv, unreadMessages: Math.max(conv.unreadMessages, 1), manuallyMarkedUnread: true }
             : conv
         )
       );
-      // Deselect current conversation so the unread badge appears
       if (currentConversation?.id === conversationId) {
         setCurrentConversation(undefined);
         setChatMessages([]);
@@ -1023,7 +1022,7 @@ export default function ConversationView({
       setConversations((prev) =>
         prev.map((conv: any) =>
           conv.id === conversationId
-            ? { ...conv, unreadMessages: 0 }
+            ? { ...conv, unreadMessages: 0, manuallyMarkedUnread: false }
             : conv
         )
       );
