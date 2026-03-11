@@ -347,7 +347,10 @@ export default function ConversationNavItem({
             {/* Row 2: Badge + Chevron */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
               {!selected && unreadMessagesCount > 0 && (
-                <Badge appearance="primary" count={unreadMessagesCount} />
+                <Badge
+                  appearance="primary"
+                  count={conversation.manuallyMarkedUnread ? ' ' : unreadMessagesCount}
+                />
               )}
               {/* Chevron trigger - collapses to 0 width when hidden */}
               <div
