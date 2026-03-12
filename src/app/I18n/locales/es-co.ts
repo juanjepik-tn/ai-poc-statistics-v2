@@ -980,6 +980,12 @@ export default {
       'important-desc': 'Durante el proceso de Meta, asegúrate de seleccionar el portafolio de negocios correcto. Seleccionar el portafolio equivocado puede causar problemas en la conexión.',
       'more-info': 'Más información sobre cómo conectar',
     },
+    announcements: {
+      'read-unread': {
+        title: '¡Nuevo! Marca conversaciones como leídas o no leídas',
+        body: 'Ahora puedes filtrar y marcar conversaciones como leídas o no leídas para organizar mejor tu atención.',
+      },
+    },
   },
 };
 

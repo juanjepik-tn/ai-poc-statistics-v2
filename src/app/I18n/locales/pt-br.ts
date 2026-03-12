@@ -1008,5 +1008,11 @@ export default {
       reconnect: 'Reconectar agora',
       later: 'Depois',
     },
+    announcements: {
+      'read-unread': {
+        title: 'Novo! Marque conversas como lidas ou não lidas',
+        body: 'Agora você pode filtrar e marcar conversas como lidas ou não lidas para organizar melhor seu atendimento.',
+      },
+    },
   },
 };

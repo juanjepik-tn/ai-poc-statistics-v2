@@ -2942,18 +2942,29 @@ export const mockTemplateMessages = [
 
 export const mockAnnouncements = [
   {
+    id: 3,
+    title: 'Novo! Marque conversas como lidas ou não lidas',
+    body: 'Agora você pode filtrar e marcar conversas como lidas ou não lidas para organizar melhor seu atendimento.',
+    type: 'product_update',
+    priority: 1,
+    read: false,
+    created_at: '2026-03-11T00:00:00Z',
+  },
+  {
     id: 1,
     title: 'Nueva función: Estadísticas mejoradas',
-    content: 'Ahora podés ver métricas más detalladas de tus conversaciones.',
+    body: 'Ahora podés ver métricas más detalladas de tus conversaciones.',
     type: 'feature',
-    read: false,
+    priority: 2,
+    read: true,
     created_at: '2024-01-15T10:00:00Z',
   },
   {
     id: 2,
     title: 'Mantenimiento programado',
-    content: 'El día 20/01 habrá un mantenimiento de 2 horas.',
+    body: 'El día 20/01 habrá un mantenimiento de 2 horas.',
     type: 'maintenance',
+    priority: 3,
     read: true,
     created_at: '2024-01-10T08:00:00Z',
   },

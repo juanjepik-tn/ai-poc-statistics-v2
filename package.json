@@ -23,7 +23,7 @@
     "@mui/material": "^5.16.4",
     "@nimbus-ds/components": "^5.2.0",
     "@nimbus-ds/icons": "^1.2.0",
-    "@nimbus-ds/patterns": "^1.5.1",
+    "@nimbus-ds/patterns": "^1.34.1",
     "@nimbus-ds/styles": "^9.3.0",
     "@nimbus-ds/tokens": "^8.1.0",
     "@reduxjs/toolkit": "^2.2.7",
