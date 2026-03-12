@@ -745,10 +745,39 @@ export const getMockResponse = (
 
   // Announcements
   if (matchRoute(normalizedUrl, '/announcements/unread') && normalizedMethod === 'GET') {
-    return { data: mockAnnouncements.filter((a) => !a.read), status: 200 };
+    const viewedIds: number[] = JSON.parse(localStorage.getItem('announcements_viewed') || '[]');
+    const unread = mockAnnouncements
+      .filter((a) => !a.read && !viewedIds.includes(a.id))
+      .sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99))
+      .map((a) => ({
+        '@context': '/contexts/Announcement',
+        '@id': `/announcements/${a.id}`,
+        '@type': 'Announcement',
+        id: a.id,
+        title: a.title,
+        body: a.body,
+        isActive: true,
+        createdBy: 1,
+        updatedBy: 1,
+        createdAt: a.created_at,
+        updatedAt: a.created_at,
+        deletedAt: null,
+        active: true,
+        priority: a.priority ?? 99,
+      }));
+    return { data: unread, status: 200 };
   }
 
   if (normalizedUrl.includes('/announcements/') && normalizedUrl.includes('/view')) {
+    const idMatch = normalizedUrl.match(/\/announcements\/(\d+)\/view/);
+    if (idMatch) {
+      const viewedIds: number[] = JSON.parse(localStorage.getItem('announcements_viewed') || '[]');
+      const announcementId = Number(idMatch[1]);
+      if (!viewedIds.includes(announcementId)) {
+        viewedIds.push(announcementId);
+        localStorage.setItem('announcements_viewed', JSON.stringify(viewedIds));
+      }
+    }
     return { data: { success: true }, status: 200 };
   }
 
