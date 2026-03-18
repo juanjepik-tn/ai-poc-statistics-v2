@@ -568,7 +568,8 @@ export default {
       loading: 'Cargando...',
       filters: 'Filtros',
       error: 'Error',
-      understood: 'Entendí'
+      understood: 'Entendí',
+      new: 'Nuevo',
     },
     conversations: {
       'default-response-mode': 'Modo de respuesta predeterminado',
@@ -591,6 +592,32 @@ export default {
       'need-attention': 'Necesitan atención',
       all: 'Todos',
       filter: 'Filtrar',
+      filterPanel: {
+        channel: 'Canal',
+        allChannels: 'Todos los canales',
+        service: 'Atención humana',
+        allSubjects: 'Todos los asuntos',
+        selectSubjects: 'Seleccionar asuntos',
+        searchSubject: 'Buscar asunto...',
+        selectAll: 'Seleccionar todos',
+        nSelected: '{{count}} seleccionados',
+        carts: 'Carritos',
+        allCarts: 'Todos los carritos',
+        selectCart: 'Seleccionar carrito',
+        cartSent: 'Enviados',
+        cartAbandoned: 'Abandonados',
+        paidCarts: 'Pagos',
+        allPaidCarts: 'Todos',
+        checkout: 'Checkout (tienda)',
+        oneClick: 'WhatsApp (one-click)',
+        clear: 'Limpiar filtros',
+        apply: 'Aplicar',
+        group: {
+          orders: 'Pedidos',
+          shipping: 'Envío y devoluciones',
+          support: 'Soporte',
+        },
+      },
       feedback: {
         title: '¿Cómo podríamos mejorar?',
         question: '¿Te sirvió esta respuesta?',
@@ -678,6 +705,12 @@ export default {
       'mark-as-read': 'Marcar como leído',
       'marked-as-unread': 'Conversación marcada como no leída',
       'marked-as-read': 'Conversación marcada como leída',
+      bulk: {
+        selected: 'seleccionada(s)',
+        'select-all': 'Seleccionar todas',
+        select: 'Seleccionar conversaciones',
+        clear: 'Limpiar selección',
+      },
       'The bot did not respond properly': 'El bot no respondió correctamente',
       'Failed to retrieve the suggest response':
         'No se pudo recuperar la sugerencia de IA',
@@ -990,6 +1023,11 @@ export default {
       'important-desc': 'Durante el proceso de Meta, asegúrate de seleccionar el portafolio de negocios correcto. Seleccionar el portafolio equivocado puede causar problemas en la conexión.',
       'more-info': 'Más información sobre cómo conectar',
     },
+    announcements: {
+      'read-unread': {
+        title: '¡Nuevo! Marca conversaciones como leídas o no leídas',
+        body: 'Ahora puedes filtrar y marcar conversaciones como leídas o no leídas para organizar mejor tu atención.',
+      },
+    },
   },
 };
-

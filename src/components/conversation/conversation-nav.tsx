@@ -7,22 +7,23 @@ import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 
 import { IConversation } from '@/types/conversation';
-import { Box as BoxNimbus, Button, Icon, IconButton as IconButtonNimbus, Input, Popover, Spinner, Text, Title } from '@nimbus-ds/components';
-import { ChatDotsIcon, CogIcon, EllipsisIcon, GenerativeStarsIcon, InfoCircleIcon, SearchIcon, TagIcon, ToolsIcon } from '@nimbus-ds/icons';
+import { Box as BoxNimbus, Button, Icon, IconButton as IconButtonNimbus, Input, Link, Popover, Spinner, Text, Title, Tooltip } from '@nimbus-ds/components';
+import { ChatDotsIcon, CheckCircleIcon, CogIcon, EllipsisIcon, GenerativeStarsIcon, InfoCircleIcon, SearchIcon, TagIcon, ToolsIcon } from '@nimbus-ds/icons';
 import { EmptyMessage } from '@nimbus-ds/patterns';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Iconify from '../iconify/iconify';
+import ChatReadIcon from '../icons/ChatReadIcon';
+import ChatUnreadIcon from '../icons/ChatUnreadIcon';
 import { useCollapseNav } from '../playground/hooks';
 import { ChatNavItemSkeleton } from './chat-skeleton';
 import ConversationNavItem from './conversation-nav-item';
 import ConversationNavSearchResults from './conversation-nav-search-results';
 import ConversationTabs from './header-mode-filter-tab';
-import TagFilterSelect from './header-tag-filter-select';
+import ChatFilterPanel from './ChatFilterPanel';
 import { useResponsive } from './hooks/use-responsive';
 import { BillingDTO } from '@/types/billingDTO';
 import { useSelector, useDispatch } from 'react-redux';
-import { ChannelFilter } from '../ChannelFilter';
 import { ReconnectBanner } from '../ReconnectBanner';
 import { 
   selectAvailableChannelTypes, 
@@ -52,7 +53,7 @@ type Props = {
   handleNeedAttention: any;
   handleSearch: (query: string) => void;
   handleTagFilter: (tag: string) => void;
-  availableReferenceIds: string[];
+  handleAtendimentoFilter: (tags: string[]) => void;
   markAsResolved: boolean;
   storeSelectedMode: any;
   unreadMessagesCount: number;
@@ -63,6 +64,14 @@ type Props = {
   activeSegmentFilter?: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  selectionMode?: boolean;
+  selectedConversationIds?: Set<string>;
+  onToggleSelection?: (conversationId: string) => void;
+  onEnterSelectionMode?: (conversationId?: string) => void;
+  onExitSelectionMode?: () => void;
+  onSelectAll?: () => void;
+  onBulkMarkAsRead?: () => void;
+  onBulkMarkAsUnread?: () => void;
 };
 
 export default function ConversationNav({
@@ -75,7 +84,7 @@ export default function ConversationNav({
   handleNeedAttention,
   handleSearch,
   handleTagFilter,
-  availableReferenceIds,
+  handleAtendimentoFilter,
   loading,
   markAsResolved,
   storeSelectedMode,
@@ -87,6 +96,14 @@ export default function ConversationNav({
   activeSegmentFilter,
   onRefresh,
   isRefreshing,
+  selectionMode,
+  selectedConversationIds,
+  onToggleSelection,
+  onEnterSelectionMode,
+  onExitSelectionMode,
+  onSelectAll,
+  onBulkMarkAsRead,
+  onBulkMarkAsUnread,
 }: Props) {
   const theme = useTheme();
   const mdUp = useResponsive('up', 'md');
@@ -252,12 +269,16 @@ export default function ConversationNav({
             key={conversation.id}
             collapse={collapseDesktop}
             conversation={conversation}
-            onClickConversation={() => handleClickConversation(conversation)}
+            onClickConversation={() => selectionMode ? onToggleSelection?.(conversation.id) : handleClickConversation(conversation)}
             selected={conversation.id === currentConversationId}
             markAsResolved={markAsResolved}
             storeSelectedMode={storeSelectedMode}
             onMarkAsUnread={onMarkAsUnread}
             onMarkAsRead={onMarkAsRead}
+            selectionMode={selectionMode}
+            isSelected={selectedConversationIds?.has(conversation.id)}
+            onToggleSelection={onToggleSelection}
+            onEnterSelectionMode={onEnterSelectionMode}
           />
         ) : (
           <ChatNavItemSkeleton key={index} />
@@ -285,6 +306,7 @@ export default function ConversationNav({
 
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedTagFilter, setSelectedTagFilter] = useState('all');
+  const [selectedAtendimentoTags, setSelectedAtendimentoTags] = useState<string[]>([]);
   const handleFilterChange = (value: string) => {
     handleNeedAttention();
     setSelectedFilter(value);
@@ -292,6 +314,10 @@ export default function ConversationNav({
   const handleTagFilterChange = (value: string) => {
     setSelectedTagFilter(value);
     handleTagFilter(value);
+  };
+  const handleAtendimentoTagsChange = (tags: string[]) => {
+    setSelectedAtendimentoTags(tags);
+    handleAtendimentoFilter(tags);
   };
 
   
@@ -329,6 +355,58 @@ export default function ConversationNav({
       )}
       
       <BoxNimbus p="4" gap="1">
+        {selectionMode ? (
+          <BoxNimbus
+            display="flex"
+            flexDirection="column"
+            gap="2"
+            paddingBottom="2"
+          >
+            <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" py="2">
+              <BoxNimbus display="flex" alignItems="center" gap="2">
+                <IconButtonNimbus
+                  source={<Iconify icon="mdi:arrow-left" width={20} />}
+                  size="2rem"
+                  onClick={() => onExitSelectionMode?.()}
+                />
+                <Text fontWeight="bold" fontSize="base">
+                  {selectedConversationIds?.size || 0} {t('conversations.bulk.selected')}
+                </Text>
+              </BoxNimbus>
+            </BoxNimbus>
+            <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center">
+              <BoxNimbus display="flex" gap="2" alignItems="center">
+                <Link as="button" appearance="primary" onClick={() => onSelectAll?.()}>
+                  {t('conversations.bulk.select-all')}
+                </Link>
+                {(selectedConversationIds?.size ?? 0) > 0 && (
+                  <>
+                    <Text color="neutral-textDisabled">|</Text>
+                    <Link as="button" appearance="neutral" onClick={() => onExitSelectionMode?.()}>
+                      {t('conversations.bulk.clear')}
+                    </Link>
+                  </>
+                )}
+              </BoxNimbus>
+              <BoxNimbus display="flex" flexDirection="row" gap="2" alignItems="center">
+                <Tooltip content={t('conversations.mark-as-read')} position="bottom">
+                  <IconButtonNimbus
+                    source={<ChatReadIcon size={20} />}
+                    size="2rem"
+                    onClick={() => onBulkMarkAsRead?.()}
+                  />
+                </Tooltip>
+                <Tooltip content={t('conversations.mark-as-unread')} position="bottom">
+                  <IconButtonNimbus
+                    source={<ChatUnreadIcon size={20} />}
+                    size="2rem"
+                    onClick={() => onBulkMarkAsUnread?.()}
+                  />
+                </Tooltip>
+              </BoxNimbus>
+            </BoxNimbus>
+          </BoxNimbus>
+        ) : (
         <BoxNimbus display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" py="2">
           <Title as="h3">Chat</Title>
           <BoxNimbus display="flex" justifyContent="flex-end" gap="2" alignItems="center">
@@ -434,6 +512,22 @@ export default function ConversationNav({
                     <Icon source={<ToolsIcon />} color="neutral-textLow" />
                     <Text fontSize="base" color="neutral-textHigh">Manual todas conversas</Text>
                   </BoxNimbus>
+                  <BoxNimbus
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="3"
+                    paddingX="4"
+                    paddingY="2-5"
+                    cursor="pointer"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      onEnterSelectionMode?.();
+                    }}
+                  >
+                    <Icon source={<CheckCircleIcon />} color="neutral-textLow" />
+                    <Text fontSize="base" color="neutral-textHigh">{t('conversations.bulk.select')}</Text>
+                  </BoxNimbus>
                 </BoxNimbus>
               }
             >
@@ -444,66 +538,44 @@ export default function ConversationNav({
             </Popover>
           </BoxNimbus>
         </BoxNimbus>
-
-        {/* Segmented Control + Filter Button */}
-        <ConversationTabs
-          selectedFilter={activeSegmentFilter || selectedFilter}
-          handleFilterChange={handleSegmentFilterChange || handleFilterChange}
-          unreadMessagesCount={unreadMessagesCount}
-          onFilterClick={() => setShowFilters(!showFilters)}
-          filtersActive={showFilters}
-        />
-
-        {/* Search Input - only visible when search icon is clicked */}
-        {showSearch && !collapseDesktop && (
-          <BoxNimbus paddingTop="2">
-            <Input
-              placeholder={t('conversations.search')}
-              disabled={!billingData?.activeStatus}
-              append={<SearchIcon size={16} />}
-              appendPosition="start"
-              onChange={handleSearchContact}
-              name="search"
-              id="search"
-            />
-          </BoxNimbus>
         )}
-        
-        {/* Filters Panel - only visible when filter button is clicked */}
-        {showFilters && (
-          <BoxNimbus 
-            paddingTop="4"
-            display="flex" 
-            flexDirection="column" 
-            gap="4"
-          >
-            {/* Channel Filter - only show if multiple channels are available */}
-            {availableChannelTypes.length > 1 && (
-              <BoxNimbus display="flex" flexDirection="column" gap="1">
-                <Text fontSize="caption" fontWeight="medium" color="neutral-textLow">
-                  Canal
-                </Text>
-                <ChannelFilter
-                  value={channelFilter}
-                  onChange={handleChannelFilterChange}
-                  availableChannels={availableChannelTypes}
+
+        {!selectionMode && (
+          <>
+            <ConversationTabs
+              selectedFilter={activeSegmentFilter || selectedFilter}
+              handleFilterChange={handleSegmentFilterChange || handleFilterChange}
+              unreadMessagesCount={unreadMessagesCount}
+              onFilterClick={() => setShowFilters(!showFilters)}
+              filtersActive={showFilters}
+            />
+
+            {showSearch && !collapseDesktop && (
+              <BoxNimbus paddingTop="2">
+                <Input
+                  placeholder={t('conversations.search')}
                   disabled={!billingData?.activeStatus}
+                  append={<SearchIcon size={16} />}
+                  appendPosition="start"
+                  onChange={handleSearchContact}
+                  name="search"
+                  id="search"
                 />
               </BoxNimbus>
             )}
-
-            {/* Tag Filter */}
-            <BoxNimbus display="flex" flexDirection="column" gap="1">
-              <Text fontSize="caption" fontWeight="medium" color="neutral-textLow">
-                Etiqueta
-              </Text>
-              <TagFilterSelect
-                selectedTagFilter={selectedTagFilter}
-                handleTagFilterChange={handleTagFilterChange}
-                availableReferenceIds={availableReferenceIds}
+            
+            {showFilters && (
+              <ChatFilterPanel
+                channelFilter={channelFilter}
+                onChannelFilterChange={handleChannelFilterChange}
+                availableChannels={availableChannelTypes}
+                selectedAtendimentoTags={selectedAtendimentoTags}
+                onAtendimentoTagsChange={handleAtendimentoTagsChange}
+                selectedCartFilter={selectedTagFilter}
+                onCartFilterChange={handleTagFilterChange}
               />
-            </BoxNimbus>
-          </BoxNimbus>
+            )}
+          </>
         )}
 
       </BoxNimbus>
