@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -339,6 +339,14 @@ export default function ConversationNav({
   const [showSearch, setShowSearch] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (channelFilter !== 'all') count++;
+    if (selectedAtendimentoTags.length > 0) count++;
+    if (selectedTagFilter !== 'all') count++;
+    return count;
+  }, [channelFilter, selectedAtendimentoTags, selectedTagFilter]);
+
   const renderContent = (
     <>
       {/* Reconnection Banner */}
@@ -548,6 +556,7 @@ export default function ConversationNav({
               unreadMessagesCount={unreadMessagesCount}
               onFilterClick={() => setShowFilters(!showFilters)}
               filtersActive={showFilters}
+              activeFilterCount={activeFilterCount}
             />
 
             {showSearch && !collapseDesktop && (
