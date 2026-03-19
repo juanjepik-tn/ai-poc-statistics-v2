@@ -9,6 +9,7 @@ export const conversationReferenceIds = [
   'customize_order',
   'wholesale_order',
   'get_order_status',
+  'human_request',
   // Just a fallback
   'unknown'
 ];

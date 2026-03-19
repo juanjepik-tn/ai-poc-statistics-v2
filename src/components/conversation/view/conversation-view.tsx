@@ -86,30 +86,45 @@ export default function ConversationView({
   
   // State for "No leído" filter - needs to be before filteredConversations
   const [neeedAttention, setNeedAttention] = useState<boolean>(false);
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string>('all');
+  const [selectedAtendimentoTags, setSelectedAtendimentoTags] = useState<string[]>([]);
 
-  // Filter conversations by channel AND by "No leído" (includes CTH)
+  const CART_FILTER_TAGS = new Set(['cart-sent', 'cart-abandoned', 'link-checkout', 'one-click-payment']);
+
   const filteredConversations = useMemo(() => {
     let filtered = conversations;
     
-    // Apply channel filter
     if (channelFilter !== 'all') {
       filtered = filtered.filter((conv: any) => 
         conv.channel?.channelType === channelFilter
       );
     }
     
-    // When "No leído" filter is active, include conversations with:
-    // - unreadMessages > 0 OR
-    // - undoneHumanAttentionTags.length > 0 (CTH)
     if (neeedAttention) {
       filtered = filtered.filter((conv: any) => 
         (conv.unreadMessages > 0) || 
         (conv.customer?.undoneHumanAttentionTags?.length > 0)
       );
     }
+
+    if (selectedAtendimentoTags.length > 0) {
+      const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '_');
+      const normalizedSelected = new Set(selectedAtendimentoTags.map(normalize));
+      filtered = filtered.filter((conv: any) => {
+        const humanTags: any[] = conv.customer?.undoneHumanAttentionTags || [];
+        return humanTags.some((tag: any) => normalizedSelected.has(normalize(tag.name ?? '')));
+      });
+    }
+
+    if (CART_FILTER_TAGS.has(selectedTagFilter)) {
+      filtered = filtered.filter((conv: any) => {
+        const taggedTags: any[] = conv.customer?.undoneTaggedTags || [];
+        return taggedTags.some((tag: any) => tag.name === selectedTagFilter);
+      });
+    }
     
     return filtered;
-  }, [conversations, channelFilter, neeedAttention]);
+  }, [conversations, channelFilter, neeedAttention, selectedTagFilter, selectedAtendimentoTags]);
 
   //Paginación de las conversaciones anteriores
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -131,7 +146,6 @@ export default function ConversationView({
   const { t } = useTranslation('translations');
   const { request } = useFetch();
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedTagFilter, setSelectedTagFilter] = useState<string>('all');
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const [markAsResolved, setMarkAsResolved] = useState<boolean>(false);
   const [isChannelConnected, setIsChannelConnected] = useState<boolean>(false);
@@ -271,7 +285,7 @@ export default function ConversationView({
     if (searchQueryFilter) {
       queryParts.push(`search=${searchQueryFilter}`);
     }
-    if (tagFilter !== 'all') {
+    if (tagFilter !== 'all' && !CART_FILTER_TAGS.has(tagFilter)) {
       queryParts.push(`tagName=${tagFilter}`);
     }
     const query = queryParts.join('&');
@@ -1030,6 +1044,82 @@ export default function ConversationView({
     }).catch((err) => console.error('Error marking as read:', err));
   }, []);
 
+  // Bulk selection state
+  const [selectedConversationIds, setSelectedConversationIds] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+
+  const handleToggleSelection = useCallback((conversationId: string) => {
+    setSelectedConversationIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(conversationId)) {
+        next.delete(conversationId);
+      } else {
+        next.add(conversationId);
+      }
+      if (next.size === 0) {
+        setSelectionMode(false);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleEnterSelectionMode = useCallback((conversationId?: string) => {
+    setSelectionMode(true);
+    setSelectedConversationIds(conversationId ? new Set([conversationId]) : new Set());
+  }, []);
+
+  const handleExitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedConversationIds(new Set());
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    const allIds = new Set((filteredConversations || []).map((c: any) => c.id).filter(Boolean));
+    setSelectedConversationIds(allIds);
+  }, [filteredConversations]);
+
+  const handleBulkMarkAsRead = useCallback(() => {
+    const ids = Array.from(selectedConversationIds);
+    Promise.all(
+      ids.map((id) =>
+        request<any>({ url: API_ENDPOINTS.conversation.markAsRead(id), method: 'PUT' })
+      )
+    ).then(() => {
+      setConversations((prev) =>
+        prev.map((conv: any) =>
+          selectedConversationIds.has(conv.id)
+            ? { ...conv, unreadMessages: 0, manuallyMarkedUnread: false }
+            : conv
+        )
+      );
+      getUnreadConversations();
+      handleExitSelectionMode();
+    }).catch((err) => console.error('Error bulk marking as read:', err));
+  }, [selectedConversationIds, handleExitSelectionMode]);
+
+  const handleBulkMarkAsUnread = useCallback(() => {
+    const ids = Array.from(selectedConversationIds);
+    Promise.all(
+      ids.map((id) =>
+        request<any>({ url: API_ENDPOINTS.conversation.markAsUnread(id), method: 'PUT' })
+      )
+    ).then(() => {
+      setConversations((prev) =>
+        prev.map((conv: any) =>
+          selectedConversationIds.has(conv.id)
+            ? { ...conv, unreadMessages: Math.max(conv.unreadMessages, 1), manuallyMarkedUnread: true }
+            : conv
+        )
+      );
+      if (currentConversation?.id && selectedConversationIds.has(currentConversation.id)) {
+        setCurrentConversation(undefined);
+        setChatMessages([]);
+      }
+      getUnreadConversations();
+      handleExitSelectionMode();
+    }).catch((err) => console.error('Error bulk marking as unread:', err));
+  }, [selectedConversationIds, currentConversation?.id, handleExitSelectionMode]);
+
   // Handler for assigning conversation (Feature 5)
   const handleAssignConversation = useCallback((conversationId: string, assignee: any) => {
     request<any>({
@@ -1089,7 +1179,7 @@ export default function ConversationView({
     
     const queryParts = [`attention=${neeedAttention}`, `length=20`];
     if (searchQuery) queryParts.push(`search=${searchQuery}`);
-    if (selectedTagFilter !== 'all') queryParts.push(`tagName=${selectedTagFilter}`);
+    if (selectedTagFilter !== 'all' && !CART_FILTER_TAGS.has(selectedTagFilter)) queryParts.push(`tagName=${selectedTagFilter}`);
     const query = queryParts.join('&');
 
     request<any[]>({
@@ -1149,7 +1239,10 @@ export default function ConversationView({
         setPage(0);
         setSelectedTagFilter(tag);
       }}
-      availableReferenceIds={availableReferenceIds}
+      handleAtendimentoFilter={(tags: string[]) => {
+        setPage(0);
+        setSelectedAtendimentoTags(tags);
+      }}
       markAsResolved={markAsResolved}
       storeSelectedMode={selectedMode}
       unreadMessagesCount={unreadMessagesCount}
@@ -1160,6 +1253,14 @@ export default function ConversationView({
       activeSegmentFilter={activeSegmentFilter}
       onRefresh={handleRefresh}
       isRefreshing={isRefreshing}
+      selectionMode={selectionMode}
+      selectedConversationIds={selectedConversationIds}
+      onToggleSelection={handleToggleSelection}
+      onEnterSelectionMode={handleEnterSelectionMode}
+      onExitSelectionMode={handleExitSelectionMode}
+      onSelectAll={handleSelectAll}
+      onBulkMarkAsRead={handleBulkMarkAsRead}
+      onBulkMarkAsUnread={handleBulkMarkAsUnread}
     />
   );
 
